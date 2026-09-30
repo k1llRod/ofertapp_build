@@ -1,0 +1,120 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: ofertapp-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-ofertapp}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: ofertapp-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    container_name: ofertapp-auth-service
+    restart: always
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-ofertapp}
+      SECRET_KEY: ${SECRET_KEY:-ofertapp_super_secret_jwt_key_2026}
+      PORT: 8001
+    ports:
+      - "8001:8001"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  transactions-service:
+    build:
+      context: ./services/transactions-service
+      dockerfile: Dockerfile
+    container_name: ofertapp-transactions-service
+    restart: always
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-ofertapp}
+      NOTIFICATIONS_SERVICE_URL: http://notifications-services:8003
+      AUTH_SERVICE_URL: http://auth-service:8001
+      PORT: 8002
+    ports:
+      - "8002:8002"
+    depends_on:
+      db:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+
+  notifications-services:
+    build:
+      context: ./services/notifications-services
+      dockerfile: Dockerfile
+    container_name: ofertapp-notifications-services
+    restart: always
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-ofertapp}
+      AUTH_SERVICE_URL: http://auth-service:8001
+      REDIS_URL: redis://redis:6379/0
+      PORT: 8003
+    ports:
+      - "8003:8003"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  reports-service:
+    build:
+      context: ./services/reports-service
+      dockerfile: Dockerfile
+    container_name: ofertapp-reports-service
+    restart: always
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-ofertapp}
+      PORT: 8004
+    ports:
+      - "8004:8004"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: ofertapp-api-gateway
+    restart: always
+    environment:
+      PORT: 8000
+      AUTH_SERVICE_URL: http://auth-service:8001
+      TRANSACTIONS_SERVICE_URL: http://transactions-service:8002
+      NOTIFICATIONS_SERVICE_URL: http://notifications-services:8003
+      REPORTS_SERVICE_URL: http://reports-service:8004
+      SECRET_KEY: ${SECRET_KEY:-ofertapp_super_secret_jwt_key_2026}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth-service
+      - transactions-service
+      - notifications-services
+      - reports-service
+
+volumes:
+  postgres_data:

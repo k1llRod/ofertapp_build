@@ -1,45 +1,52 @@
 # 🏷️ Ofertapp
 
-**Ofertapp** es una plataforma integral diseñada como un repositorio geolocalizado de ofertas de servicios y productos en una ciudad. La solución combina un catálogo dinámico de promociones con un motor de perfilado de gustos e intereses del usuario, permitiendo filtrar ofertas personalizadas, encontrar las opciones más cercanas en tiempo real y disparar alertas proactivas ante nuevas promociones de su interés.
+**Ofertapp** es una plataforma integral diseñada como un repositorio geolocalizado de ofertas de servicios y productos en una ciudad. La solución combina un catálogo dinámico de promociones con un motor de perfilado de gustos e intereses del usuario, interfaces dedicadas para **Administradores** (con alta y gestión completa de usuarios, permisos y configuraciones globales), **Comercios (Portal de Negocio)** y **Consumidores**, un sistema granular de **permisos y configuraciones**, y visualización de locales en **mapas interactivos estilo Google Maps**.
 
 ---
 
 ## 🏗️ Arquitectura del Sistema
 
-La arquitectura está basada en microservicios desacoplados expuestos a través de un **API Gateway**, con comunicación síncrona vía HTTP/REST y asíncrona mediante un **Message/Event Broker** (RabbitMQ / Redis) para procesamiento de notificaciones y generación de reportes en segundo plano. La persistencia se gestiona en **PostgreSQL** con la extensión geoespacial **PostGIS**.
+La arquitectura está basada en microservicios desacoplados expuestos a través de un **API Gateway**, con comunicación síncrona vía HTTP/REST y asíncrona mediante un **Message/Event Broker** (RabbitMQ / Redis). Soporta consultas geoespaciales con **PostGIS / Haversine** y mapas interactivos cliente (**Leaflet / Google Maps API**).
 
 ```mermaid
 flowchart TD
-    subgraph Client["📱 Capa de Cliente"]
-        FLUTTER["Flutter App (Android / Multiplataforma)"]
+    subgraph Clients["🖥️ Capa de Interfaces y Portales"]
+        ADMIN["🛡️ Portal Administrador\n(Alta y Control de Usuarios, Permisos & Configs)"]
+        MERCHANT["🏪 Portal Comercio / Negocio\n(Gestión de Ofertas & Mapa Local)"]
+        CONSUMER["📱 App Consumidor / Flutter\n(Feed por Gustos & Mapa de Ciudad)"]
     end
 
     subgraph Gateway["🚪 Punto Único de Entrada"]
-        APIGW["API Gateway (FastAPI)"]
+        APIGW["API Gateway (FastAPI)\nProxy Inverso, Auth JWT & Web App"]
     end
 
     subgraph Services["⚙️ Ecosistema de Microservicios"]
-        AUTH["auth-service\n(Autenticación & Perfil de Gustos)"]
+        AUTH["auth-service\n(Autenticación, Permisos, Gustos & Configs)"]
         TRANS["transactions-service\n(Catálogo, Categorías & Geo-Promociones)"]
         NOTIF["notifications-services\n(Motor de Alertas & Push)"]
         REPORTS["reports-service\n(Reportes & Métricas Automáticas)"]
     end
 
-    subgraph Messaging["📬 Bus de Eventos Asíncronos"]
-        BROKER["Event Broker (Redis / RabbitMQ)"]
+    subgraph MapEngine["🗺️ Motor de Mapas & Coordenadas"]
+        LEAFLET["Leaflet / Google Maps Engine\n(Pines Interactivos, Drag & Drop, Radios GPS)"]
     end
 
-    subgraph Storage["🗄️ Capa de Datos"]
-        DB_AUTH[("PostgreSQL\nAuth & Gustos")]
-        DB_TRANS[("PostgreSQL + PostGIS\nProductos & Promociones")]
-        DB_NOTIF[("PostgreSQL\nHistorial Notificaciones")]
+    subgraph Storage["🗄️ Capa de Persistencia"]
+        DB_AUTH[("PostgreSQL\nUsuarios, Roles, Gustos & Config")]
+        DB_TRANS[("PostgreSQL + PostGIS\nProductos, Promociones & Coordenadas")]
+        DB_NOTIF[("PostgreSQL\nHistorial de Alertas")]
         DB_REPORTS[("PostgreSQL\nReportes & Estadísticas")]
     end
 
-    FLUTTER -->|Peticiones HTTPS / REST| APIGW
+    ADMIN -->|HTTPS / REST| APIGW
+    MERCHANT -->|HTTPS / REST| APIGW
+    CONSUMER -->|HTTPS / REST| APIGW
 
-    APIGW -->|Rutas /auth| AUTH
-    APIGW -->|Rutas /promotions| TRANS
+    MERCHANT <--> LEAFLET
+    CONSUMER <--> LEAFLET
+
+    APIGW -->|Rutas /admin, /auth, /tastes| AUTH
+    APIGW -->|Rutas /promotions, /categories, /merchants| TRANS
     APIGW -->|Rutas /notifications| NOTIF
     APIGW -->|Rutas /reports| REPORTS
 
@@ -48,79 +55,109 @@ flowchart TD
     NOTIF --> DB_NOTIF
     REPORTS --> DB_REPORTS
 
-    TRANS -.->|Evento: Nueva Promoción Creada| BROKER
-    BROKER -.->|Consumir evento de promoción| NOTIF
-    BROKER -.->|Consumir evento de transacción/vistas| REPORTS
-
-    NOTIF -.->|Push Notifications| FLUTTER
+    TRANS -.->|Evento: Nueva Promoción Creada| NOTIF
+    TRANS -.->|Evento de Interacción| REPORTS
+    NOTIF -.->|Alertas Push| CONSUMER
 ```
 
 ---
 
-## 🧩 Propósito de Cada Componente
+## 👥 Interfaces y Portales del Sistema
 
-### 1. 📱 Frontend (`/frontend`)
-* **Tecnología**: Flutter (Dart) orientado a Android y soporte multiplataforma.
-* **Propósito**:
-  * **Pantalla de Inicio (Feed Principal)**: Muestra el catálogo de ofertas y promociones vigentes al usuario común, ordenadas y filtradas por dos criterios clave:
-    * **Personalización**: Ofertas que coinciden con los gustos y categorías favoritas del usuario.
-    * **Proximidad Geográfica**: Ofertas más cercanas a la posición GPS actual del usuario calculando distancia en tiempo real.
-  * **Módulo de Registro de Promociones**: Interfaz administrativa y de comercios para publicar promociones (título, descripción, precio/descuento, fotos, categorías/etiquetas, geolocalización del local y fechas de vigencia).
-  * **Configuración de Preferencias / Gustos**: Pantalla donde el usuario selecciona sus categorías de interés (ej. gastronomía, tecnología, indumentaria, belleza) y radio de búsqueda preferido.
-  * **Bandeja y Recepción de Alertas**: Recepción de notificaciones push cuando se publica una oferta que encaja con sus gustos o ubicación.
-
----
-
-### 2. 🚪 API Gateway (`/api-gateway`)
-* **Tecnología**: FastAPI (Python) + Uvicorn.
-* **Propósito**:
-  * Funciona como el punto de entrada unificado (*Single Entry Point*) para la aplicación Flutter.
-  * **Enrutamiento y Proxy Inverso**: Redirige las peticiones al microservicio correspondiente (`/api/v1/auth`, `/api/v1/promotions`, `/api/v1/notifications`, `/api/v1/reports`).
-  * **Autenticación Centralizada**: Validación de tokens JWT en peticiones protegidas antes de delegar la llamada al microservicio de destino.
-  * **Control de Tráfico y Seguridad**: Rate limiting, políticas CORS y normalización de respuestas y errores.
+### 1. 🛡️ Portal Administrador (`Admin Portal`)
+* **Propósito**: Panel de control total para supervisar la plataforma, gobernar usuarios y modificar parámetros de negocio.
+* **Funcionalidades Clave**:
+  * **Alta y Creación de Usuarios (`POST /admin/users`)**: Los administradores pueden registrar y dar de alta directamente nuevos usuarios, comercios u otros administradores desde el panel web o API, especificando su nombre, email, contraseña inicial, teléfono y rol (`user`, `merchant`, `admin`).
+  * **Gestión de Permisos y Roles (`PUT /admin/users/{id}/role` y `PUT /admin/users/{id}`)**: Listado interactivo en tiempo real de todos los usuarios registrados, asignación dinámica de roles en vivo, suspensión/activación inmediata de cuentas y eliminación permanente (`DELETE /admin/users/{id}`).
+  * **Administración de Configuraciones del Sistema**: Interfaz para editar y persistir parámetros operativos globales:
+    * `default_search_radius_km`: Radio de búsqueda por defecto en la ciudad.
+    * `max_search_radius_km`: Radio máximo permitido para filtrar ofertas.
+    * `default_map_lat` y `default_map_lon`: Coordenadas centrales por defecto del mapa.
+    * `auto_push_notifications`: Habilitar o pausar el despacho masivo de alertas por gustos.
+    * `max_promotions_per_merchant`: Límite máximo de ofertas simultáneas por comercio.
+    * `require_merchant_verification`: Exigir aprobación manual antes de publicar.
+  * **Gestión de Categorías (CRUD)**: Creación, edición y eliminación de categorías del catálogo general con sus respectivos iconos y slugs.
 
 ---
 
-### 3. 🔐 Microservicio de Autenticación (`/services/auth-service`)
-* **Tecnología**: FastAPI + SQLAlchemy / Tortoise ORM + PostgreSQL.
-* **Propósito**:
-  * **Gestión de Cuentas y Seguridad**: Registro de usuarios, inicio de sesión, generación y rotación de tokens JWT, control de roles (`comercio`, `usuario`, `administrador`).
-  * **Base de Datos de Gustos del Usuario**: Almacenamiento y gestión del perfil de intereses (tags, categorías favoritas, marcas preferidas, rango de distancia máxima deseada para alertas).
-  * Exposición de endpoints para que otros servicios consulten las audiencias objetivo según gustos.
+### 2. 🏪 Portal de Comercio / Negocio (`Merchant Portal`)
+* **Propósito**: Espacio de trabajo para los comercios locales donde administran su catálogo y ubicación geográfica.
+* **Funcionalidades Clave**:
+  * **Gestión de Promociones**: Listado de ofertas propias con estado en tiempo real (Activa / Pausada), contador de visualizaciones y opción de eliminar o editar.
+  * **Integración de Coordenadas con Mapa Interactivo (estilo Google Maps)**:
+    * Mapa interactivo integrado donde el comerciante puede hacer clic o arrastrar un pin/marcador hacia la ubicación exacta de su local.
+    * Captura automática y sincronización de `latitud`, `longitud` y dirección.
+    * Visualización del radio de alcance geográfico de la oferta.
+  * **Segmentación por Gustos**: Definición de etiquetas clave (`tags`) que dispararán alertas a los clientes afines en la zona.
 
 ---
 
-### 4. 🏷️ Microservicio de Transacciones y Catálogo (`/services/transactions-service`)
-* **Tecnología**: FastAPI + GeoAlchemy2 + PostgreSQL con extensión **PostGIS**.
-* **Propósito**:
-  * **Registro y Categorización**: CRUD de comercios, productos, servicios y promociones con su categorización jerárquica y etiquetas de contenido.
-  * **Búsqueda Geoespacial**: Consulta de ofertas cercanas al usuario utilizando funciones nativas de PostGIS (`ST_DWithin`, `ST_Distance`) a partir de la latitud y longitud enviadas por la app.
-  * **Filtrado Combinado**: Cruce de ofertas por proximidad y categorías coincidentes con los gustos del usuario.
-  * **Publicación de Eventos**: Cada vez que se activa o registra una nueva promoción, emite un evento `PromotionActivatedEvent` al bus de eventos para que el servicio de notificaciones reaccione de inmediato.
+### 3. 📱 Interfaz de Consumidor / Usuario Final (`Client App`)
+* **Propósito**: Aplicación móvil y web para descubrir ofertas, filtradas por proximidad y afinidad de gustos, con opción de búsqueda directa.
+* **Funcionalidades Clave**:
+  * **Creación de Cuenta Personal (Autoregistro)**:
+    * Permite que los usuarios creen su propia cuenta (`POST /auth/register`) con nombre, correo y contraseña.
+    * Al iniciar sesión (`POST /auth/login`), sus gustos e intereses quedan guardados de forma persistente en la nube.
+    * Funciona tanto para usuarios registrados como en modo invitado (con almacenamiento local de prueba).
+  * **Configurador de Gustos (Agregar y Quitar Preferencias)**:
+    * **Categorías**: Selección interactiva de categorías favoritas (activar/desactivar con un clic).
+    * **Etiquetas y Palabras Clave (Tags)**: Sistema dinámico con chips donde el usuario puede **agregar nuevos gustos** (ej: `pizza`, `sushi`, `zapatillas`, `auriculares`) y **quitar gustos existentes** pulsando sobre la `✕` de cada etiqueta.
+    * **Radio de Notificación**: Selector deslizante del radio GPS deseado (5 km, 10 km, 15 km, 25 km).
+    * Al guardar, los cambios se persisten mediante `PUT /api/v1/tastes/me` y `DELETE /api/v1/tastes/me/{category_id}`.
+  * **Buscador de Promociones**:
+    * Buscador integrado en la cabecera del feed que permite buscar ofertas por texto libre (nombre de producto, plato, tienda o tag).
+    * **Diseñado especialmente para usuarios que no tienen gustos configurados** o que desean explorar ofertas específicas fuera de su perfil habitual.
+    * Soporta limpieza rápida de búsqueda (`✕`), filtrado en tiempo real y mensaje con sugerencias cuando no hay coincidencias.
+  * **Feed Personalizado**: Listado clasificado con insignias de descuento (*-50% OFF*), indicador de distancia (*a 70 m*, *a 340 m*) y badge de afinidad (*⭐ Tus gustos*).
+  * **Mapa de Ofertas de la Ciudad**:
+    * Vista completa interactiva estilo Google Maps que muestra la posición GPS actual del usuario (marcador azul pulsante) y los locales con ofertas como pines personalizados.
+    * Al tocar un pin se abre una ficha emergente con foto, descuento, distancia y botón para canjear cupón o trazar ruta.
+  * **Bandeja de Alertas**: Notificaciones proactivas recibidas cuando un negocio cercano activa una oferta compatible con su perfil de gustos.
 
 ---
 
-### 5. 🔔 Microservicio de Notificaciones (`/services/notifications-services`)
-* **Tecnología**: FastAPI + Celery / Background Workers + Firebase Cloud Messaging (FCM).
-* **Propósito**:
-  * **Motor de Matching de Alertas**: Escucha eventos de nuevas promociones creadas en el sistema, consulta los usuarios cuyos gustos coincidan con la categoría/tags de la oferta y que se encuentren dentro del radio de alcance geográfico.
-  * **Despacho Multicanal**: Envío de alertas Push a dispositivos móviles (FCM), notificaciones in-app y correo electrónico según preferencias del usuario.
-  * **Historial de Notificaciones**: Registro de alertas enviadas y estado de lectura.
+## 🧩 Propósito de Cada Pieza del Backend
+
+### 1. `auth-service` (Puerto 8001)
+* **Autenticación & Autoregistro**: Registro de nuevas cuentas de consumidores (`POST /auth/register`), login seguro con `bcrypt` y tokens `JWT` (`POST /auth/login`).
+* **Perfilado y CRUD de Gustos**: Gestión completa de preferencias del usuario (`GET /tastes/me`, `PUT /tastes/me`, `DELETE /tastes/me/{category_id}`).
+* **Control de Usuarios & Roles**: Endpoints administrativos (`POST /admin/users`, `GET /admin/users`, `PUT /admin/users/{id}/role`, `DELETE /admin/users/{id}`).
+* **Configuraciones Globales**: Endpoints de configuración (`GET /admin/settings`, `PUT /admin/settings/{key}`).
+* **Matching de Audiencia**: Motor interno para cruzar coordenadas de una oferta con los usuarios que tengan ese gusto dentro del radio.
+
+### 2. `transactions-service` (Puerto 8002)
+* **Catálogo & Geo-Promociones**: CRUD de promociones con persistencia de coordenadas (`latitude`, `longitude`, `address`).
+* **Buscador Libre & Filtro de Proximidad**: Endpoint `GET /promotions/feed` con soporte de búsqueda por texto libre (`?search=...`), filtrado por categoría (`?category_id=...`), radio máximo (`?max_distance_km=...`) y ordenamiento por gustos afines (`?taste_tags=...` y `?taste_categories=...`).
+* **Portal de Comercios**: Endpoints específicos para comercios (`GET /merchants/{id}/promotions`, `PATCH /promotions/{id}/toggle-status`, `PUT /promotions/{id}`).
+* **Disparo de Eventos**: Notifica al servicio de alertas al darse de alta una oferta.
+
+### 3. `notifications-services` (Puerto 8003)
+* **Motor de Alertas Georreferenciadas**: Procesa eventos de ofertas, consulta en `auth-service` los usuarios compatibles en la zona y genera alertas Push/in-app personalizadas.
+* **Historial de Notificaciones**: Gestión de alertas leídas/no leídas.
+
+### 4. `reports-service` (Puerto 8004)
+* **Reportes Automáticos**: Métricas consolidadas de visualizaciones, ahorro estimado en la ciudad y mapa de demanda de gustos por zonas urbanas.
+
+### 5. `api-gateway` (Puerto 8000)
+* Punto único de entrada, proxy inverso, inyección de roles JWT, CORS y servidor de la **Aplicación Web Interactiva** en `/app`.
 
 ---
 
-### 6. 📊 Microservicio de Reportes (`/services/reports-service`)
-* **Tecnología**: FastAPI + Pandas / Polars / ReportLab + Tareas Programadas (Cron/Workers).
-* **Propósito**:
-  * **Reportes Automáticos**: Generación periódica de métricas de rendimiento para los comercios (número de visualizaciones de promociones, interacciones, clics en mapa/cómo llegar).
-  * **Analítica de Demanda y Gustos**: Identificación de las categorías y gustos más buscados por zona o barrio en la ciudad para ayudar a los comercios a crear ofertas más efectivas.
-  * **Exportación de Documentos**: Generación de reportes en PDF y Excel disponibles para descarga o envío automático por correo.
+## 📋 Matriz de CRUD por Microservicio (Crear, Leer, Escribir y Borrar)
 
----
+Cada módulo de Ofertapp cuenta con su propio ciclo CRUD completo e independiente:
 
-### 7. 🗄️ Base de Datos y Servicios de Soporte
-* **PostgreSQL + PostGIS**: Almacenamiento relacional y geoespacial robusto, garantizando consultas espaciales ultrarrápidas sobre coordenadas de comercios y promociones.
-* **Message / Event Broker (RabbitMQ o Redis)**: Permite la comunicación desacoplada y asíncrona entre `transactions-service`, `notifications-services` y `reports-service`.
+| Microservicio | Módulo / Entidad | Crear (Create) | Leer (Read) | Escribir / Editar (Update) | Borrar (Delete) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **`auth-service`** | **Cuentas de Consumidor** | `POST /auth/register` *(Autoregistro público)* | `GET /auth/me` | `PUT /auth/me` | `DELETE /admin/users/{id}` |
+| **`auth-service`** | **Usuarios (Admin)** | `POST /admin/users` *(Alta de usuarios, comercios y admins)* | `GET /admin/users`<br>`GET /admin/users/{id}` | `PUT /admin/users/{id}`<br>`PUT /admin/users/{id}/role` | `DELETE /admin/users/{id}` |
+| **`auth-service`** | **Perfil de Gustos** | `PUT /tastes/me` *(Crear o sustituir gustos)* | `GET /tastes/me` | `PUT /tastes/me` | `DELETE /tastes/me/{category_id}` *(Quitar gusto)* |
+| **`auth-service`** | **Categorías de Gustos** | `POST /admin/categories` | `GET /tastes/categories`<br>`GET /admin/categories/{id}` | `PUT /admin/categories/{id}` | `DELETE /admin/categories/{id}` |
+| **`auth-service`** | **Configuraciones Globales** | `POST /admin/settings` | `GET /admin/settings`<br>`GET /admin/settings/{key}` | `PUT /admin/settings/{key}` | `DELETE /admin/settings/{key}` |
+| **`transactions-service`** | **Promociones & Buscador** | `POST /promotions` | `GET /promotions/feed?search=...`<br>`GET /promotions/{id}`<br>`GET /merchants/{id}/promotions` | `PUT /promotions/{id}`<br>`PATCH /promotions/{id}/toggle-status` | `DELETE /promotions/{id}` |
+| **`transactions-service`** | **Categorías del Catálogo** | `POST /categories` | `GET /categories`<br>`GET /categories/{id}` | `PUT /categories/{id}` | `DELETE /categories/{id}` |
+| **`notifications-services`** | **Alertas / Notificaciones** | `POST /events/promotion-created`<br>`POST /notifications` | `GET /notifications/user/{id}`<br>`GET /notifications/{id}` | `PUT /notifications/{id}/read`<br>`PUT /notifications/{id}` | `DELETE /notifications/{id}`<br>`DELETE /notifications/user/{id}` |
+| **`reports-service`** | **Reportes Analíticos** | `POST /reports/custom` | `GET /reports/dashboard-summary`<br>`GET /reports/merchant/{id}`<br>`GET /reports/zone-demand`<br>`GET /reports/custom` | `PUT /reports/custom/{id}` | `DELETE /reports/custom/{id}` |
 
 ---
 
@@ -128,51 +165,44 @@ flowchart TD
 
 ```text
 ofertapp/
-├── README.md                      # Documentación general y arquitectura
-├── docker-compose.yml             # Orquestación de contenedores locales
-├── api-gateway/                   # Punto de entrada FastAPI (routing y JWT)
-│   ├── app/
-│   ├── Dockerfile
-│   └── requirements.txt
+├── README.md                      # Documentación completa y arquitectura
+├── docker-compose.yml             # Orquestación de PostgreSQL PostGIS, Redis y microservicios
+├── run_services.py                # Runner local para levantar todos los microservicios con un comando
+├── requirements.txt               # Dependencias de Python consolidadas
+├── api-gateway/                   # Gateway FastAPI y servidor Web
+│   ├── web/
+│   │   └── index.html             # App Web con Portales (Admin, Comercio con Mapa, Consumidor)
+│   ├── main.py
+│   └── Dockerfile
 ├── services/
-│   ├── auth-service/              # Autenticación, usuarios y gustos
-│   │   ├── app/
-│   │   ├── Dockerfile
-│   │   └── requirements.txt
-│   ├── transactions-service/      # Promociones, productos, categorías y PostGIS
-│   │   ├── app/
-│   │   ├── Dockerfile
-│   │   └── requirements.txt
-│   ├── notifications-services/    # Despacho de alertas y push por gustos
-│   │   ├── app/
-│   │   ├── Dockerfile
-│   │   └── requirements.txt
-│   └── reports-service/          # Reportes analíticos automáticos
-│       ├── app/
-│       ├── Dockerfile
-│       └── requirements.txt
-└── frontend/                      # Aplicación móvil Flutter
+│   ├── auth-service/              # Autenticación, usuarios, roles, gustos y configuraciones
+│   ├── transactions-service/      # Promociones, catálogo, mapa geoespacial y portal comercio
+│   ├── notifications-services/    # Despacho de alertas y notificaciones por gustos
+│   └── reports-service/          # Reportes analíticos de demanda y métricas
+└── frontend/                      # Aplicación móvil Flutter (Material 3)
     ├── lib/
-    ├── pubspec.yaml
-    └── ...
+    │   ├── screens/               # Pantallas (Feed, Registro, Gustos, Notificaciones)
+    │   ├── widgets/               # Widgets (Tarjetas, Encabezado GPS, Pines)
+    │   └── models/                # Modelos de datos
+    └── pubspec.yaml
 ```
 
 ---
 
-## 🔄 Flujos Clave del Negocio
+## 🚀 Cómo Ejecutar el Sistema
 
-### Flujo A: Visualización Personalizada y por Cercanía (Pantalla Principal)
-1. El usuario abre la app Flutter.
-2. La app obtiene la ubicación actual vía GPS (latitud y longitud) y el token JWT de sesión.
-3. Se realiza una solicitud a `GET /api/v1/promotions/feed?lat={lat}&lng={lng}` a través del API Gateway.
-4. El `transactions-service` filtra las ofertas activas ordenándolas por:
-   * Coincidencia con la base de datos de gustos del usuario registrada en `auth-service`.
-   * Proximidad en kilómetros (cálculo PostGIS).
-5. La pantalla principal renderiza el listado priorizado con indicador de distancia (ej. "A 350 m de ti").
+### Ejecución Local Rápida (Recomendada):
+```powershell
+cd d:\antigravity\ofertapp
 
-### Flujo B: Registro de Promoción y Disparo de Alertas Automáticas
-1. Un comercio da de alta una oferta desde la interfaz de registro indicando categoría, tags, descuento, vigencia y ubicación del local.
-2. La petición viaja por el API Gateway hasta `transactions-service`, donde se guarda en la base de datos.
-3. `transactions-service` publica el evento `PromotionCreated` en el Event Broker.
-4. `notifications-services` consume el evento, identifica qué usuarios tienen registrados gustos coincidentes con la promoción y se encuentran en la zona geográfica correspondiente.
-5. Se dispara una notificación Push personalizada a los dispositivos de los usuarios seleccionados: *"¡Nueva oferta de tu interés cerca de ti!"*.
+# 1. Activar entorno virtual
+.\.venv\Scripts\Activate.ps1
+
+# 2. Levantar todos los microservicios y el API Gateway
+python run_services.py
+```
+
+### URLs de Acceso:
+* **📱 Plataforma Web (Consumidor, Portal Comercio & Admin):** [http://127.0.0.1:8000/app](http://127.0.0.1:8000/app)
+* **📚 Documentación Interactiva Swagger (API Gateway):** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+* **🩺 Healthcheck Global:** [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health)

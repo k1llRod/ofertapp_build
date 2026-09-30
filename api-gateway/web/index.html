@@ -1,0 +1,2224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ofertapp - Plataforma Integral (Usuario, Portal Comercio & Administrador)</title>
+  <!-- Leaflet CSS & JS para Mapas estilo Google Maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <style>
+    :root {
+      --primary: #FF5722;
+      --primary-dark: #E64A19;
+      --secondary: #00897B;
+      --accent: #FFA000;
+      --bg: #F1F5F9;
+      --card-bg: #FFFFFF;
+      --text: #0F172A;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { background: #0B1120; color: var(--text); min-height: 100vh; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+
+    /* Role Switcher Toolbar */
+    .role-switcher-bar {
+      width: 100%;
+      max-width: 520px;
+      background: #1E293B;
+      border: 1px solid #334155;
+      padding: 6px;
+      border-radius: 14px;
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .role-btn {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 9px;
+      border: none;
+      background: transparent;
+      color: #94A3B8;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .role-btn.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(255, 87, 34, 0.4);
+    }
+
+    /* Main Container (Mobile Device Viewport) */
+    .app-viewport {
+      width: 100%;
+      max-width: 480px;
+      height: 870px;
+      background: var(--bg);
+      border-radius: 36px;
+      box-shadow: 0 25px 65px rgba(0,0,0,0.7), 0 0 0 10px #1E293B;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Notch */
+    .notch { width: 130px; height: 20px; background: #1E293B; border-bottom-left-radius: 14px; border-bottom-right-radius: 14px; margin: 0 auto; z-index: 1000; }
+
+    /* Header */
+    .header {
+      background: #FFFFFF;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+    }
+    .brand-title { font-size: 18px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 6px; }
+    .badge-portal {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+    .badge-client { background: #E0F2FE; color: #0284C7; }
+    .badge-merchant { background: #FEF3C7; color: #D97706; }
+    .badge-admin { background: #FEE2E2; color: #DC2626; }
+
+    /* Scrollable Container */
+    .scrollable-body {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Map Elements */
+    #city-map, #merchant-loc-map {
+      width: 100%;
+      height: 280px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      z-index: 1;
+    }
+    .map-full {
+      height: 100% !important;
+      border-radius: 0 !important;
+      flex: 1;
+    }
+
+    /* Cards */
+    .promo-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      margin: 10px 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      position: relative;
+    }
+    .promo-card.matched { border: 1.5px solid rgba(255, 87, 34, 0.45); }
+    .promo-card img { width: 100%; height: 130px; object-fit: cover; }
+    .badge-tag { position: absolute; top: 10px; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px; color: #FFF; }
+    .badge-discount { left: 10px; background: var(--primary); }
+    .badge-dist { right: 10px; background: rgba(0,0,0,0.75); }
+    .badge-taste { bottom: 120px; left: 10px; background: #D97706; }
+
+    /* Tables for Admin */
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      background: #FFFFFF;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .admin-table th { background: #F8FAFC; color: #475569; font-weight: 700; padding: 10px; text-align: left; border-bottom: 1px solid var(--border); }
+    .admin-table td { padding: 10px; border-bottom: 1px solid #F1F5F9; color: #1E293B; vertical-align: middle; }
+
+    /* Form Controls */
+    .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+    .form-label { font-size: 12px; font-weight: 700; color: #334155; }
+    .form-input, .form-select, .form-textarea {
+      width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border);
+      font-size: 13px; background: #FFFFFF; outline: none;
+    }
+    .btn-primary {
+      background: var(--primary); color: #FFF; border: none; font-weight: 700; font-size: 13px;
+      padding: 10px 16px; border-radius: 9px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-secondary {
+      background: #E2E8F0; color: #334155; border: none; font-weight: 700; font-size: 12px;
+      padding: 7px 12px; border-radius: 8px; cursor: pointer;
+    }
+
+    /* Bottom Nav */
+    .bottom-nav {
+      background: #FFFFFF;
+      border-top: 1px solid var(--border);
+      display: flex;
+      padding: 6px 0 10px 0;
+      z-index: 10;
+    }
+    .nav-btn {
+      flex: 1; border: none; background: transparent;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      color: #64748B; font-size: 10px; font-weight: 600; cursor: pointer;
+    }
+    .nav-btn.active { color: var(--primary); font-weight: 800; }
+    .nav-btn span:first-child { font-size: 18px; }
+
+    /* Custom Leaflet Pin Styling */
+    .custom-deal-marker {
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+    }
+    .user-gps-marker {
+      background: #0284C7;
+      color: white;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 0 14px rgba(2,132,199,0.8);
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    /* Modals & Overlays */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 16px;
+    }
+    .modal-box {
+      background: #FFFFFF;
+      border-radius: 18px;
+      width: 100%;
+      max-width: 440px;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--border);
+      padding: 18px;
+      animation: modalFadeIn 0.2s ease-out;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #FFF7ED;
+      color: #C2410C;
+      border: 1px solid #FFEDD5;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .tag-chip-del {
+      cursor: pointer;
+      font-weight: 900;
+      color: #EA580C;
+      margin-left: 2px;
+      padding: 0 3px;
+      border-radius: 50%;
+    }
+    .tag-chip-del:hover {
+      background: #FED7AA;
+    }
+    .cat-toggle-chip {
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1.5px solid var(--border);
+      background: #F8FAFC;
+      color: #475569;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+    }
+    .cat-toggle-chip.selected {
+      background: #FFF7ED;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Hamburger Menu Button */
+    .hamburger-btn {
+      background: transparent;
+      border: none;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      color: #1E293B;
+      padding: 6px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease;
+    }
+    .hamburger-btn:hover {
+      background: #F1F5F9;
+    }
+    .hamburger-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Sidebar Navigation Drawer & Backdrop */
+    .drawer-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(3px);
+      z-index: 1050;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .drawer-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .sidebar-drawer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 82%;
+      max-width: 320px;
+      background: #FFFFFF;
+      z-index: 1100;
+      box-shadow: 10px 0 25px rgba(0, 0, 0, 0.25);
+      transform: translateX(-100%);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-drawer.open {
+      transform: translateX(0);
+    }
+    .drawer-menu-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #FFFFFF;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+      width: 100%;
+    }
+    .drawer-menu-item:hover {
+      background: #F8FAFC;
+      border-color: #CBD5E1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Role Switcher (Visible ÚNICAMENTE para Administradores o Comercios autorizados) -->
+  <div class="role-switcher-bar" id="top-role-switcher" style="display: none;">
+    <button class="role-btn active" onclick="switchRole('client')" id="btn-role-client">
+      <span>📱</span> Consumidor
+    </button>
+    <button class="role-btn" onclick="switchRole('merchant')" id="btn-role-merchant" style="display: none;">
+      <span>🏪</span> Portal Comercio
+    </button>
+    <button class="role-btn" onclick="switchRole('admin')" id="btn-role-admin" style="display: none;">
+      <span>🛡️</span> Administrador
+    </button>
+  </div>
+
+  <!-- Mobile Viewport Shell -->
+  <div class="app-viewport">
+    <div class="notch"></div>
+
+    <!-- Menú Hamburguesa: Backdrop y Panel Lateral Deslizable -->
+    <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleSidebar(false)"></div>
+    <div class="sidebar-drawer" id="sidebar-drawer">
+      <!-- Drawer Header -->
+      <div style="padding: 16px 14px 12px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #F8FAFC;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 22px;">🏷️</span>
+          <div>
+            <div style="font-size: 16px; font-weight: 900; color: var(--primary); letter-spacing: -0.5px;">Ofertapp</div>
+            <div style="font-size: 10px; color: var(--text-muted);">Repositorio Urbano de Ofertas</div>
+          </div>
+        </div>
+        <button onclick="toggleSidebar(false)" style="background: #E2E8F0; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 13px; font-weight: 900; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
+      </div>
+
+      <!-- Drawer Body -->
+      <div style="flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 14px;">
+        
+        <!-- Tarjeta de Cuenta de Usuario (Invitado vs Registrado) -->
+        <div id="drawer-user-card" style="background: linear-gradient(135deg, #FFF7ED 0%, #FED7AA 100%); border: 1.5px solid #FDBA74; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 2px 8px rgba(255,87,34,0.08);">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div id="drawer-user-avatar" style="width: 42px; height: 42px; border-radius: 50%; background: #FF5722; color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; box-shadow: 0 2px 6px rgba(255,87,34,0.3);">
+              👤
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div id="drawer-user-name" style="font-weight: 800; font-size: 13px; color: #1E293B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                Invitado
+              </div>
+              <div id="drawer-user-email" style="font-size: 11px; color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                Modo Exploración
+              </div>
+            </div>
+          </div>
+
+          <!-- Acciones de Cuenta integradas al Drawer -->
+          <button id="drawer-btn-auth" class="btn-primary" style="width: 100%; font-size: 11px; padding: 8px 10px; border-radius: 10px; font-weight: 800;" onclick="toggleSidebar(false); openAuthModal('register');">
+            ✨ Crear Cuenta / Iniciar Sesión
+          </button>
+          <button id="drawer-btn-logout" class="btn-secondary" style="display: none; width: 100%; font-size: 11px; padding: 7px; color: #DC2626; border: 1px solid #FECACA; background: #FFF; border-radius: 10px; font-weight: 800;" onclick="toggleSidebar(false); logoutUser();">
+            🚪 Cerrar Sesión
+          </button>
+        </div>
+
+        <!-- Sección de Preferencias & Alertas -->
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="font-size: 10px; font-weight: 800; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 2px;">
+            Mi Configuración
+          </div>
+
+          <!-- Mis Gustos -->
+          <button class="drawer-menu-item" onclick="toggleSidebar(false); openTastesModal();">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 16px;">🎯</span>
+              <div>
+                <div style="font-size: 12px; font-weight: 800; color: #1E293B;">Mis Gustos e Intereses</div>
+                <div style="font-size: 10px; color: #64748B;">Personalizar categorías y tags</div>
+              </div>
+            </div>
+            <span id="drawer-tastes-badge" style="background: #FF5722; color: #FFF; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 999px;">0</span>
+          </button>
+
+          <!-- Centro de Alertas -->
+          <button class="drawer-menu-item" onclick="toggleSidebar(false); openAlertsModal();">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 16px;">🔔</span>
+              <div>
+                <div style="font-size: 12px; font-weight: 800; color: #1E293B;">Centro de Alertas</div>
+                <div style="font-size: 10px; color: #64748B;">Notificaciones georreferenciadas</div>
+              </div>
+            </div>
+            <span style="background: #10B981; color: #FFF; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 6px;">Activo</span>
+          </button>
+
+          <!-- Ubicación GPS -->
+          <div class="drawer-menu-item" style="cursor: default; background: #F8FAFC;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 16px;">📍</span>
+              <div>
+                <div style="font-size: 12px; font-weight: 800; color: #1E293B;">Ubicación GPS</div>
+                <div style="font-size: 10px; color: #64748B;">Centro (-34.6037, -58.3816)</div>
+              </div>
+            </div>
+            <span style="font-size: 10px; background: #DCFCE7; color: #15803D; font-weight: 800; padding: 2px 6px; border-radius: 6px;">Fijada</span>
+          </div>
+
+          <!-- Ver en Mapa de Ciudad -->
+          <button class="drawer-menu-item" onclick="toggleSidebar(false); if(!isMapView) toggleFeedMapView();">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 16px;">🗺️</span>
+              <div>
+                <div style="font-size: 12px; font-weight: 800; color: #1E293B;">Mapa de Ciudad</div>
+                <div style="font-size: 10px; color: #64748B;">Ver comercios y ofertas cercanas</div>
+              </div>
+            </div>
+            <span style="font-size: 11px; color: #94A3B8;">›</span>
+          </button>
+        </div>
+
+        <!-- Portales & Roles (Controlado según permisos del usuario autenticado) -->
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;" id="drawer-portals-section">
+          <div style="font-size: 10px; font-weight: 800; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 2px;">
+            Modo de Plataforma
+          </div>
+          <button class="drawer-menu-item" onclick="toggleSidebar(false); switchRole('client');" id="drawer-link-client">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span>📱</span>
+              <span style="font-size: 12px; font-weight: 700; color: #1E293B;">Modo Consumidor</span>
+            </div>
+            <span style="font-size: 10px; color: var(--primary); font-weight: 800;" id="drawer-badge-client">Activo</span>
+          </button>
+          <button class="drawer-menu-item" onclick="toggleSidebar(false); switchRole('merchant');" id="drawer-link-merchant" style="display: none;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span>🏪</span>
+              <span style="font-size: 12px; font-weight: 700; color: #1E293B;">Portal Comercio (Publicar)</span>
+            </div>
+            <span style="font-size: 11px; color: #94A3B8;" id="drawer-badge-merchant">›</span>
+          </button>
+          <button class="drawer-menu-item" onclick="toggleSidebar(false); switchRole('admin');" id="drawer-link-admin" style="display: none;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span>🛡️</span>
+              <span style="font-size: 12px; font-weight: 700; color: #1E293B;">Panel Administrador</span>
+            </div>
+            <span style="font-size: 11px; color: #94A3B8;" id="drawer-badge-admin">›</span>
+          </button>
+
+          <!-- Banner para usuarios comunes e invitados -->
+          <div id="drawer-merchant-promo" style="padding: 10px; border-radius: 12px; background: #F8FAFC; border: 1px dashed var(--border); margin-top: 4px;">
+            <div style="font-size: 11px; font-weight: 800; color: #1E293B; margin-bottom: 2px;">🏪 ¿Tienes un comercio?</div>
+            <div style="font-size: 10px; color: #64748B; margin-bottom: 6px;">Publica tus ofertas geolocalizadas con mapa y alertas para tu ciudad.</div>
+            <button onclick="toggleSidebar(false); openAuthModal('register');" style="font-size: 10px; font-weight: 800; color: var(--primary); background: transparent; border: none; padding: 0; cursor: pointer;">
+              Crear cuenta de negocio →
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Drawer Footer -->
+      <div style="padding: 10px 14px; border-top: 1px solid var(--border); font-size: 10px; color: #94A3B8; text-align: center; background: #F8FAFC;">
+        Ofertapp v2.0 • Ciudad Inteligente
+      </div>
+    </div>
+
+    <!-- Header dinámico con Botón Hamburguesa -->
+    <div class="header">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button onclick="toggleSidebar(true)" class="hamburger-btn" title="Menú principal (Cuenta, Gustos, Portales)">
+          ☰
+        </button>
+        <div class="brand-title">
+          <span>🏷️</span>
+          <span>Ofertapp</span>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <button class="btn-secondary" id="btn-toggle-map" onclick="toggleFeedMapView()" style="font-size: 11px; padding: 5px 9px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+          🗺️ Ver Mapa
+        </button>
+        <button class="btn-secondary" onclick="openAlertsModal()" style="font-size: 11px; padding: 5px 8px; background: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; font-weight: 800; display: inline-flex; align-items: center;" title="Alertas de promociones">
+          🔔
+        </button>
+        <div class="badge-portal badge-client" id="portal-role-indicator">
+          Consumidor
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 1. VISTA DE CONSUMIDOR (USUARIO COMÚN)     -->
+    <!-- ========================================== -->
+    <div id="portal-client" class="scrollable-body" style="display: flex;">
+
+      <!-- 🔍 BUSCADOR INTEGRADO Y SUB-BARRA DE PROXIMIDAD (VISTA LIMPIA Y ORGANIZADA) -->
+      <div style="background: #FFF; padding: 8px 12px; border-bottom: 1px solid var(--border);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 11px;">
+          <div style="display: flex; align-items: center; gap: 5px; color: #475569; font-weight: 700;">
+            <span style="color: #10B981; font-size: 12px;">📍</span>
+            <span>Cerca de ti: <strong style="color: #1E293B;">Centro</strong></span>
+          </div>
+          <span style="font-size: 10px; color: var(--primary); font-weight: 700; cursor: pointer;" onclick="openTastesModal()">
+            🎯 Radio: <span id="main-view-radius">15 km</span>
+          </span>
+        </div>
+
+        <div style="display: flex; align-items: center; background: #F1F5F9; border-radius: 10px; padding: 6px 10px; gap: 8px; border: 1px solid var(--border);">
+          <span style="font-size: 13px; color: #64748B;">🔍</span>
+          <input type="text" id="feed-search-input" placeholder="Buscar comida, tecnología, marcas..." style="border: none; background: transparent; outline: none; flex: 1; font-size: 12px; color: #1E293B;" oninput="onSearchInputChange(event)" onkeydown="if(event.key==='Enter') executeSearch()">
+          <button id="feed-search-clear-btn" style="display: none; background: transparent; border: none; font-size: 12px; color: #94A3B8; cursor: pointer; padding: 0 4px;" onclick="clearSearch()" title="Limpiar búsqueda">✕</button>
+          <button class="btn-primary" style="font-size: 11px; padding: 4px 10px; border-radius: 7px;" onclick="executeSearch()">Buscar</button>
+        </div>
+        <div id="search-active-indicator" style="display: none; margin-top: 6px; font-size: 10px; color: #475569; display: flex; justify-content: space-between; align-items: center; background: #FFF7ED; padding: 4px 8px; border-radius: 6px; border: 1px solid #FFEDD5;">
+          <span>🔎 Resultados para: <strong id="search-active-text" style="color: var(--primary);"></strong></span>
+          <a href="javascript:void(0)" onclick="clearSearch()" style="color: #DC2626; font-weight: 700; text-decoration: none;">✕ Quitar búsqueda</a>
+        </div>
+      </div>
+
+      <!-- Categories & Tastes Bar -->
+      <div style="background: #FFF; padding: 8px 12px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; overflow-x: auto;" id="client-cats-bar">
+        <button class="btn-secondary" style="background: var(--primary); color: #FFF; white-space: nowrap; border-radius: 8px;" onclick="filterFeed('tastes', this)">⭐ Para mis gustos</button>
+        <button class="btn-secondary" style="white-space: nowrap; border-radius: 8px;" onclick="filterFeed('all', this)">Todas</button>
+        <button class="btn-secondary" style="white-space: nowrap; border-radius: 8px;" onclick="filterFeed(1, this)">🍔 Gastronomía</button>
+        <button class="btn-secondary" style="white-space: nowrap; border-radius: 8px;" onclick="filterFeed(2, this)">💻 Tecnología</button>
+        <button class="btn-secondary" style="white-space: nowrap; border-radius: 8px;" onclick="filterFeed(5, this)">💆 Belleza</button>
+      </div>
+
+      <!-- Feed Container (List View) -->
+      <div id="feed-list-view" style="flex: 1; overflow-y: auto; padding: 6px 0;">
+        <div style="text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px;">Cargando ofertas con geolocalización...</div>
+      </div>
+
+      <!-- Map View (Pantalla completa de Mapa tipo Google Maps con negocios) -->
+      <div id="feed-map-view" style="display: none; flex: 1; position: relative;">
+        <div id="city-map" class="map-full"></div>
+        <div style="position: absolute; bottom: 12px; left: 12px; right: 12px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.15); font-size: 11px; z-index: 1000; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <strong>📍 Vista de Ciudad:</strong> Comercios cercanos a tu posición GPS
+          </div>
+          <button class="btn-secondary" style="font-size: 10px; padding: 4px 8px;" onclick="centerMapOnUser()">Mi Ubicación</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 2. PORTAL DE COMERCIO (GESTIÓN & MAPA)     -->
+    <!-- ========================================== -->
+    <div id="portal-merchant" class="scrollable-body" style="display: none; padding: 14px;">
+      <!-- Pestañas del Comercio -->
+      <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+        <button class="btn-primary" style="flex: 1;" onclick="setMerchantSubtab('my-promos')" id="btn-merch-promos">
+          📋 Mis Ofertas
+        </button>
+        <button class="btn-secondary" style="flex: 1;" onclick="setMerchantSubtab('new-promo')" id="btn-merch-new">
+          ➕ Publicar con Mapa
+        </button>
+      </div>
+
+      <!-- Subtab: Mis Promociones -->
+      <div id="merch-subtab-promos">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h4 style="font-size: 14px; font-weight: 800;">Ofertas de mi Negocio</h4>
+          <span style="font-size: 11px; color: var(--text-muted);" id="merchant-promos-count">Cargando...</span>
+        </div>
+        <div id="merchant-promos-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+      </div>
+
+      <!-- Subtab: Nueva Promoción con Mapa Interactivo -->
+      <div id="merch-subtab-new" style="display: none;">
+        <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 4px;">Publicar Promoción con Ubicación en Mapa</h4>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Haz clic en el mapa o arrastra el marcador para fijar la ubicación exacta del negocio.</p>
+
+        <form onsubmit="handleMerchantCreate(event)">
+          <div class="form-group">
+            <label class="form-label">Título de la Oferta *</label>
+            <input class="form-input" id="m-title" required value="Promo Parrilla Libre + Bebida">
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label">Categoría *</label>
+              <select class="form-select" id="m-category">
+                <option value="1">🍔 Gastronomía</option>
+                <option value="2">💻 Tecnología</option>
+                <option value="3">👗 Moda</option>
+                <option value="5">💆 Belleza</option>
+                <option value="6">⚽ Deportes</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label">Descuento (%)</label>
+              <input class="form-input" id="m-discount" type="number" required value="40">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label">Precio Regular ($)</label>
+              <input class="form-input" id="m-price" type="number" required value="16000">
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label">Etiquetas de Gusto</label>
+              <input class="form-input" id="m-tags" value="asado, parrillada, cena, 2x1">
+            </div>
+          </div>
+
+          <!-- MAPA INTERACTIVO ESTILO GOOGLE MAPS PARA ELEGIR COORDENADAS -->
+          <div class="form-group">
+            <label class="form-label">🗺️ Ubicación del Negocio en Mapa (Arrastra el Pin):</label>
+            <div id="merchant-loc-map"></div>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label">Latitud</label>
+              <input class="form-input" id="m-lat" readonly style="background: #F8FAFC;">
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label">Longitud</label>
+              <input class="form-input" id="m-lon" readonly style="background: #F8FAFC;">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Dirección física</label>
+            <input class="form-input" id="m-address" required value="Av. Corrientes 1500, Centro">
+          </div>
+
+          <button type="submit" class="btn-primary" style="width: 100%; margin-top: 6px;" id="btn-save-merch">
+            🚀 Publicar y Disparar Alertas a Usuarios
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 3. PANEL ADMINISTRADOR (ROLES & CONFIG)    -->
+    <!-- ========================================== -->
+    <div id="portal-admin" class="scrollable-body" style="display: none; padding: 14px;">
+      <!-- Pestañas de Admin -->
+      <div style="display: flex; gap: 6px; margin-bottom: 14px;">
+        <button class="btn-primary" style="flex: 1; font-size: 11px;" onclick="setAdminSubtab('users')" id="btn-adm-users">
+          👥 Usuarios & Permisos
+        </button>
+        <button class="btn-secondary" style="flex: 1; font-size: 11px;" onclick="setAdminSubtab('settings')" id="btn-adm-settings">
+          ⚙️ Configuraciones
+        </button>
+        <button class="btn-secondary" style="flex: 1; font-size: 11px;" onclick="setAdminSubtab('categories')" id="btn-adm-cats">
+          🏷️ Categorías
+        </button>
+      </div>
+
+      <!-- Subtab: Gestión de Usuarios y Permisos -->
+      <div id="adm-subtab-users">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <h4 style="font-size: 14px; font-weight: 800; margin: 0;">Control de Usuarios y Roles</h4>
+          <span class="badge-portal badge-admin" style="font-size: 10px;">Gestión de Cuentas</span>
+        </div>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Crea cuentas para Administradores, Comercios o Consumidores y gestiona sus permisos y accesos.</p>
+
+        <!-- FORMULARIO: CREAR NUEVO USUARIO (ADMIN) -->
+        <form id="form-create-user" onsubmit="handleAdminCreateUser(event)" style="background: #FFFFFF; padding: 12px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+          <div style="font-size: 12px; font-weight: 800; color: #1E293B; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <span>➕</span> Dar de Alta Nuevo Usuario / Comercio
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-size: 11px;">Nombre Completo *</label>
+              <input class="form-input" id="new-user-name" placeholder="Ej: Carlos Gómez / Restaurante Luna" required style="padding: 6px 8px; font-size: 12px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-size: 11px;">Correo Electrónico *</label>
+              <input type="email" class="form-input" id="new-user-email" placeholder="carlos@ofertapp.com" required style="padding: 6px 8px; font-size: 12px;">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 8px; margin-bottom: 10px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-size: 11px;">Contraseña *</label>
+              <input type="password" class="form-input" id="new-user-password" placeholder="Mínimo 6 caract." required minlength="6" style="padding: 6px 8px; font-size: 12px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-size: 11px;">Teléfono (Opcional)</label>
+              <input type="tel" class="form-input" id="new-user-phone" placeholder="+54 11 1234-5678" style="padding: 6px 8px; font-size: 12px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-size: 11px;">Rol Asignado *</label>
+              <select id="new-user-role" class="form-input" style="padding: 6px 8px; font-size: 12px;" required>
+                <option value="user" selected>👤 Consumidor (user)</option>
+                <option value="merchant">🏪 Comercio (merchant)</option>
+                <option value="admin">🛡️ Administrador (admin)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 8px;">
+            <button type="submit" class="btn-primary" id="btn-create-user" style="flex: 1; font-size: 12px; padding: 7px;">
+              🚀 Crear y Activar Usuario
+            </button>
+            <button type="button" class="btn-secondary" onclick="document.getElementById('form-create-user').reset()" style="font-size: 12px; padding: 7px 12px;">
+              Limpiar
+            </button>
+          </div>
+        </form>
+
+        <div style="overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre / Email</th>
+                <th>Rol / Permiso</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="admin-users-tbody">
+              <tr><td colspan="5" style="text-align: center;">Cargando usuarios...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Subtab: Configuraciones del Sistema -->
+      <div id="adm-subtab-settings" style="display: none;">
+        <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 6px;">Configuraciones Globales de Ofertapp</h4>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Ajusta los parámetros operativos del sistema, radios de búsqueda y comportamiento de alertas.</p>
+
+        <div id="admin-settings-container" style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- Generado dinámicamente -->
+        </div>
+      </div>
+
+      <!-- Subtab: Categorías -->
+      <div id="adm-subtab-categories" style="display: none;">
+        <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 6px;">Gestión de Categorías del Catálogo</h4>
+        
+        <form onsubmit="handleCreateCategory(event)" style="background: #FFF; padding: 12px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 14px;">
+          <div style="display: flex; gap: 8px;">
+            <input class="form-input" id="cat-name" placeholder="Nombre (ej: Mascotas)" required style="flex: 2;">
+            <input class="form-input" id="cat-icon" placeholder="Emoji (ej: 🐶)" required style="flex: 1;">
+          </div>
+          <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px; font-size: 12px; padding: 8px;">
+            ➕ Añadir Categoría
+          </button>
+        </form>
+
+        <div id="admin-categories-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation Bar (Modo Consumidor) -->
+    <div class="bottom-nav" id="client-bottom-nav">
+      <button class="nav-btn active" onclick="switchRole('client')">
+        <span>🏪</span>
+        <span>Ofertas</span>
+      </button>
+      <button class="nav-btn" onclick="toggleFeedMapView()">
+        <span>🗺️</span>
+        <span>Mapa Ciudad</span>
+      </button>
+      <button class="nav-btn" onclick="openAlertsModal()">
+        <span>🔔</span>
+        <span>Alertas</span>
+      </button>
+      <button class="nav-btn" onclick="handleBottomNavMerchant()" id="bottom-nav-merch-btn">
+        <span>🏪</span>
+        <span>Soy Negocio</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: REGISTRO Y LOGIN DE USUARIO (CUENTA) -->
+  <!-- ========================================== -->
+  <div id="modal-auth" class="modal-backdrop">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin: 0; display: flex; align-items: center; gap: 6px;">
+          <span>👤</span> <span id="auth-modal-title">Mi Cuenta en Ofertapp</span>
+        </h3>
+        <button onclick="closeAuthModal()" style="background: transparent; border: none; font-size: 18px; color: #64748B; cursor: pointer;">✕</button>
+      </div>
+
+      <!-- Selector de Pestañas: Crear Cuenta vs Iniciar Sesión -->
+      <div style="display: flex; gap: 6px; margin-bottom: 14px; background: #F1F5F9; padding: 4px; border-radius: 10px;">
+        <button id="tab-auth-register" class="btn-primary" style="flex: 1; font-size: 11px; padding: 6px;" onclick="switchAuthTab('register')">
+          🚀 Crear Cuenta
+        </button>
+        <button id="tab-auth-login" class="btn-secondary" style="flex: 1; font-size: 11px; padding: 6px;" onclick="switchAuthTab('login')">
+          🔑 Iniciar Sesión
+        </button>
+      </div>
+
+      <!-- FORMULARIO 1: REGISTRO DE CUENTA -->
+      <form id="form-auth-register" onsubmit="handleRegisterSubmit(event)">
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
+          Crea tu cuenta para guardar tus gustos, sincronizar tus preferencias o registrar tu comercio en el mapa.
+        </p>
+        <div class="form-group">
+          <label class="form-label" style="font-size: 11px;">Tipo de Cuenta *</label>
+          <select class="form-input" id="reg-role" style="padding: 7px 10px; font-size: 12px; font-weight: 700;">
+            <option value="user" selected>👤 Consumidor (Ver ofertas y recibir alertas)</option>
+            <option value="merchant">🏪 Comercio (Publicar promociones y local en mapa)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="font-size: 11px;">Nombre Completo o Razón Social *</label>
+          <input class="form-input" id="reg-name" placeholder="Ej: Lucía Martínez / Pizzería Napoli" required style="padding: 7px 10px; font-size: 12px;">
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="font-size: 11px;">Correo Electrónico *</label>
+          <input type="email" class="form-input" id="reg-email" placeholder="lucia@ejemplo.com" required style="padding: 7px 10px; font-size: 12px;">
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="font-size: 11px;">Contraseña *</label>
+          <input type="password" class="form-input" id="reg-password" placeholder="Mínimo 6 caracteres" required minlength="6" style="padding: 7px 10px; font-size: 12px;">
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="font-size: 11px;">Teléfono (Opcional)</label>
+          <input type="tel" class="form-input" id="reg-phone" placeholder="+54 11 1234-5678" style="padding: 7px 10px; font-size: 12px;">
+        </div>
+        <button type="submit" id="btn-submit-register" class="btn-primary" style="width: 100%; margin-top: 6px; padding: 9px; font-size: 12px;">
+          🚀 Crear Mi Cuenta
+        </button>
+      </form>
+
+      <!-- FORMULARIO 2: LOGIN -->
+      <form id="form-auth-login" onsubmit="handleLoginSubmit(event)" style="display: none;">
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
+          Ingresa con tu correo y contraseña para cargar tu perfil y las interfaces habilitadas para tu rol.
+        </p>
+        <div class="form-group">
+          <label class="form-label" style="font-size: 11px;">Correo Electrónico *</label>
+          <input type="email" class="form-input" id="login-email" placeholder="tu@correo.com" required style="padding: 7px 10px; font-size: 12px;">
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="font-size: 11px;">Contraseña *</label>
+          <input type="password" class="form-input" id="login-password" placeholder="Tu contraseña" required style="padding: 7px 10px; font-size: 12px;">
+        </div>
+        <button type="submit" id="btn-submit-login" class="btn-primary" style="width: 100%; margin-top: 6px; padding: 9px; font-size: 12px;">
+          🔑 Iniciar Sesión
+        </button>
+
+        <!-- Accesos rápidos Demo para pruebas de RBAC -->
+        <div style="margin-top: 14px; padding: 10px; background: #F8FAFC; border-radius: 10px; border: 1px solid var(--border);">
+          <div style="font-size: 10px; font-weight: 800; color: #64748B; margin-bottom: 6px; text-transform: uppercase;">
+            ⚡ Probar Permisos según Rol (Demo):
+          </div>
+          <div style="display: flex; gap: 4px;">
+            <button type="button" class="btn-secondary" style="font-size: 10px; padding: 4px 6px; flex: 1;" onclick="fillDemoLogin('user')">👤 Consumidor</button>
+            <button type="button" class="btn-secondary" style="font-size: 10px; padding: 4px 6px; flex: 1;" onclick="fillDemoLogin('merchant')">🏪 Comercio</button>
+            <button type="button" class="btn-secondary" style="font-size: 10px; padding: 4px 6px; flex: 1;" onclick="fillDemoLogin('admin')">🛡️ Admin</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: GESTIÓN DE GUSTOS (AGREGAR / QUITAR) -->
+  <!-- ========================================== -->
+  <div id="modal-tastes" class="modal-backdrop">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin: 0; display: flex; align-items: center; gap: 6px;">
+          <span>🎯</span> Mis Gustos e Intereses
+        </h3>
+        <button onclick="closeTastesModal()" style="background: transparent; border: none; font-size: 18px; color: #64748B; cursor: pointer;">✕</button>
+      </div>
+
+      <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 14px;">
+        Agrega o quita categorías y etiquetas específicas. El sistema destacará las promociones afines con la insignia <strong>⭐ Tus gustos</strong> y te enviará alertas automáticas.
+      </p>
+
+      <!-- 1. CATEGORÍAS FAVORITAS -->
+      <div style="margin-bottom: 14px;">
+        <div style="font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px; display: flex; justify-content: space-between;">
+          <span>1. Categorías Favoritas:</span>
+          <span style="font-size: 10px; color: var(--text-muted);">Toca para activar / desactivar</span>
+        </div>
+        <div id="tastes-cat-chips" style="display: flex; flex-wrap: wrap; gap: 6px;">
+          <!-- Dinámico -->
+        </div>
+      </div>
+
+      <!-- 2. ETIQUETAS ESPECÍFICAS (TAGS) -->
+      <div style="margin-bottom: 14px;">
+        <div style="font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">
+          <span>2. Gustos Específicos / Palabras Clave:</span>
+        </div>
+        <div id="tastes-tags-container" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; min-height: 28px; background: #F8FAFC; padding: 8px; border-radius: 10px; border: 1px dashed var(--border);">
+          <!-- Dinámico: badges con botón ✕ para eliminar cada gusto -->
+        </div>
+
+        <!-- Input para agregar nuevo gusto -->
+        <div style="display: flex; gap: 6px;">
+          <input type="text" id="input-new-tag" placeholder="Ej: pizza, sushi, zapatillas, café..." style="flex: 1; padding: 6px 10px; font-size: 12px; border-radius: 8px; border: 1px solid var(--border);" onkeydown="if(event.key==='Enter'){event.preventDefault();addTasteTag();}">
+          <button type="button" class="btn-primary" style="font-size: 11px; padding: 6px 12px;" onclick="addTasteTag()">
+            ➕ Agregar
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. RADIO DE ALERTA GPS -->
+      <div style="margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <span style="font-size: 12px; font-weight: 800; color: #334155;">3. Radio de búsqueda y alertas:</span>
+          <span id="taste-radius-val" style="font-size: 12px; font-weight: 800; color: var(--primary);">15 km</span>
+        </div>
+        <input type="range" id="input-taste-radius" min="1" max="50" value="15" style="width: 100%; accent-color: var(--primary);" oninput="document.getElementById('taste-radius-val').textContent = this.value + ' km'">
+      </div>
+
+      <!-- Botón de Guardado -->
+      <button type="button" id="btn-save-tastes" class="btn-primary" style="width: 100%; padding: 9px; font-size: 13px;" onclick="saveUserTastes()">
+        💾 Guardar Mis Gustos
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: BANDEJA DE ALERTAS REALES            -->
+  <!-- ========================================== -->
+  <div id="modal-alerts" class="modal-backdrop">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin: 0; display: flex; align-items: center; gap: 6px;">
+          <span>🔔</span> Centro de Alertas y Notificaciones
+        </h3>
+        <button onclick="closeAlertsModal()" style="background: transparent; border: none; font-size: 18px; color: #64748B; cursor: pointer;">✕</button>
+      </div>
+      <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
+        Alertas georreferenciadas disparadas automáticamente cuando los comercios cercanos activan ofertas afines a tus gustos.
+      </p>
+      <div id="alerts-list-container" style="display: flex; flex-direction: column; gap: 8px;">
+        <!-- Dinámico -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const API_BASE = window.location.origin + '/api/v1';
+
+  let currentRole = 'client';
+  let isMapView = false;
+  let cityMap = null;
+  let merchantMap = null;
+  let merchantMarker = null;
+  let cityMarkers = [];
+  let userGpsCircle = null;
+
+  // Ubicación GPS inicial de prueba (Centro de la ciudad)
+  const USER_COORDS = { lat: -34.6037, lon: -58.3816 };
+  let allPromotions = [];
+
+  // Estado global de usuario, gustos y buscador
+  let currentUser = null; // { id, email, full_name, role, token }
+  let userTastes = {
+    categories: [1, 2],
+    tags: ['pizza', 'auriculares', 'cafe', 'hamburguesas'],
+    max_distance_km: 15
+  };
+  let availableCategories = [];
+  let currentSearchQuery = '';
+  let currentCategoryFilter = 'tastes';
+
+  // ==========================================
+  // CAMBIO DE ROL / PERMISOS (RBAC DINÁMICO)
+  // ==========================================
+  function switchRole(role) {
+    const userRole = (currentUser && currentUser.role) ? currentUser.role : 'guest';
+
+    // Validación estricta de permisos según la configuración del usuario
+    if (role === 'admin' && userRole !== 'admin') {
+      alert('⛔ Acceso Restringido: El Panel Administrador solo es accesible para usuarios con rol de Administrador.');
+      return;
+    }
+    if (role === 'merchant' && userRole !== 'merchant' && userRole !== 'admin') {
+      alert('⛔ Acceso Restringido: El Portal de Comercio requiere una cuenta de Comercio o Administrador.');
+      return;
+    }
+
+    currentRole = role;
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+    const activeBtn = document.getElementById(`btn-role-${role}`);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    const ind = document.getElementById('portal-role-indicator');
+    document.getElementById('portal-client').style.display = role === 'client' ? 'flex' : 'none';
+    document.getElementById('portal-merchant').style.display = role === 'merchant' ? 'flex' : 'none';
+    document.getElementById('portal-admin').style.display = role === 'admin' ? 'flex' : 'none';
+    document.getElementById('client-bottom-nav').style.display = role === 'client' ? 'flex' : 'none';
+
+    if (role === 'client') {
+      ind.className = 'badge-portal badge-client';
+      ind.textContent = 'Modo Consumidor';
+      loadFeed();
+    } else if (role === 'merchant') {
+      ind.className = 'badge-portal badge-merchant';
+      ind.textContent = 'Portal Comercio';
+      loadMerchantPromotions();
+      setTimeout(initMerchantMap, 200);
+    } else if (role === 'admin') {
+      ind.className = 'badge-portal badge-admin';
+      ind.textContent = 'Panel Administrador';
+      loadAdminUsers();
+      loadAdminSettings();
+      loadAdminCategories();
+    }
+
+    renderRoleAccessUI();
+  }
+
+  function renderRoleAccessUI() {
+    const userRole = (currentUser && currentUser.role) ? currentUser.role : 'guest';
+
+    const topBar = document.getElementById('top-role-switcher');
+    const btnClient = document.getElementById('btn-role-client');
+    const btnMerch = document.getElementById('btn-role-merchant');
+    const btnAdmin = document.getElementById('btn-role-admin');
+
+    const drawerMerch = document.getElementById('drawer-link-merchant');
+    const drawerAdmin = document.getElementById('drawer-link-admin');
+    const drawerPromo = document.getElementById('drawer-merchant-promo');
+
+    if (userRole === 'admin') {
+      // Superadministrador: Acceso a todos los portales
+      if (topBar) topBar.style.display = 'flex';
+      if (btnClient) btnClient.style.display = 'flex';
+      if (btnMerch) btnMerch.style.display = 'flex';
+      if (btnAdmin) btnAdmin.style.display = 'flex';
+
+      if (drawerMerch) drawerMerch.style.display = 'flex';
+      if (drawerAdmin) drawerAdmin.style.display = 'flex';
+      if (drawerPromo) drawerPromo.style.display = 'none';
+    } else if (userRole === 'merchant') {
+      // Comercio: Acceso a Consumidor y Comercio, NUNCA a Administrador
+      if (topBar) topBar.style.display = 'flex';
+      if (btnClient) btnClient.style.display = 'flex';
+      if (btnMerch) btnMerch.style.display = 'flex';
+      if (btnAdmin) btnAdmin.style.display = 'none';
+
+      if (drawerMerch) drawerMerch.style.display = 'flex';
+      if (drawerAdmin) drawerAdmin.style.display = 'none';
+      if (drawerPromo) drawerPromo.style.display = 'none';
+
+      if (currentRole === 'admin') {
+        switchRole('merchant');
+      }
+    } else {
+      // Consumidor o Invitado:
+      // Ocultar por completo la barra superior y portales no autorizados
+      if (topBar) topBar.style.display = 'none';
+      if (btnMerch) btnMerch.style.display = 'none';
+      if (btnAdmin) btnAdmin.style.display = 'none';
+
+      if (drawerMerch) drawerMerch.style.display = 'none';
+      if (drawerAdmin) drawerAdmin.style.display = 'none';
+      if (drawerPromo) drawerPromo.style.display = 'block';
+
+      if (currentRole !== 'client') {
+        switchRole('client');
+      }
+    }
+
+    // Actualizar badges en drawer
+    const dBadgeClient = document.getElementById('drawer-badge-client');
+    const dBadgeMerch = document.getElementById('drawer-badge-merchant');
+    const dBadgeAdmin = document.getElementById('drawer-badge-admin');
+    if (dBadgeClient) dBadgeClient.textContent = currentRole === 'client' ? 'Activo' : '›';
+    if (dBadgeMerch) dBadgeMerch.textContent = currentRole === 'merchant' ? 'Activo' : '›';
+    if (dBadgeAdmin) dBadgeAdmin.textContent = currentRole === 'admin' ? 'Activo' : '›';
+  }
+
+  function handleBottomNavMerchant() {
+    if (currentUser && (currentUser.role === 'merchant' || currentUser.role === 'admin')) {
+      switchRole('merchant');
+    } else {
+      alert('🏪 El Portal de Comercio es exclusivo para negocios afiliados.\n\nInicia sesión con tu cuenta de negocio o regístrate como comercio para publicar promociones en el mapa.');
+      openAuthModal('login');
+    }
+  }
+
+  function fillDemoLogin(role) {
+    switchAuthTab('login');
+    const emailInput = document.getElementById('login-email');
+    const pwdInput = document.getElementById('login-password');
+    if (role === 'admin') {
+      if (emailInput) emailInput.value = 'admin@ofertapp.com';
+      if (pwdInput) pwdInput.value = 'admin123';
+    } else if (role === 'merchant') {
+      if (emailInput) emailInput.value = 'comercio@ofertapp.com';
+      if (pwdInput) pwdInput.value = 'comercio123';
+    } else {
+      if (emailInput) emailInput.value = 'usuario@ofertapp.com';
+      if (pwdInput) pwdInput.value = 'usuario123';
+    }
+  }
+
+  // ==========================================
+  // MAPAS ESTILO GOOGLE MAPS (LEAFLET)
+  // ==========================================
+  function initCityMap() {
+    if (!cityMap) {
+      cityMap = L.map('city-map').setView([USER_COORDS.lat, USER_COORDS.lon], 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(cityMap);
+
+      // Marcador de Usuario GPS
+      const userIcon = L.divIcon({
+        className: 'user-gps-marker',
+        html: '📍',
+        iconSize: [26, 26],
+        iconAnchor: [13, 13]
+      });
+      L.marker([USER_COORDS.lat, USER_COORDS.lon], { icon: userIcon })
+        .addTo(cityMap)
+        .bindPopup('<strong>Tu Ubicación GPS</strong><br>Centro de la Ciudad');
+
+      // Círculo de proximidad de búsqueda (1.5 km radio inicial)
+      userGpsCircle = L.circle([USER_COORDS.lat, USER_COORDS.lon], {
+        color: '#FF5722',
+        fillColor: '#FF5722',
+        fillOpacity: 0.1,
+        radius: 1500
+      }).addTo(cityMap);
+    }
+    renderCityPromoMarkers();
+  }
+
+  function renderCityPromoMarkers() {
+    if (!cityMap) return;
+    cityMarkers.forEach(m => cityMap.removeLayer(m));
+    cityMarkers = [];
+
+    allPromotions.forEach(p => {
+      const dealIcon = L.divIcon({
+        className: 'custom-deal-marker',
+        html: `-${Math.round(p.discount_percent)}%`,
+        iconSize: [36, 36],
+        iconAnchor: [18, 18]
+      });
+
+      const marker = L.marker([p.latitude, p.longitude], { icon: dealIcon }).addTo(cityMap);
+      marker.bindPopup(`
+        <div style="font-family: inherit; font-size: 12px; min-width: 170px;">
+          <img src="${p.image_url}" style="width: 100%; height: 75px; object-fit: cover; border-radius: 6px; margin-bottom: 4px;">
+          <strong style="color: #FF5722; font-size: 13px;">${p.title}</strong><br>
+          <span style="color: #64748B;">${p.merchant_name}</span><br>
+          <strong>📍 ${p.distance_label}</strong> • <span style="color: #10B981; font-weight: bold;">$${Math.round(p.promo_price)}</span>
+        </div>
+      `);
+      cityMarkers.push(marker);
+    });
+  }
+
+  function centerMapOnUser() {
+    if (cityMap) {
+      cityMap.setView([USER_COORDS.lat, USER_COORDS.lon], 15);
+    }
+  }
+
+  function toggleFeedMapView() {
+    isMapView = !isMapView;
+    document.getElementById('feed-list-view').style.display = isMapView ? 'none' : 'block';
+    document.getElementById('feed-map-view').style.display = isMapView ? 'block' : 'none';
+    document.getElementById('btn-toggle-map').textContent = isMapView ? '📋 Ver en Lista' : '🗺️ Ver en Mapa';
+
+    if (isMapView) {
+      setTimeout(() => {
+        initCityMap();
+        cityMap.invalidateSize();
+      }, 100);
+    }
+  }
+
+  // ==========================================
+  // MAPA DEL PORTAL DE COMERCIO (FIJAR UBICACIÓN)
+  // ==========================================
+  function initMerchantMap() {
+    if (!merchantMap) {
+      const defaultLat = -34.6041;
+      const defaultLon = -58.3822;
+
+      merchantMap = L.map('merchant-loc-map').setView([defaultLat, defaultLon], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(merchantMap);
+
+      // Pin arrastrable para seleccionar coordenadas
+      merchantMarker = L.marker([defaultLat, defaultLon], { draggable: true }).addTo(merchantMap);
+      
+      updateMerchantCoordsInputs(defaultLat, defaultLon);
+
+      merchantMarker.on('dragend', function (e) {
+        const pos = merchantMarker.getLatLng();
+        updateMerchantCoordsInputs(pos.lat, pos.lng);
+      });
+
+      merchantMap.on('click', function (e) {
+        merchantMarker.setLatLng(e.latlng);
+        updateMerchantCoordsInputs(e.latlng.lat, e.latlng.lng);
+      });
+    } else {
+      merchantMap.invalidateSize();
+    }
+  }
+
+  function updateMerchantCoordsInputs(lat, lon) {
+    document.getElementById('m-lat').value = lat.toFixed(6);
+    document.getElementById('m-lon').value = lon.toFixed(6);
+  }
+
+  // ==========================================
+  // GESTIÓN DE SESIÓN Y CUENTA DE CONSUMIDOR
+  // ==========================================
+  function initUserSession() {
+    const savedAuth = localStorage.getItem('ofertapp_auth');
+    if (savedAuth) {
+      try {
+        currentUser = JSON.parse(savedAuth);
+        updateAuthUI(true);
+        fetchUserTastesFromServer();
+      } catch (e) {
+        localStorage.removeItem('ofertapp_auth');
+        updateAuthUI(false);
+      }
+    } else {
+      const guestTastes = localStorage.getItem('ofertapp_guest_tastes');
+      if (guestTastes) {
+        try {
+          userTastes = JSON.parse(guestTastes);
+        } catch (e) {}
+      }
+      updateAuthUI(false);
+    }
+    updateTastesBadgeCount();
+    loadAvailableCategories();
+  }
+
+  // ==========================================
+  // MENÚ HAMBURGUESA / SIDEBAR DRAWER
+  // ==========================================
+  function toggleSidebar(open) {
+    const drawer = document.getElementById('sidebar-drawer');
+    const backdrop = document.getElementById('drawer-backdrop');
+    if (drawer && backdrop) {
+      if (open) {
+        drawer.classList.add('open');
+        backdrop.classList.add('active');
+      } else {
+        drawer.classList.remove('open');
+        backdrop.classList.remove('active');
+      }
+    }
+  }
+
+  function updateAuthUI(isLoggedIn) {
+    // Drawer user profile elements
+    const dName = document.getElementById('drawer-user-name');
+    const dEmail = document.getElementById('drawer-user-email');
+    const dAvatar = document.getElementById('drawer-user-avatar');
+    const dBtnAuth = document.getElementById('drawer-btn-auth');
+    const dBtnLogout = document.getElementById('drawer-btn-logout');
+
+    // Legacy elements (si existen)
+    const badge = document.getElementById('user-badge');
+    const btnAuth = document.getElementById('btn-open-auth');
+    const btnLogout = document.getElementById('btn-logout');
+
+    if (isLoggedIn && currentUser) {
+      if (dName) dName.textContent = currentUser.full_name;
+
+      let roleLabel = 'Consumidor';
+      let avatarBg = '#10B981';
+      if (currentUser.role === 'admin') {
+        roleLabel = '🛡️ Administrador Global';
+        avatarBg = '#DC2626';
+      } else if (currentUser.role === 'merchant') {
+        roleLabel = '🏪 Comercio Verificado';
+        avatarBg = '#D97706';
+      }
+
+      if (dEmail) dEmail.textContent = `${currentUser.email || ''} • ${roleLabel}`;
+      if (dAvatar) {
+        const initials = currentUser.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || '👤';
+        dAvatar.textContent = initials;
+        dAvatar.style.background = avatarBg;
+      }
+      if (dBtnAuth) dBtnAuth.style.display = 'none';
+      if (dBtnLogout) dBtnLogout.style.display = 'block';
+
+      if (badge) {
+        badge.innerHTML = `👤 <strong>${currentUser.full_name}</strong>`;
+        badge.style.background = '#ECFDF5';
+        badge.style.color = '#065F46';
+      }
+      if (btnAuth) btnAuth.style.display = 'none';
+      if (btnLogout) btnLogout.style.display = 'inline-block';
+    } else {
+      if (dName) dName.textContent = 'Invitado';
+      if (dEmail) dEmail.textContent = 'Modo Exploración';
+      if (dAvatar) {
+        dAvatar.textContent = '👤';
+        dAvatar.style.background = '#FF5722';
+      }
+      if (dBtnAuth) dBtnAuth.style.display = 'block';
+      if (dBtnLogout) dBtnLogout.style.display = 'none';
+
+      if (badge) {
+        badge.innerHTML = `👤 Invitado`;
+        badge.style.background = '#E2E8F0';
+        badge.style.color = '#475569';
+      }
+      if (btnAuth) btnAuth.style.display = 'inline-block';
+      if (btnLogout) btnLogout.style.display = 'none';
+    }
+
+    // Re-evaluar interfaces habilitadas según rol autenticado
+    renderRoleAccessUI();
+  }
+
+  function updateTastesBadgeCount() {
+    const totalCount = (userTastes.categories ? userTastes.categories.length : 0) + (userTastes.tags ? userTastes.tags.length : 0);
+    const badge = document.getElementById('user-tastes-badge');
+    if (badge) badge.textContent = totalCount;
+    const dBadge = document.getElementById('drawer-tastes-badge');
+    if (dBadge) dBadge.textContent = totalCount;
+    const radiusLabel = document.getElementById('main-view-radius');
+    if (radiusLabel) radiusLabel.textContent = `${userTastes.max_distance_km || 15} km`;
+  }
+
+  async function fetchUserTastesFromServer() {
+    if (!currentUser || !currentUser.token) return;
+    try {
+      const res = await fetch(`${API_BASE}/tastes/me`, {
+        headers: { 'Authorization': `Bearer ${currentUser.token}` }
+      });
+      if (res.ok) {
+        const tastesData = await res.json();
+        const cats = [];
+        const tags = new Set();
+        let maxDist = 15;
+        tastesData.forEach(t => {
+          if (t.category_id && !cats.includes(t.category_id)) cats.push(t.category_id);
+          if (t.tags && Array.isArray(t.tags)) {
+            t.tags.forEach(tag => tags.add(tag.trim().toLowerCase()));
+          }
+          if (t.max_distance_km) maxDist = t.max_distance_km;
+        });
+        userTastes = {
+          categories: cats.length ? cats : [1, 2],
+          tags: tags.size ? Array.from(tags) : ['pizza', 'auriculares', 'cafe', 'hamburguesas'],
+          max_distance_km: maxDist
+        };
+        updateTastesBadgeCount();
+        if (currentCategoryFilter === 'tastes') loadFeed('tastes');
+      }
+    } catch (e) {
+      console.error('Error al obtener gustos del servidor:', e);
+    }
+  }
+
+  function openAuthModal(tab = 'register') {
+    switchAuthTab(tab);
+    document.getElementById('modal-auth').style.display = 'flex';
+  }
+
+  function closeAuthModal() {
+    document.getElementById('modal-auth').style.display = 'none';
+  }
+
+  function switchAuthTab(tab) {
+    const isReg = tab === 'register';
+    document.getElementById('form-auth-register').style.display = isReg ? 'block' : 'none';
+    document.getElementById('form-auth-login').style.display = isReg ? 'none' : 'block';
+
+    document.getElementById('tab-auth-register').className = isReg ? 'btn-primary' : 'btn-secondary';
+    document.getElementById('tab-auth-login').className = isReg ? 'btn-secondary' : 'btn-primary';
+    document.getElementById('auth-modal-title').textContent = isReg ? 'Crear Cuenta en Ofertapp' : 'Iniciar Sesión en Ofertapp';
+  }
+
+  async function handleRegisterSubmit(e) {
+    e.preventDefault();
+    const fullName = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+    const phone = document.getElementById('reg-phone').value.trim();
+    const roleElem = document.getElementById('reg-role');
+    const selectedRole = roleElem ? roleElem.value : 'user';
+    const btn = document.getElementById('btn-submit-register');
+
+    btn.disabled = true;
+    btn.textContent = 'Creando cuenta...';
+
+    try {
+      const regRes = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: fullName,
+          email: email,
+          password: password,
+          phone: phone || null,
+          role: selectedRole
+        })
+      });
+
+      if (!regRes.ok) {
+        const err = await regRes.json();
+        alert(`⚠️ ${err.detail || 'Error al crear la cuenta'}`);
+        return;
+      }
+
+      // Iniciar sesión automáticamente tras registrarse
+      const loginRes = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, password: password })
+      });
+
+      if (loginRes.ok) {
+        const tokenData = await loginRes.json();
+        currentUser = {
+          id: tokenData.user_id,
+          email: tokenData.email,
+          full_name: tokenData.full_name,
+          role: tokenData.role,
+          token: tokenData.access_token
+        };
+        localStorage.setItem('ofertapp_auth', JSON.stringify(currentUser));
+        updateAuthUI(true);
+
+        // Guardar automáticamente los gustos actuales en el perfil
+        await saveUserTastesDirect(false);
+
+        const welcomeMsg = currentUser.role === 'merchant'
+          ? `🎉 ¡Bienvenido a Ofertapp Negocios, ${currentUser.full_name}! Tu cuenta de comercio ha sido creada. Ahora tienes acceso al Portal Comercio para publicar tus ofertas.`
+          : `🎉 ¡Bienvenido a Ofertapp, ${currentUser.full_name}! Tu cuenta ha sido creada y tus gustos están vinculados a tu perfil.`;
+
+        alert(welcomeMsg);
+        closeAuthModal();
+
+        if (currentUser.role === 'merchant') {
+          switchRole('merchant');
+        } else {
+          loadFeed('tastes');
+        }
+      }
+    } catch (err) {
+      alert('❌ Error al conectar con el servidor.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🚀 Crear Mi Cuenta';
+    }
+  }
+
+  async function handleLoginSubmit(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const btn = document.getElementById('btn-submit-login');
+
+    btn.disabled = true;
+    btn.textContent = 'Iniciando sesión...';
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, password: password })
+      });
+
+      if (res.ok) {
+        const tokenData = await res.json();
+        currentUser = {
+          id: tokenData.user_id,
+          email: tokenData.email,
+          full_name: tokenData.full_name,
+          role: tokenData.role,
+          token: tokenData.access_token
+        };
+        localStorage.setItem('ofertapp_auth', JSON.stringify(currentUser));
+        updateAuthUI(true);
+        await fetchUserTastesFromServer();
+        alert(`✅ Sesión iniciada como: ${currentUser.full_name}`);
+        closeAuthModal();
+        if (currentUser.role === 'admin') {
+          switchRole('admin');
+        } else if (currentUser.role === 'merchant') {
+          switchRole('merchant');
+        } else {
+          switchRole('client');
+        }
+      } else {
+        const err = await res.json();
+        alert(`⚠️ ${err.detail || 'Credenciales incorrectas'}`);
+      }
+    } catch (err) {
+      alert('❌ Error de conexión al iniciar sesión.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🔑 Iniciar Sesión';
+    }
+  }
+
+  function logoutUser() {
+    if (confirm('¿Deseas cerrar tu sesión?')) {
+      localStorage.removeItem('ofertapp_auth');
+      currentUser = null;
+      switchRole('client');
+      updateAuthUI(false);
+      loadFeed('tastes');
+    }
+  }
+
+  // ==========================================
+  // GESTIÓN DE GUSTOS (AGREGAR / QUITAR)
+  // ==========================================
+  async function loadAvailableCategories() {
+    try {
+      const res = await fetch(`${API_BASE}/categories`);
+      if (res.ok) {
+        availableCategories = await res.json();
+      }
+    } catch (e) {
+      console.error('Error al cargar categorías:', e);
+    }
+  }
+
+  function openTastesModal() {
+    renderTasteCategoryChips();
+    renderTasteTagChips();
+    const slider = document.getElementById('input-taste-radius');
+    slider.value = userTastes.max_distance_km || 15;
+    document.getElementById('taste-radius-val').textContent = slider.value + ' km';
+    document.getElementById('modal-tastes').style.display = 'flex';
+  }
+
+  function closeTastesModal() {
+    document.getElementById('modal-tastes').style.display = 'none';
+  }
+
+  function renderTasteCategoryChips() {
+    const container = document.getElementById('tastes-cat-chips');
+    container.innerHTML = '';
+
+    availableCategories.forEach(cat => {
+      const isSelected = userTastes.categories && userTastes.categories.includes(cat.id);
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = `cat-toggle-chip ${isSelected ? 'selected' : ''}`;
+      chip.innerHTML = `<span>${cat.icon}</span> <span>${cat.name}</span> <span>${isSelected ? '✓' : '+'}</span>`;
+      chip.onclick = () => toggleTasteCategory(cat.id);
+      container.appendChild(chip);
+    });
+  }
+
+  function toggleTasteCategory(catId) {
+    if (!userTastes.categories) userTastes.categories = [];
+    if (userTastes.categories.includes(catId)) {
+      userTastes.categories = userTastes.categories.filter(id => id !== catId);
+    } else {
+      userTastes.categories.push(catId);
+    }
+    renderTasteCategoryChips();
+    updateTastesBadgeCount();
+  }
+
+  function renderTasteTagChips() {
+    const container = document.getElementById('tastes-tags-container');
+    container.innerHTML = '';
+
+    if (!userTastes.tags || userTastes.tags.length === 0) {
+      container.innerHTML = '<span style="font-size: 11px; color: var(--text-muted); font-style: italic;">No has añadido gustos específicos aún. Escribe uno abajo.</span>';
+      return;
+    }
+
+    userTastes.tags.forEach(tag => {
+      const chip = document.createElement('span');
+      chip.className = 'tag-chip';
+      const safeTag = tag.replace(/'/g, "\\'");
+      chip.innerHTML = `<span>🏷️ ${tag}</span> <span class="tag-chip-del" onclick="removeTasteTag('${safeTag}')" title="Quitar gusto">✕</span>`;
+      container.appendChild(chip);
+    });
+  }
+
+  function addTasteTag() {
+    const input = document.getElementById('input-new-tag');
+    const val = input.value.trim().toLowerCase();
+    if (!val) return;
+
+    if (!userTastes.tags) userTastes.tags = [];
+
+    const parts = val.split(',').map(p => p.trim()).filter(p => p.length > 0);
+    parts.forEach(p => {
+      if (!userTastes.tags.includes(p)) {
+        userTastes.tags.push(p);
+      }
+    });
+
+    input.value = '';
+    renderTasteTagChips();
+    updateTastesBadgeCount();
+  }
+
+  function removeTasteTag(tag) {
+    if (!userTastes.tags) return;
+    userTastes.tags = userTastes.tags.filter(t => t !== tag);
+    renderTasteTagChips();
+    updateTastesBadgeCount();
+  }
+
+  async function saveUserTastes() {
+    await saveUserTastesDirect(true);
+  }
+
+  async function saveUserTastesDirect(showAlert = true) {
+    const radius = parseFloat(document.getElementById('input-taste-radius').value) || 15;
+    userTastes.max_distance_km = radius;
+
+    // Guardar en almacenamiento local
+    localStorage.setItem('ofertapp_guest_tastes', JSON.stringify(userTastes));
+
+    // Si el usuario tiene cuenta iniciada, persistir en auth-service
+    if (currentUser && currentUser.token) {
+      try {
+        const payload = {
+          preferences: userTastes.categories.map(catId => ({
+            category_id: catId,
+            tags: userTastes.tags,
+            max_distance_km: userTastes.max_distance_km
+          }))
+        };
+
+        const res = await fetch(`${API_BASE}/tastes/me`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentUser.token}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok && showAlert) {
+          alert('💾 ¡Tus gustos han sido guardados permanentemente en tu perfil!');
+        }
+      } catch (err) {
+        console.error('Error al guardar gustos en servidor:', err);
+      }
+    } else if (showAlert) {
+      alert('💾 Gustos guardados temporalmente en este dispositivo.\n\n💡 Tip: Crea tu cuenta gratuita para guardarlos en la nube y recibir alertas.');
+    }
+
+    updateTastesBadgeCount();
+    closeTastesModal();
+    loadFeed('tastes');
+  }
+
+  // ==========================================
+  // BUSCADOR DE PROMOCIONES
+  // ==========================================
+  function onSearchInputChange(e) {
+    const val = e.target.value;
+    const clearBtn = document.getElementById('feed-search-clear-btn');
+    if (clearBtn) clearBtn.style.display = val.length > 0 ? 'inline-block' : 'none';
+  }
+
+  function executeSearch() {
+    const input = document.getElementById('feed-search-input');
+    const query = input ? input.value.trim() : '';
+    currentSearchQuery = query;
+
+    const ind = document.getElementById('search-active-indicator');
+    const txt = document.getElementById('search-active-text');
+
+    if (query) {
+      if (ind) ind.style.display = 'flex';
+      if (txt) txt.textContent = `"${query}"`;
+    } else {
+      if (ind) ind.style.display = 'none';
+    }
+
+    loadFeed(currentCategoryFilter);
+  }
+
+  function clearSearch() {
+    const input = document.getElementById('feed-search-input');
+    if (input) input.value = '';
+    currentSearchQuery = '';
+    const clearBtn = document.getElementById('feed-search-clear-btn');
+    if (clearBtn) clearBtn.style.display = 'none';
+    const ind = document.getElementById('search-active-indicator');
+    if (ind) ind.style.display = 'none';
+    loadFeed(currentCategoryFilter);
+  }
+
+  // ==========================================
+  // CONSUMIDOR: CARGA DE FEED DINÁMICO
+  // ==========================================
+  async function loadFeed(filter = 'tastes') {
+    currentCategoryFilter = filter;
+    let url = `${API_BASE}/promotions/feed?lat=${USER_COORDS.lat}&lon=${USER_COORDS.lon}&max_distance_km=${userTastes.max_distance_km || 15}`;
+
+    // Si hay búsqueda por texto libre activa
+    if (currentSearchQuery) {
+      url += `&search=${encodeURIComponent(currentSearchQuery)}`;
+    }
+
+    if (filter === 'tastes') {
+      if (userTastes.categories && userTastes.categories.length) {
+        url += `&taste_categories=${userTastes.categories.join(',')}`;
+      }
+      if (userTastes.tags && userTastes.tags.length) {
+        url += `&taste_tags=${encodeURIComponent(userTastes.tags.join(','))}`;
+      }
+    } else if (filter !== 'all') {
+      url += `&category_id=${filter}`;
+    }
+
+    try {
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        allPromotions = data.items || [];
+        renderFeedCards(allPromotions);
+        if (cityMap) renderCityPromoMarkers();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function filterFeed(type, btn) {
+    document.querySelectorAll('#client-cats-bar button').forEach(b => {
+      b.style.background = '#E2E8F0';
+      b.style.color = '#334155';
+    });
+    btn.style.background = 'var(--primary)';
+    btn.style.color = '#FFF';
+    loadFeed(type);
+  }
+
+  function renderFeedCards(items) {
+    const cont = document.getElementById('feed-list-view');
+    cont.innerHTML = '';
+
+    if (!items.length) {
+      if (currentSearchQuery) {
+        cont.innerHTML = `
+          <div style="text-align: center; padding: 36px 16px; color: var(--text-muted);">
+            <div style="font-size: 36px; margin-bottom: 8px;">🔍</div>
+            <strong style="color: #1E293B; font-size: 14px;">No encontramos promociones para "${currentSearchQuery}"</strong>
+            <p style="font-size: 11px; margin: 6px 0 14px 0;">Prueba con otra palabra clave (ej: pizza, combo, auriculares) o borra la búsqueda.</p>
+            <button class="btn-primary" style="font-size: 11px; padding: 7px 14px;" onclick="clearSearch()">Ver todas las ofertas</button>
+          </div>
+        `;
+      } else {
+        cont.innerHTML = `
+          <div style="text-align: center; padding: 36px 16px; color: var(--text-muted);">
+            <div style="font-size: 32px; margin-bottom: 6px;">🏷️</div>
+            <strong style="color: #1E293B; font-size: 13px;">No hay ofertas disponibles con los filtros actuales</strong>
+            <p style="font-size: 11px; margin: 4px 0 12px 0;">Prueba seleccionando "Todas" o configurando tus gustos.</p>
+            <button class="btn-secondary" style="font-size: 11px; padding: 6px 12px;" onclick="openTastesModal()">🎯 Ajustar Mis Gustos</button>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    items.forEach(p => {
+      const card = document.createElement('div');
+      card.className = `promo-card ${p.matches_taste ? 'matched' : ''}`;
+      card.innerHTML = `
+        <div style="position: relative;">
+          <img src="${p.image_url}" onerror="this.src='https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=600'">
+          <div class="badge-tag badge-discount">-${Math.round(p.discount_percent)}% OFF</div>
+          <div class="badge-tag badge-dist">📍 ${p.distance_label}</div>
+          ${p.matches_taste ? '<div class="badge-tag badge-taste">⭐ Tus gustos</div>' : ''}
+        </div>
+        <div style="padding: 12px;">
+          <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">${p.category_icon || '🏷️'} ${p.category_name} • ${p.merchant_name}</div>
+          <h4 style="font-size: 15px; font-weight: 800; margin: 4px 0;">${p.title}</h4>
+          <p style="font-size: 11px; color: #64748B;">📍 ${p.address}</p>
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 8px;">
+            <div>
+              <span style="font-size: 11px; color: #94A3B8; text-decoration: line-through;">$${Math.round(p.original_price)}</span>
+              <div style="font-size: 18px; font-weight: 800; color: var(--primary);">$${Math.round(p.promo_price)}</div>
+            </div>
+            <button class="btn-primary" style="font-size: 11px; padding: 6px 12px;" onclick="alert('¡Cupón canjeado para ${p.merchant_name}!')">Aprovechar</button>
+          </div>
+        </div>
+      `;
+      cont.appendChild(card);
+    });
+  }
+
+  // ==========================================
+  // PORTAL DE COMERCIO: GESTIÓN
+  // ==========================================
+  function setMerchantSubtab(tab) {
+    document.getElementById('merch-subtab-promos').style.display = tab === 'my-promos' ? 'block' : 'none';
+    document.getElementById('merch-subtab-new').style.display = tab === 'new-promo' ? 'block' : 'none';
+
+    document.getElementById('btn-merch-promos').className = tab === 'my-promos' ? 'btn-primary' : 'btn-secondary';
+    document.getElementById('btn-merch-new').className = tab === 'new-promo' ? 'btn-primary' : 'btn-secondary';
+
+    if (tab === 'new-promo') {
+      setTimeout(initMerchantMap, 150);
+    }
+  }
+
+  async function loadMerchantPromotions() {
+    try {
+      const res = await fetch(`${API_BASE}/merchants/1/promotions`);
+      if (res.ok) {
+        const promos = await res.json();
+        document.getElementById('merchant-promos-count').textContent = `${promos.length} ofertas`;
+        const list = document.getElementById('merchant-promos-list');
+        list.innerHTML = '';
+
+        if (!promos.length) {
+          list.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;">No tienes promociones registradas.</div>';
+          return;
+        }
+
+        promos.forEach(p => {
+          const item = document.createElement('div');
+          item.style.background = '#FFFFFF';
+          item.style.border = '1px solid var(--border)';
+          item.style.borderRadius = '12px';
+          item.style.padding = '12px';
+          item.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div>
+                <span style="font-size: 10px; font-weight: bold; background: ${p.is_active ? '#ECFDF5' : '#FEF2F2'}; color: ${p.is_active ? '#059669' : '#DC2626'}; padding: 2px 6px; border-radius: 4px;">
+                  ${p.is_active ? '● Activa' : '● Pausada'}
+                </span>
+                <h4 style="font-size: 13px; font-weight: 800; margin-top: 4px;">${p.title}</h4>
+                <div style="font-size: 11px; color: var(--text-muted);">$${Math.round(p.promo_price)} (${Math.round(p.discount_percent)}% OFF) • 📍 ${p.address}</div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <button class="btn-secondary" style="font-size: 10px; padding: 4px 8px;" onclick="togglePromoStatus(${p.id})">
+                  ${p.is_active ? 'Pausar' : 'Activar'}
+                </button>
+                <button class="btn-secondary" style="font-size: 10px; padding: 4px 8px; color: #DC2626;" onclick="deletePromo(${p.id})">
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          `;
+          list.appendChild(item);
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function togglePromoStatus(id) {
+    await fetch(`${API_BASE}/promotions/${id}/toggle-status`, { method: 'PATCH' });
+    loadMerchantPromotions();
+  }
+
+  async function deletePromo(id) {
+    if (confirm('¿Eliminar esta promoción?')) {
+      await fetch(`${API_BASE}/promotions/${id}`, { method: 'DELETE' });
+      loadMerchantPromotions();
+    }
+  }
+
+  async function handleMerchantCreate(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-save-merch');
+    btn.disabled = true;
+    btn.textContent = 'Guardando y emitiendo alertas...';
+
+    const payload = {
+      merchant_id: 1,
+      merchant_name: 'Pizzería Bella Napoli (Tu Comercio)',
+      title: document.getElementById('m-title').value,
+      description: 'Oferta exclusiva registrada desde el Portal de Comercio.',
+      category_id: parseInt(document.getElementById('m-category').value),
+      original_price: parseFloat(document.getElementById('m-price').value),
+      discount_percent: parseFloat(document.getElementById('m-discount').value),
+      image_url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600',
+      tags: document.getElementById('m-tags').value.split(',').map(t => t.trim()).filter(Boolean),
+      latitude: parseFloat(document.getElementById('m-lat').value),
+      longitude: parseFloat(document.getElementById('m-lon').value),
+      address: document.getElementById('m-address').value
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/promotions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        alert('✅ ¡Promoción registrada exitosamente!\n\nSe georreferenció en el mapa y se enviaron alertas a los usuarios interesados cercanos.');
+        setMerchantSubtab('my-promos');
+        loadMerchantPromotions();
+      }
+    } catch (err) {
+      alert('Error al registrar promoción.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🚀 Publicar y Disparar Alertas a Usuarios';
+    }
+  }
+
+  // ==========================================
+  // PANEL ADMINISTRADOR (ROLES & CONFIG)
+  // ==========================================
+  function setAdminSubtab(tab) {
+    document.getElementById('adm-subtab-users').style.display = tab === 'users' ? 'block' : 'none';
+    document.getElementById('adm-subtab-settings').style.display = tab === 'settings' ? 'block' : 'none';
+    document.getElementById('adm-subtab-categories').style.display = tab === 'categories' ? 'block' : 'none';
+
+    document.getElementById('btn-adm-users').className = tab === 'users' ? 'btn-primary' : 'btn-secondary';
+    document.getElementById('btn-adm-settings').className = tab === 'settings' ? 'btn-primary' : 'btn-secondary';
+    document.getElementById('btn-adm-cats').className = tab === 'categories' ? 'btn-primary' : 'btn-secondary';
+  }
+
+  async function loadAdminUsers() {
+    try {
+      const res = await fetch(`${API_BASE}/admin/users`);
+      if (res.ok) {
+        const users = await res.json();
+        const tbody = document.getElementById('admin-users-tbody');
+        tbody.innerHTML = '';
+
+        users.forEach(u => {
+          const tr = document.createElement('tr');
+          const safeName = (u.full_name || 'Usuario').replace(/'/g, "\\'");
+          tr.innerHTML = `
+            <td><strong>#${u.id}</strong></td>
+            <td>
+              <strong style="color: #0F172A;">${u.full_name}</strong><br>
+              <span style="color: var(--text-muted); font-size: 10px;">📧 ${u.email}</span>
+              ${u.phone ? `<br><span style="color: var(--text-muted); font-size: 10px;">📞 ${u.phone}</span>` : ''}
+            </td>
+            <td>
+              <select onchange="changeUserRole(${u.id}, this.value)" style="font-size: 11px; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--border); background: #FFF;">
+                <option value="user" ${u.role === 'user' ? 'selected' : ''}>👤 Consumidor</option>
+                <option value="merchant" ${u.role === 'merchant' ? 'selected' : ''}>🏪 Comercio</option>
+                <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>🛡️ Administrador</option>
+              </select>
+            </td>
+            <td>
+              <span style="color: ${u.is_active ? '#059669' : '#DC2626'}; font-weight: bold; font-size: 11px;">
+                ${u.is_active ? '● Activo' : '○ Inactivo'}
+              </span>
+            </td>
+            <td style="white-space: nowrap;">
+              <button class="btn-secondary" style="font-size: 10px; padding: 4px 6px; margin-right: 4px;" onclick="toggleUserActive(${u.id}, ${!u.is_active})">
+                ${u.is_active ? 'Suspender' : 'Activar'}
+              </button>
+              <button class="btn-secondary" style="font-size: 10px; padding: 4px 6px; color: #DC2626; border-color: #FCA5A5;" onclick="deleteUserAdmin(${u.id}, '${safeName}')" title="Eliminar usuario">
+                🗑️
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function handleAdminCreateUser(e) {
+    e.preventDefault();
+    const fullName = document.getElementById('new-user-name').value.trim();
+    const email = document.getElementById('new-user-email').value.trim();
+    const password = document.getElementById('new-user-password').value;
+    const phone = document.getElementById('new-user-phone').value.trim();
+    const role = document.getElementById('new-user-role').value;
+    const btn = document.getElementById('btn-create-user');
+
+    btn.disabled = true;
+    btn.textContent = 'Creando usuario...';
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: fullName,
+          email: email,
+          password: password,
+          phone: phone || null,
+          role: role,
+          is_active: true
+        })
+      });
+
+      if (res.ok) {
+        const newUser = await res.json();
+        alert(`✅ Usuario "${newUser.full_name}" registrado exitosamente con rol [${newUser.role.toUpperCase()}].`);
+        document.getElementById('form-create-user').reset();
+        loadAdminUsers();
+      } else {
+        const err = await res.json();
+        alert(`⚠️ No se pudo crear el usuario: ${err.detail || 'Verifique los datos ingresados'}`);
+      }
+    } catch (err) {
+      alert('❌ Error de conexión al crear usuario.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🚀 Crear y Activar Usuario';
+    }
+  }
+
+  async function deleteUserAdmin(userId, userName) {
+    if (!confirm(`¿Estás seguro de que deseas eliminar al usuario #${userId} (${userName}) del sistema? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/admin/users/${userId}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        alert(`✅ Usuario #${userId} eliminado con éxito.`);
+        loadAdminUsers();
+      } else {
+        const err = await res.json();
+        alert(`⚠️ Error al eliminar usuario: ${err.detail || 'No se pudo eliminar'}`);
+      }
+    } catch (e) {
+      alert('❌ Error al conectar con el servidor.');
+    }
+  }
+
+  async function changeUserRole(userId, newRole) {
+    try {
+      const res = await fetch(`${API_BASE}/admin/users/${userId}/role`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: newRole })
+      });
+      if (res.ok) {
+        alert(`✅ Permiso actualizado a: ${newRole.toUpperCase()}`);
+      }
+    } catch (e) {
+      alert('Error al actualizar rol');
+    }
+  }
+
+  async function toggleUserActive(userId, active) {
+    try {
+      await fetch(`${API_BASE}/admin/users/${userId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_active: active })
+      });
+      loadAdminUsers();
+    } catch (e) {
+      alert('Error al actualizar estado del usuario');
+    }
+  }
+
+  async function loadAdminSettings() {
+    try {
+      const res = await fetch(`${API_BASE}/admin/settings`);
+      if (res.ok) {
+        const settings = await res.json();
+        const container = document.getElementById('admin-settings-container');
+        container.innerHTML = '';
+
+        settings.forEach(s => {
+          const item = document.createElement('div');
+          item.style.background = '#FFFFFF';
+          item.style.border = '1px solid var(--border)';
+          item.style.borderRadius = '12px';
+          item.style.padding = '12px';
+          item.innerHTML = `
+            <div style="font-size: 12px; font-weight: 800; color: #1E293B;">${s.key}</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">${s.description || ''}</div>
+            <div style="display: flex; gap: 8px;">
+              <input class="form-input" style="padding: 6px 10px; font-size: 12px;" value="${s.value}" id="input-setting-${s.key}">
+              <button class="btn-primary" style="font-size: 11px; padding: 6px 12px;" onclick="saveSetting('${s.key}')">Guardar</button>
+            </div>
+          `;
+          container.appendChild(item);
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function saveSetting(key) {
+    const val = document.getElementById(`input-setting-${key}`).value;
+    try {
+      const res = await fetch(`${API_BASE}/admin/settings/${key}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: key, value: val })
+      });
+      if (res.ok) {
+        alert(`✅ Configuración [${key}] actualizada a: ${val}`);
+      }
+    } catch (e) {
+      alert('Error al guardar configuración');
+    }
+  }
+
+  async function loadAdminCategories() {
+    try {
+      const res = await fetch(`${API_BASE}/categories`);
+      if (res.ok) {
+        const cats = await res.json();
+        const list = document.getElementById('admin-categories-list');
+        list.innerHTML = '';
+        cats.forEach(c => {
+          const div = document.createElement('div');
+          div.style.background = '#FFFFFF';
+          div.style.border = '1px solid var(--border)';
+          div.style.borderRadius = '8px';
+          div.style.padding = '8px 12px';
+          div.style.display = 'flex';
+          div.style.justifyContent = 'space-between';
+          div.style.fontSize = '12px';
+          div.innerHTML = `
+            <span>${c.icon} <strong>${c.name}</strong> (${c.slug})</span>
+            <span style="color: var(--text-muted); font-size: 11px;">ID: ${c.id}</span>
+          `;
+          list.appendChild(div);
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function handleCreateCategory(e) {
+    e.preventDefault();
+    const name = document.getElementById('cat-name').value;
+    const icon = document.getElementById('cat-icon').value;
+    const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/categories`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, slug, icon })
+      });
+      if (res.ok) {
+        alert('✅ Categoría creada');
+        document.getElementById('cat-name').value = '';
+        document.getElementById('cat-icon').value = '';
+        loadAdminCategories();
+      }
+    } catch (e) {
+      alert('Error al crear categoría');
+    }
+  }
+
+  // Inicialización de Ofertapp
+  initUserSession();
+  loadFeed();
+</script>
+
+</body>
+</html>

@@ -21,17 +21,47 @@ class Token(BaseModel):
     email: str
     full_name: str
     role: str
+    phone: Optional[str] = None
+    logo_url: Optional[str] = None
+    banner_url: Optional[str] = None
 
 class UserResponse(BaseModel):
     id: int
     email: str
     full_name: str
-    phone: Optional[str]
+    phone: Optional[str] = None
     role: str
     is_active: bool
+    logo_url: Optional[str] = None
+    banner_url: Optional[str] = None
+    bio: Optional[str] = None
+    social_instagram: Optional[str] = None
+    social_facebook: Optional[str] = None
+    social_twitter: Optional[str] = None
+    social_whatsapp: Optional[str] = None
+    website: Optional[str] = None
 
     class Config:
         from_attributes = True
+
+# User Profile & Password Schemas
+class UserProfileUpdate(BaseModel):
+    full_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+    logo_url: Optional[str] = None
+    banner_url: Optional[str] = None
+    bio: Optional[str] = None
+    social_instagram: Optional[str] = None
+    social_facebook: Optional[str] = None
+    social_twitter: Optional[str] = None
+    social_whatsapp: Optional[str] = None
+    website: Optional[str] = None
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+    confirm_password: Optional[str] = None
 
 # Tastes Schemas
 class TasteCategoryResponse(BaseModel):
@@ -132,6 +162,14 @@ class UserCreateAdmin(BaseModel):
     phone: Optional[str] = None
     role: str = "user"
     is_active: bool = True
+    logo_url: Optional[str] = None
+    banner_url: Optional[str] = None
+    bio: Optional[str] = None
+    social_instagram: Optional[str] = None
+    social_facebook: Optional[str] = None
+    social_twitter: Optional[str] = None
+    social_whatsapp: Optional[str] = None
+    website: Optional[str] = None
 
 class UserUpdate(BaseModel):
     full_name: Optional[str] = None
@@ -139,6 +177,14 @@ class UserUpdate(BaseModel):
     phone: Optional[str] = None
     role: Optional[str] = None
     is_active: Optional[bool] = None
+    logo_url: Optional[str] = None
+    banner_url: Optional[str] = None
+    bio: Optional[str] = None
+    social_instagram: Optional[str] = None
+    social_facebook: Optional[str] = None
+    social_twitter: Optional[str] = None
+    social_whatsapp: Optional[str] = None
+    website: Optional[str] = None
 
 class SystemSettingCreate(BaseModel):
     key: str

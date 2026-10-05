@@ -99,6 +99,12 @@ flowchart TD
     * Permite que los usuarios creen su propia cuenta (`POST /auth/register`) con nombre, correo y contraseña.
     * Al iniciar sesión (`POST /auth/login`), sus gustos e intereses quedan guardados de forma persistente en la nube.
     * Funciona tanto para usuarios registrados como en modo invitado (con almacenamiento local de prueba).
+  * **Gestión Integral de Perfil de Usuario, Identidad y Seguridad**:
+    * **Interfaz Dedicada y Accesible**: Botón directo de edición en la tarjeta del Drawer (*✏️ Mi Perfil de Usuario*), acceso rápido con foto de avatar en la cabecera del feed y pestaña especial en el Portal de Comercio (*🏪 Mi Negocio*).
+    * **Identidad Visual & Portada**: Configuración de **Nombre**, **Logo / Avatar** circular y **Banner de Cabecera** con previsualización en vivo en tiempo real y selector de estilos predefinidos (Gastronomía, Verano, Cyber Tech, Tienda Urbana).
+    * **Datos de Contacto**: Correo electrónico, teléfono / WhatsApp de contacto y biografía o descripción del negocio/usuario.
+    * **Integración de Redes Sociales**: Conexión de perfiles directos de **Instagram**, **WhatsApp**, **Facebook**, **X (Twitter)** y **Sitio Web / Tienda Online** con badges visuales.
+    * **Seguridad y Cambio de Contraseña (`POST /auth/change-password`)**: Módulo seguro para modificar la clave de acceso con verificación de contraseña actual, medidor de seguridad y confirmación en tiempo real.
   * **Configurador de Gustos (Agregar y Quitar Preferencias)**:
     * **Categorías**: Selección interactiva de categorías favoritas (activar/desactivar con un clic).
     * **Etiquetas y Palabras Clave (Tags)**: Sistema dinámico con chips donde el usuario puede **agregar nuevos gustos** (ej: `pizza`, `sushi`, `zapatillas`, `auriculares`) y **quitar gustos existentes** pulsando sobre la `✕` de cada etiqueta.
@@ -108,10 +114,20 @@ flowchart TD
     * Buscador integrado en la cabecera del feed que permite buscar ofertas por texto libre (nombre de producto, plato, tienda o tag).
     * **Diseñado especialmente para usuarios que no tienen gustos configurados** o que desean explorar ofertas específicas fuera de su perfil habitual.
     * Soporta limpieza rápida de búsqueda (`✕`), filtrado en tiempo real y mensaje con sugerencias cuando no hay coincidencias.
-  * **Feed Personalizado**: Listado clasificado con insignias de descuento (*-50% OFF*), indicador de distancia (*a 70 m*, *a 340 m*) y badge de afinidad (*⭐ Tus gustos*).
+  * **Feed Personalizado**: Listado clasificado con insignias de descuento (*-50% OFF*), indicador de distancia (*a 70 m*, *a 340 m*), insignia de fotos (*📸 4 fotos*) y badge de afinidad (*⭐ Tus gustos*).
+  * **Ficha de Detalle con Galería de Fotos & Descripción Enriquecida**:
+    * Visor de fotos interactivo en alta resolución con controles anterior/siguiente (`‹` / `›`), contador dinámico (`📸 1 / 4`) y carrusel de miniaturas seleccionables con reborde activo.
+    * Descripción completa del producto o servicio con desglose de qué incluye, calidad, términos y condiciones.
+    * Desglose de precios (precio regular tachado, porcentaje de descuento y cálculo de ahorro estimado *¡Ahorras $X.XXX!*).
+    * Ficha del comercio con dirección física verificada y botón directo para visualizarlo en el mapa interactivo.
+  * **Pasarela de Compras y Pagos en Línea (Checkout)**:
+    * Botón de compra directa (*💳 Comprar / Pagar en Línea*).
+    * Selector dinámico de cantidades (`-` `1` `+`) con recálculo automático del total.
+    * Múltiples métodos de pago integrados: Tarjetas de Crédito/Débito (Visa, Mastercard, Cabal), Mercado Pago / Billetera Digital y Transferencia Bancaria Directa.
+    * Emisión instantánea de comprobante con Nº de Orden (`ORD-XXXX`), ID de Transacción (`TXN-XXXX`), monto total y **Token QR de seguridad** para canjear en el local.
   * **Mapa de Ofertas de la Ciudad**:
     * Vista completa interactiva estilo Google Maps que muestra la posición GPS actual del usuario (marcador azul pulsante) y los locales con ofertas como pines personalizados.
-    * Al tocar un pin se abre una ficha emergente con foto, descuento, distancia y botón para canjear cupón o trazar ruta.
+    * Al tocar un pin se abre una ficha emergente con foto, descuento, distancia y botones de acceso directo para abrir el visor de fotos y pagar en línea.
   * **Bandeja de Alertas**: Notificaciones proactivas recibidas cuando un negocio cercano activa una oferta compatible con su perfil de gustos.
 
 ---
@@ -120,15 +136,18 @@ flowchart TD
 
 ### 1. `auth-service` (Puerto 8001)
 * **Autenticación & Autoregistro**: Registro de nuevas cuentas de consumidores (`POST /auth/register`), login seguro con `bcrypt` y tokens `JWT` (`POST /auth/login`).
+* **Perfil de Usuario, Redes y Seguridad**: Consulta de perfil (`GET /auth/profile`, `GET /auth/me`), actualización integral de identidad, contacto, logo, banner y redes (`PUT /auth/profile`), y cambio seguro de contraseña (`POST /auth/change-password`).
 * **Perfilado y CRUD de Gustos**: Gestión completa de preferencias del usuario (`GET /tastes/me`, `PUT /tastes/me`, `DELETE /tastes/me/{category_id}`).
 * **Control de Usuarios & Roles**: Endpoints administrativos (`POST /admin/users`, `GET /admin/users`, `PUT /admin/users/{id}/role`, `DELETE /admin/users/{id}`).
 * **Configuraciones Globales**: Endpoints de configuración (`GET /admin/settings`, `PUT /admin/settings/{key}`).
 * **Matching de Audiencia**: Motor interno para cruzar coordenadas de una oferta con los usuarios que tengan ese gusto dentro del radio.
 
 ### 2. `transactions-service` (Puerto 8002)
-* **Catálogo & Geo-Promociones**: CRUD de promociones con persistencia de coordenadas (`latitude`, `longitude`, `address`).
+* **Transacciones de Servicios y Productos**: Endpoints principales para registrar transacciones (`POST /transactions`) vinculando Servicio, Producto y Usuario con comprobantes, y consultar su listado con filtros (`GET /transactions`, `GET /transactions/{id}`).
+* **Catálogo, Geo-Promociones & Galería de Imágenes**: CRUD de promociones con persistencia de coordenadas (`latitude`, `longitude`, `address`), foto de portada y URLs adicionales para galería multi-fotos (`gallery`).
 * **Buscador Libre & Filtro de Proximidad**: Endpoint `GET /promotions/feed` con soporte de búsqueda por texto libre (`?search=...`), filtrado por categoría (`?category_id=...`), radio máximo (`?max_distance_km=...`) y ordenamiento por gustos afines (`?taste_tags=...` y `?taste_categories=...`).
-* **Portal de Comercios**: Endpoints específicos para comercios (`GET /merchants/{id}/promotions`, `PATCH /promotions/{id}/toggle-status`, `PUT /promotions/{id}`).
+* **Pasarela de Pagos en Línea & Órdenes**: Endpoints para procesar compras en línea (`POST /orders/checkout`), consultar comprobantes (`GET /orders/{order_number}`) y consultar ventas del comercio (`GET /merchants/{merchant_id}/orders`).
+* **Portal de Comercios**: Endpoints específicos para comercios (`GET /merchants/{id}/promotions`, `PATCH /promotions/{id}/toggle-status`, `PUT /promotions/{id}`, `GET /merchants/{id}/orders`).
 * **Disparo de Eventos**: Notifica al servicio de alertas al darse de alta una oferta.
 
 ### 3. `notifications-services` (Puerto 8003)
@@ -139,7 +158,7 @@ flowchart TD
 * **Reportes Automáticos**: Métricas consolidadas de visualizaciones, ahorro estimado en la ciudad y mapa de demanda de gustos por zonas urbanas.
 
 ### 5. `api-gateway` (Puerto 8000)
-* Punto único de entrada, proxy inverso, inyección de roles JWT, CORS y servidor de la **Aplicación Web Interactiva** en `/app`.
+* Punto único de entrada, proxy inverso hacia los microservicios (incluyendo rutas `/api/v1/transactions` y `/api/v1/orders`), inyección de roles JWT, CORS y servidor de la **Aplicación Web Interactiva** en `/app`.
 
 ---
 
@@ -150,14 +169,18 @@ Cada módulo de Ofertapp cuenta con su propio ciclo CRUD completo e independient
 | Microservicio | Módulo / Entidad | Crear (Create) | Leer (Read) | Escribir / Editar (Update) | Borrar (Delete) |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **`auth-service`** | **Cuentas de Consumidor** | `POST /auth/register` *(Autoregistro público)* | `GET /auth/me` | `PUT /auth/me` | `DELETE /admin/users/{id}` |
+| **`auth-service`** | **Perfil, Redes & Contraseña** | `POST /auth/change-password` *(Cambio seguro)* | `GET /auth/profile`<br>`GET /auth/me` | `PUT /auth/profile` *(Nombre, logo, banner, redes)* | `DELETE /admin/users/{id}` |
 | **`auth-service`** | **Usuarios (Admin)** | `POST /admin/users` *(Alta de usuarios, comercios y admins)* | `GET /admin/users`<br>`GET /admin/users/{id}` | `PUT /admin/users/{id}`<br>`PUT /admin/users/{id}/role` | `DELETE /admin/users/{id}` |
 | **`auth-service`** | **Perfil de Gustos** | `PUT /tastes/me` *(Crear o sustituir gustos)* | `GET /tastes/me` | `PUT /tastes/me` | `DELETE /tastes/me/{category_id}` *(Quitar gusto)* |
 | **`auth-service`** | **Categorías de Gustos** | `POST /admin/categories` | `GET /tastes/categories`<br>`GET /admin/categories/{id}` | `PUT /admin/categories/{id}` | `DELETE /admin/categories/{id}` |
 | **`auth-service`** | **Configuraciones Globales** | `POST /admin/settings` | `GET /admin/settings`<br>`GET /admin/settings/{key}` | `PUT /admin/settings/{key}` | `DELETE /admin/settings/{key}` |
-| **`transactions-service`** | **Promociones & Buscador** | `POST /promotions` | `GET /promotions/feed?search=...`<br>`GET /promotions/{id}`<br>`GET /merchants/{id}/promotions` | `PUT /promotions/{id}`<br>`PATCH /promotions/{id}/toggle-status` | `DELETE /promotions/{id}` |
+| **`transactions-service`** | **Transacciones (Servicio, Producto, Usuario)** | `POST /transactions` *(Crear asociando servicio, producto y usuario)* | `GET /transactions`<br>`GET /transactions/{id}`<br>`GET /transactions/code/{code}` | `PATCH /transactions/{id}` | N/A *(Auditado)* |
+| **`transactions-service`** | **Promociones, Fotos & Buscador** | `POST /promotions` *(Con galería de imágenes y descripción)* | `GET /promotions/feed?search=...`<br>`GET /promotions/{id}`<br>`GET /merchants/{id}/promotions` | `PUT /promotions/{id}`<br>`PATCH /promotions/{id}/toggle-status` | `DELETE /promotions/{id}` |
+| **`transactions-service`** | **Órdenes & Pagos en Línea** | `POST /orders/checkout` *(Pago con tarjeta, MP o transferencia)* | `GET /orders/{order_number}`<br>`GET /merchants/{id}/orders` | N/A *(Inmutable / Auditado)* | N/A |
 | **`transactions-service`** | **Categorías del Catálogo** | `POST /categories` | `GET /categories`<br>`GET /categories/{id}` | `PUT /categories/{id}` | `DELETE /categories/{id}` |
 | **`notifications-services`** | **Alertas / Notificaciones** | `POST /events/promotion-created`<br>`POST /notifications` | `GET /notifications/user/{id}`<br>`GET /notifications/{id}` | `PUT /notifications/{id}/read`<br>`PUT /notifications/{id}` | `DELETE /notifications/{id}`<br>`DELETE /notifications/user/{id}` |
 | **`reports-service`** | **Reportes Analíticos** | `POST /reports/custom` | `GET /reports/dashboard-summary`<br>`GET /reports/merchant/{id}`<br>`GET /reports/zone-demand`<br>`GET /reports/custom` | `PUT /reports/custom/{id}` | `DELETE /reports/custom/{id}` |
+
 
 ---
 

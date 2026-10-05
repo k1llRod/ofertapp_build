@@ -4,22 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ofertapp - Plataforma Integral (Usuario, Portal Comercio & Administrador)</title>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Leaflet CSS & JS para Mapas estilo Google Maps -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <style>
     :root {
-      --primary: #FF5722;
-      --primary-dark: #E64A19;
-      --secondary: #00897B;
-      --accent: #FFA000;
+      --primary: #F59E0B;
+      --primary-dark: #D97706;
+      --secondary: #1E3A8A;
+      --accent: #D97706;
+      --success: #10B981;
       --bg: #F1F5F9;
       --card-bg: #FFFFFF;
       --text: #0F172A;
       --text-muted: #64748B;
       --border: #E2E8F0;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
     body { background: #0B1120; color: var(--text); min-height: 100vh; padding: 20px; display: flex; flex-direction: column; align-items: center; }
 
     /* Role Switcher Toolbar */
@@ -52,8 +57,8 @@
     }
     .role-btn.active {
       background: var(--primary);
-      color: #FFFFFF;
-      box-shadow: 0 4px 12px rgba(255, 87, 34, 0.4);
+      color: #0F172A;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
     }
 
     /* Main Container (Mobile Device Viewport) */
@@ -126,12 +131,75 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.03);
       position: relative;
     }
-    .promo-card.matched { border: 1.5px solid rgba(255, 87, 34, 0.45); }
-    .promo-card img { width: 100%; height: 130px; object-fit: cover; }
-    .badge-tag { position: absolute; top: 10px; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px; color: #FFF; }
-    .badge-discount { left: 10px; background: var(--primary); }
-    .badge-dist { right: 10px; background: rgba(0,0,0,0.75); }
-    .badge-taste { bottom: 120px; left: 10px; background: #D97706; }
+    .promo-card.matched { border: 1.5px solid rgba(245, 158, 11, 0.5); }
+    .promo-card img { width: 100%; height: 135px; object-fit: cover; display: block; }
+    
+    /* Contenedor flotante superior para Badges organizados sin colisiones */
+    .promo-card-badges-header {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .promo-badges-col-left {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 5px;
+    }
+    .promo-badges-col-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 5px;
+    }
+    .badge-pill {
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 3.5px 8px;
+      border-radius: 6px;
+      line-height: 1.2;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .badge-pill-discount {
+      background: var(--primary);
+      color: #0F172A;
+      font-weight: 900;
+      border: 1px solid rgba(255,255,255,0.6);
+    }
+    .badge-pill-taste {
+      background: #D97706;
+      color: #FFFFFF;
+      border: 1px solid #FCD34D;
+      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.4);
+    }
+    .badge-pill-dist {
+      background: rgba(15, 23, 42, 0.8);
+      color: #FFFFFF;
+      backdrop-filter: blur(4px);
+    }
+    .badge-pill-photos {
+      background: rgba(15, 23, 42, 0.85);
+      color: #FFFFFF;
+      border-radius: 999px;
+      font-size: 9.5px;
+      backdrop-filter: blur(4px);
+    }
+    
+    /* Legacy fallback */
+    .badge-tag { position: absolute; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px; color: #FFF; }
+    .badge-discount { top: 10px; left: 10px; background: var(--primary); }
+    .badge-dist { top: 10px; right: 10px; background: rgba(0,0,0,0.75); }
+    .badge-taste { top: 38px; left: 10px; background: #D97706; }
 
     /* Tables for Admin */
     .admin-table {
@@ -278,6 +346,62 @@
       color: var(--primary);
     }
 
+    /* Profile Modal Styles */
+    .profile-nav-btn {
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 800;
+      border: none;
+      background: transparent;
+      color: #64748B;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+    .profile-nav-btn:hover {
+      color: #1E293B;
+    }
+    .profile-nav-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      background: rgba(245, 158, 11, 0.08);
+      border-radius: 8px 8px 0 0;
+    }
+    .preset-pill {
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .preset-pill:hover {
+      border-color: var(--primary);
+      background: #FFFBEB;
+      color: #B45309;
+    }
+    .social-chip-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: transform 0.1s;
+    }
+    .social-chip-badge:hover {
+      transform: scale(1.05);
+    }
+
     /* Hamburger Menu Button */
     .hamburger-btn {
       background: transparent;
@@ -353,6 +477,121 @@
       background: #F8FAFC;
       border-color: #CBD5E1;
     }
+
+    /* Promo Detail Gallery & Carousel */
+    .gallery-container {
+      position: relative;
+      width: 100%;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #0F172A;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .gallery-main-viewport {
+      position: relative;
+      width: 100%;
+      height: 230px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      overflow: hidden;
+    }
+    .gallery-main-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 0.2s ease;
+    }
+    .gallery-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(15, 23, 42, 0.65);
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      font-size: 18px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 5;
+      backdrop-filter: blur(4px);
+      transition: all 0.15s ease;
+    }
+    .gallery-nav-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      transform: translateY(-50%) scale(1.08);
+    }
+    .gallery-nav-btn.prev { left: 8px; }
+    .gallery-nav-btn.next { right: 8px; }
+    .gallery-counter-badge {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(15, 23, 42, 0.75);
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .gallery-thumbs-strip {
+      display: flex;
+      gap: 6px;
+      padding: 8px 2px 2px 2px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    .gallery-thumb-item {
+      width: 58px;
+      height: 44px;
+      border-radius: 8px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid transparent;
+      opacity: 0.65;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .gallery-thumb-item:hover {
+      opacity: 0.9;
+    }
+    .gallery-thumb-item.active {
+      border-color: var(--primary);
+      opacity: 1;
+      transform: scale(1.03);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+    }
+
+    /* Checkout & Payment styles */
+    .payment-method-card {
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      background: #FFFFFF;
+      transition: all 0.15s ease;
+    }
+    .payment-method-card:hover {
+      border-color: #CBD5E1;
+      background: #F8FAFC;
+    }
+    .payment-method-card.selected {
+      border-color: var(--primary);
+      background: #FFF7ED;
+      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.15);
+    }
   </style>
 </head>
 <body>
@@ -393,9 +632,9 @@
       <div style="flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 14px;">
         
         <!-- Tarjeta de Cuenta de Usuario (Invitado vs Registrado) -->
-        <div id="drawer-user-card" style="background: linear-gradient(135deg, #FFF7ED 0%, #FED7AA 100%); border: 1.5px solid #FDBA74; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 2px 8px rgba(255,87,34,0.08);">
+        <div id="drawer-user-card" style="background: linear-gradient(135deg, #FFF7ED 0%, #FED7AA 100%); border: 1.5px solid #FDBA74; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 2px 8px rgba(245,158,11,0.08);">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <div id="drawer-user-avatar" style="width: 42px; height: 42px; border-radius: 50%; background: #FF5722; color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; box-shadow: 0 2px 6px rgba(255,87,34,0.3);">
+            <div id="drawer-user-avatar" style="width: 42px; height: 42px; border-radius: 50%; background: #F59E0B; color: #0F172A; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; box-shadow: 0 2px 6px rgba(245,158,11,0.3);">
               👤
             </div>
             <div style="flex: 1; min-width: 0;">
@@ -412,6 +651,9 @@
           <button id="drawer-btn-auth" class="btn-primary" style="width: 100%; font-size: 11px; padding: 8px 10px; border-radius: 10px; font-weight: 800;" onclick="toggleSidebar(false); openAuthModal('register');">
             ✨ Crear Cuenta / Iniciar Sesión
           </button>
+          <button id="drawer-btn-profile" class="btn-primary" style="display: none; width: 100%; font-size: 11px; padding: 8px 10px; border-radius: 10px; font-weight: 800; background: #0F172A; color: #FFFFFF;" onclick="toggleSidebar(false); openUserProfileModal();">
+            ✏️ Mi Perfil de Usuario
+          </button>
           <button id="drawer-btn-logout" class="btn-secondary" style="display: none; width: 100%; font-size: 11px; padding: 7px; color: #DC2626; border: 1px solid #FECACA; background: #FFF; border-radius: 10px; font-weight: 800;" onclick="toggleSidebar(false); logoutUser();">
             🚪 Cerrar Sesión
           </button>
@@ -423,6 +665,18 @@
             Mi Configuración
           </div>
 
+          <!-- Mi Perfil -->
+          <button class="drawer-menu-item" onclick="toggleSidebar(false); openUserProfileModal();">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 16px;">👤</span>
+              <div>
+                <div style="font-size: 12px; font-weight: 800; color: #1E293B;">Mi Perfil y Contraseña</div>
+                <div style="font-size: 10px; color: #64748B;">Logo, banner, redes y seguridad</div>
+              </div>
+            </div>
+            <span style="font-size: 11px; color: #94A3B8;">›</span>
+          </button>
+
           <!-- Mis Gustos -->
           <button class="drawer-menu-item" onclick="toggleSidebar(false); openTastesModal();">
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -432,7 +686,7 @@
                 <div style="font-size: 10px; color: #64748B;">Personalizar categorías y tags</div>
               </div>
             </div>
-            <span id="drawer-tastes-badge" style="background: #FF5722; color: #FFF; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 999px;">0</span>
+            <span id="drawer-tastes-badge" style="background: #F59E0B; color: #0F172A; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 999px;">0</span>
           </button>
 
           <!-- Centro de Alertas -->
@@ -525,10 +779,14 @@
         </button>
         <div class="brand-title">
           <span>🏷️</span>
-          <span>Ofertapp</span>
+          <span><span style="color:#0F172A;">Ofert</span><span style="color:var(--primary);">App</span></span>
         </div>
       </div>
       <div style="display: flex; align-items: center; gap: 6px;">
+        <!-- Botón rápido Mi Perfil con Avatar -->
+        <button id="header-avatar-btn" onclick="openUserProfileModal()" style="display: none; border: 2px solid #F59E0B; background: #FFF; width: 28px; height: 28px; border-radius: 50%; overflow: hidden; padding: 0; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.12);" title="Ver y Editar Mi Perfil">
+          <span id="header-avatar-content" style="font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">👤</span>
+        </button>
         <button class="btn-secondary" id="btn-toggle-map" onclick="toggleFeedMapView()" style="font-size: 11px; padding: 5px 9px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
           🗺️ Ver Mapa
         </button>
@@ -601,33 +859,52 @@
     <!-- ========================================== -->
     <div id="portal-merchant" class="scrollable-body" style="display: none; padding: 14px;">
       <!-- Pestañas del Comercio -->
-      <div style="display: flex; gap: 8px; margin-bottom: 14px;">
-        <button class="btn-primary" style="flex: 1;" onclick="setMerchantSubtab('my-promos')" id="btn-merch-promos">
+      <div style="display: flex; gap: 6px; margin-bottom: 14px;">
+        <button class="btn-primary" style="flex: 1; font-size: 11px; padding: 7px 4px;" onclick="setMerchantSubtab('my-promos')" id="btn-merch-promos">
           📋 Mis Ofertas
         </button>
-        <button class="btn-secondary" style="flex: 1;" onclick="setMerchantSubtab('new-promo')" id="btn-merch-new">
-          ➕ Publicar con Mapa
+        <button class="btn-secondary" style="flex: 1; font-size: 11px; padding: 7px 4px;" onclick="setMerchantSubtab('new-promo')" id="btn-merch-new">
+          ➕ Publicar
+        </button>
+        <button class="btn-secondary" style="flex: 1; font-size: 11px; padding: 7px 4px;" onclick="setMerchantSubtab('orders')" id="btn-merch-orders">
+          📦 Pagos
+        </button>
+        <button class="btn-secondary" style="flex: 1; font-size: 11px; padding: 7px 4px; background: #FFFBEB; color: #B45309; border: 1px solid #FCD34D; font-weight: 800;" onclick="openUserProfileModal('general')" id="btn-merch-profile" title="Configurar logo, banner, contacto y redes del comercio">
+          🏪 Mi Negocio
         </button>
       </div>
 
-      <!-- Subtab: Mis Promociones -->
+      <!-- Subtab 1: Mis Promociones -->
       <div id="merch-subtab-promos">
+        <!-- Banner de Perfil y Restricción de Registros -->
+        <div style="background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 8px;">
+          <span style="font-size: 16px;">🔒</span>
+          <div style="font-size: 11px; color: #92400E; line-height: 1.4;">
+            <strong>Perfil Comercio:</strong> Solo puedes visualizar, crear, modificar y eliminar <u>tus propios registros creados</u>. Los registros de otros comercios y los parámetros del sistema están protegidos y reservados para el Administrador.
+          </div>
+        </div>
+
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <h4 style="font-size: 14px; font-weight: 800;">Ofertas de mi Negocio</h4>
+          <h4 style="font-size: 14px; font-weight: 800; margin: 0;">Ofertas de mi Negocio</h4>
           <span style="font-size: 11px; color: var(--text-muted);" id="merchant-promos-count">Cargando...</span>
         </div>
         <div id="merchant-promos-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
       </div>
 
-      <!-- Subtab: Nueva Promoción con Mapa Interactivo -->
+      <!-- Subtab 2: Nueva Promoción con Mapa Interactivo y Galería de Fotos -->
       <div id="merch-subtab-new" style="display: none;">
-        <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 4px;">Publicar Promoción con Ubicación en Mapa</h4>
-        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Haz clic en el mapa o arrastra el marcador para fijar la ubicación exacta del negocio.</p>
+        <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 4px;">Publicar Oferta con Fotos y Ubicación</h4>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Describe tu producto o servicio detalladamente y añade fotos para la galería y compras en línea.</p>
 
         <form onsubmit="handleMerchantCreate(event)">
           <div class="form-group">
             <label class="form-label">Título de la Oferta *</label>
             <input class="form-input" id="m-title" required value="Promo Parrilla Libre + Bebida">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Descripción Detallada del Producto o Servicio *</label>
+            <textarea class="form-textarea" id="m-description" rows="3" required placeholder="Describe qué incluye la oferta, características, condiciones, horarios y calidad del servicio...">Incluye parrillada completa para 2 personas al carbón de quebracho (asado de tira, vacío, chorizo artesanal y morcilla) acompañada de ensalada mixta o papas fritas y 2 bebidas o copa de vino de la casa. Válido para consumo en el salón o retiro.</textarea>
           </div>
 
           <div style="display: flex; gap: 10px;">
@@ -649,12 +926,30 @@
 
           <div style="display: flex; gap: 10px;">
             <div class="form-group" style="flex: 1;">
-              <label class="form-label">Precio Regular ($)</label>
-              <input class="form-input" id="m-price" type="number" required value="16000">
+              <label class="form-label">Precio Regular (Bs.)</label>
+              <input class="form-input" id="m-price" type="number" required value="160">
             </div>
             <div class="form-group" style="flex: 1;">
               <label class="form-label">Etiquetas de Gusto</label>
               <input class="form-input" id="m-tags" value="asado, parrillada, cena, 2x1">
+            </div>
+          </div>
+
+          <!-- FOTOS DEL PRODUCTO / SERVICIO (GALERÍA MULTI-IMAGEN) -->
+          <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+            <div style="font-size: 12px; font-weight: 800; color: #1E293B; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+              <span>📸</span> Galería de Fotos del Producto / Servicio
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="font-size: 11px;">Foto Principal (Portada) *</label>
+              <input class="form-input" id="m-image-url" required value="https://images.unsplash.com/photo-1544025162-d76694265947?w=800" placeholder="https://ejemplo.com/foto1.jpg">
+            </div>
+            <div class="form-group" style="margin-bottom: 4px;">
+              <label class="form-label" style="font-size: 11px;">Fotos Adicionales para la Galería (Separadas por coma)</label>
+              <input class="form-input" id="m-gallery" value="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800,https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=800" placeholder="https://...foto2.jpg, https://...foto3.jpg">
+            </div>
+            <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">
+              💡 <em>Los clientes podrán navegar el carrusel interactivo y ampliar cada foto antes de pagar en línea.</em>
             </div>
           </div>
 
@@ -681,9 +976,23 @@
           </div>
 
           <button type="submit" class="btn-primary" style="width: 100%; margin-top: 6px;" id="btn-save-merch">
-            🚀 Publicar y Disparar Alertas a Usuarios
+            🚀 Publicar con Galería y Disparar Alertas
           </button>
         </form>
+      </div>
+
+      <!-- Subtab 3: Pagos y Compras Recibidas en Línea -->
+      <div id="merch-subtab-orders" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <div>
+            <h4 style="font-size: 14px; font-weight: 800; margin: 0;">Pagos en Línea Recibidos</h4>
+            <div style="font-size: 11px; color: var(--text-muted);">Compras directas de consumidores con comprobante y QR</div>
+          </div>
+          <button class="btn-secondary" style="font-size: 10px; padding: 4px 8px;" onclick="loadMerchantOrders()">🔄 Actualizar</button>
+        </div>
+        <div id="merchant-orders-list" style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;">Cargando pagos recibidos...</div>
+        </div>
       </div>
     </div>
 
@@ -692,15 +1001,18 @@
     <!-- ========================================== -->
     <div id="portal-admin" class="scrollable-body" style="display: none; padding: 14px;">
       <!-- Pestañas de Admin -->
-      <div style="display: flex; gap: 6px; margin-bottom: 14px;">
-        <button class="btn-primary" style="flex: 1; font-size: 11px;" onclick="setAdminSubtab('users')" id="btn-adm-users">
-          👥 Usuarios & Permisos
+      <div style="display: flex; gap: 4px; margin-bottom: 14px;">
+        <button class="btn-primary" style="flex: 1; font-size: 10px; padding: 7px 3px;" onclick="setAdminSubtab('users')" id="btn-adm-users">
+          👥 Usuarios
         </button>
-        <button class="btn-secondary" style="flex: 1; font-size: 11px;" onclick="setAdminSubtab('settings')" id="btn-adm-settings">
-          ⚙️ Configuraciones
+        <button class="btn-secondary" style="flex: 1; font-size: 10px; padding: 7px 3px;" onclick="setAdminSubtab('settings')" id="btn-adm-settings">
+          ⚙️ Ajustes
         </button>
-        <button class="btn-secondary" style="flex: 1; font-size: 11px;" onclick="setAdminSubtab('categories')" id="btn-adm-cats">
+        <button class="btn-secondary" style="flex: 1; font-size: 10px; padding: 7px 3px;" onclick="setAdminSubtab('categories')" id="btn-adm-cats">
           🏷️ Categorías
+        </button>
+        <button class="btn-secondary" style="flex: 1; font-size: 10px; padding: 7px 3px;" onclick="setAdminSubtab('promos')" id="btn-adm-promos">
+          🔥 Ofertas Globales
         </button>
       </div>
 
@@ -801,6 +1113,29 @@
         </form>
 
         <div id="admin-categories-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+      </div>
+
+      <!-- Subtab: Ofertas Globales de Todos los Comercios (Acceso Total Admin) -->
+      <div id="adm-subtab-promos" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <h4 style="font-size: 14px; font-weight: 800; margin: 0;">Gestión Global de Ofertas y Comercios</h4>
+          <span class="badge-portal badge-admin" style="font-size: 10px;">Acceso Total</span>
+        </div>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Como Administrador tienes privilegios para crear, modificar, pausar/activar y eliminar ofertas de cualquier comercio registrado en la plataforma.</p>
+
+        <!-- Filtro por comercio y botón crear oferta como admin -->
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <select id="admin-filter-merchant" class="form-input" style="flex: 2; padding: 6px 8px; font-size: 11px;" onchange="loadAdminPromotions()">
+            <option value="">🏪 Todos los Comercios</option>
+          </select>
+          <button class="btn-primary" style="flex: 1; font-size: 11px; padding: 6px 8px;" onclick="openAdminNewPromo()">
+            ➕ Publicar Oferta
+          </button>
+        </div>
+
+        <div id="admin-promos-list" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="text-align: center; padding: 20px; font-size: 11px; color: var(--text-muted);">Cargando catálogo completo de promociones...</div>
+        </div>
       </div>
     </div>
 
@@ -993,8 +1328,667 @@
     </div>
   </div>
 
+  <!-- ========================================== -->
+  <!-- MODAL: DETALLE COMPLETO Y GALERÍA DE FOTOS -->
+  <!-- ========================================== -->
+  <div id="modal-promo-detail" class="modal-backdrop">
+    <div class="modal-box" style="max-width: 460px; padding: 16px;">
+      <!-- Header con Categoría y Botón Cerrar -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span id="detail-cat-badge" style="background: #F1F5F9; color: #334155; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 8px;">
+            🍔 Gastronomía
+          </span>
+          <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;" id="detail-merchant-label">
+            Pizzería Bella Napoli
+          </span>
+          <span style="color: #059669; font-size: 12px; font-weight: 900;" title="Comercio Verificado">✓</span>
+        </div>
+        <button onclick="closePromoDetail()" style="background: #F1F5F9; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 14px; font-weight: 900; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
+      </div>
+
+      <!-- VISOR / GALERÍA DE FOTOS INTERACTIVA -->
+      <div class="gallery-container">
+        <div class="gallery-main-viewport">
+          <img id="detail-main-img" class="gallery-main-img" src="" alt="Foto de la oferta">
+          <button type="button" class="gallery-nav-btn prev" onclick="prevGalleryImage()" title="Foto anterior">‹</button>
+          <button type="button" class="gallery-nav-btn next" onclick="nextGalleryImage()" title="Siguiente foto">›</button>
+          <div class="gallery-counter-badge" id="detail-gallery-counter">📸 1 / 1</div>
+        </div>
+      </div>
+
+      <!-- TIRA DE MINIATURAS (THUMBNAILS) -->
+      <div class="gallery-thumbs-strip" id="detail-gallery-thumbs">
+        <!-- Generado dinámicamente con miniaturas clickeables -->
+      </div>
+
+      <!-- TÍTULO Y BADGES -->
+      <div style="margin-top: 12px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 6px;" id="detail-badges-row">
+          <!-- Discount, Distance, Taste badges -->
+        </div>
+        <h3 id="detail-title" style="font-size: 16px; font-weight: 900; color: #1E293B; margin: 0 0 6px 0; line-height: 1.3;">
+          Título de la oferta
+        </h3>
+        <!-- Tags -->
+        <div id="detail-tags-row" style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px;">
+          <!-- Tags chips -->
+        </div>
+      </div>
+
+      <!-- TARJETA DE PRECIO Y DESCUENTO -->
+      <div style="background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%); border: 1.5px solid #FED7AA; border-radius: 14px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <div>
+          <div style="font-size: 11px; color: #94A3B8; text-decoration: line-through;" id="detail-original-price">Bs. 120</div>
+          <div style="display: flex; align-items: baseline; gap: 6px;">
+            <div style="font-size: 22px; font-weight: 900; color: var(--primary);" id="detail-promo-price">Bs. 60</div>
+            <div style="font-size: 11px; font-weight: 800; background: #DC2626; color: #FFF; padding: 2px 6px; border-radius: 6px;" id="detail-discount-percent">-50% OFF</div>
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 11px; font-weight: 900; color: #059669;" id="detail-savings-text">¡Ahorras Bs. 60!</div>
+          <div style="font-size: 9px; color: #64748B;">Precios con impuestos incl.</div>
+        </div>
+      </div>
+
+      <!-- DESCRIPCIÓN DETALLADA DEL PRODUCTO / SERVICIO -->
+      <div style="margin-bottom: 14px;">
+        <div style="font-size: 12px; font-weight: 800; color: #1E293B; margin-bottom: 5px; display: flex; align-items: center; gap: 6px;">
+          <span>📝</span> Descripción Detallada del Producto o Servicio:
+        </div>
+        <div id="detail-description" style="font-size: 12px; color: #334155; line-height: 1.55; background: #F8FAFC; padding: 12px; border-radius: 12px; border: 1px solid var(--border);">
+          Descripción completa aquí...
+        </div>
+      </div>
+
+      <!-- INFORMACIÓN DEL COMERCIO Y UBICACIÓN -->
+      <div style="background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-size: 10px; font-weight: 800; color: #64748B; text-transform: uppercase;">Punto de Canje / Local</div>
+          <div style="font-size: 12px; font-weight: 800; color: #1E293B; margin-top: 2px;" id="detail-merchant-name">Pizzería Bella Napoli</div>
+          <div style="font-size: 11px; color: #64748B;" id="detail-address">📍 Av. Corrientes 1250, Centro</div>
+          <div style="font-size: 10px; font-weight: 700; color: var(--primary);" id="detail-distance">📏 a 450 m de tu ubicación</div>
+        </div>
+        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 6px 10px;" onclick="viewPromoOnMap()" title="Ver en el mapa de la ciudad">
+          🗺️ Ver Mapa
+        </button>
+      </div>
+
+      <!-- ACCIONES: COMPRAR EN LÍNEA & CANJEAR CUPÓN -->
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <button type="button" id="btn-detail-buy-online" class="btn-primary" style="width: 100%; padding: 12px; font-size: 14px; font-weight: 800; border-radius: 12px; box-shadow: 0 4px 14px rgba(255,87,34,0.3);" onclick="openOnlineCheckout()">
+          💳 Comprar / Pagar en Línea (Bs. 0)
+        </button>
+        <button type="button" class="btn-secondary" style="width: 100%; padding: 8px; font-size: 11px; font-weight: 700;" onclick="claimCouponInstant()">
+          🎟️ Canjear Cupón Presencial en Local
+        </button>
+      </div>
+
+      <!-- ACCIONES DE GESTIÓN (SOLO DUEÑO O ADMIN) -->
+      <div id="detail-owner-actions" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); gap: 8px;">
+        <button type="button" class="btn-secondary" style="flex: 1; padding: 8px; font-size: 11px; font-weight: 800; color: #2563EB; border-color: #BFDBFE;" onclick="editCurrentDetailPromo()">
+          ✏️ Modificar Oferta
+        </button>
+        <button type="button" class="btn-secondary" style="flex: 1; padding: 8px; font-size: 11px; font-weight: 800; color: #DC2626; border-color: #FECACA;" onclick="deleteCurrentDetailPromo()">
+          🗑️ Eliminar Oferta
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: EDICIÓN DE PROMOCIÓN (COMERCIO / ADMIN) -->
+  <!-- ========================================== -->
+  <div id="modal-edit-promo" class="modal-backdrop">
+    <div class="modal-box" style="max-width: 480px; padding: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin: 0; display: flex; align-items: center; gap: 6px;">
+          <span>✏️</span> Editar Promoción
+        </h3>
+        <button type="button" onclick="closeEditPromoModal()" style="background: transparent; border: none; font-size: 18px; color: #64748B; cursor: pointer;">✕</button>
+      </div>
+
+      <form id="form-edit-promo" onsubmit="handleSaveEditPromo(event)">
+        <input type="hidden" id="edit-promo-id">
+
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label class="form-label" style="font-size: 11px;">Título de la Oferta *</label>
+          <input class="form-input" id="edit-promo-title" required style="padding: 7px 10px; font-size: 12px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label class="form-label" style="font-size: 11px;">Descripción Detallada *</label>
+          <textarea class="form-input" id="edit-promo-description" rows="2" required style="padding: 7px 10px; font-size: 12px;"></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 11px;">Categoría *</label>
+            <select class="form-input" id="edit-promo-category" required style="padding: 6px 8px; font-size: 12px;">
+              <!-- Opciones dinámicas -->
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 11px;">Stock Disponible</label>
+            <input type="number" class="form-input" id="edit-promo-stock" min="1" value="10" style="padding: 6px 8px; font-size: 12px;">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 11px;">Precio Normal (Bs.) *</label>
+            <input type="number" class="form-input" id="edit-promo-price" required min="1" step="0.5" style="padding: 6px 8px; font-size: 12px;">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 11px;">Descuento (%) *</label>
+            <input type="number" class="form-input" id="edit-promo-discount" required min="1" max="99" style="padding: 6px 8px; font-size: 12px;">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label class="form-label" style="font-size: 11px;">URL Foto Principal</label>
+          <input type="url" class="form-input" id="edit-promo-image-url" placeholder="https://..." style="padding: 6px 8px; font-size: 12px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label class="form-label" style="font-size: 11px;">Fotos Secundarias (separadas por coma)</label>
+          <input class="form-input" id="edit-promo-gallery" placeholder="https://..., https://..." style="padding: 6px 8px; font-size: 12px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label class="form-label" style="font-size: 11px;">Etiquetas (separadas por coma)</label>
+          <input class="form-input" id="edit-promo-tags" placeholder="pizza, cena, combo" style="padding: 6px 8px; font-size: 12px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label class="form-label" style="font-size: 11px;">Dirección física del local</label>
+          <input class="form-input" id="edit-promo-address" placeholder="Av. Principal 123" style="padding: 6px 8px; font-size: 12px;">
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; background: #F8FAFC; padding: 8px 10px; border-radius: 8px;">
+          <input type="checkbox" id="edit-promo-active" style="width: 16px; height: 16px; accent-color: var(--primary);">
+          <label for="edit-promo-active" style="font-size: 12px; font-weight: 700; color: #1E293B; cursor: pointer;">
+            Promoción Activa en el Feed y Mapa
+          </label>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-secondary" style="flex: 1; padding: 9px;" onclick="closeEditPromoModal()">Cancelar</button>
+          <button type="submit" class="btn-primary" id="btn-save-edit-promo" style="flex: 2; padding: 9px; font-weight: 800;">💾 Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: CHECKOUT / PASARELA DE PAGO EN LÍNEA -->
+  <!-- ========================================== -->
+  <div id="modal-checkout" class="modal-backdrop">
+    <div class="modal-box" style="max-width: 440px; padding: 16px;">
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin: 0; display: flex; align-items: center; gap: 6px;">
+          <span>💳</span> Pago en Línea Seguro
+        </h3>
+        <button type="button" onclick="closeOnlineCheckout()" style="background: transparent; border: none; font-size: 18px; color: #64748B; cursor: pointer;">✕</button>
+      </div>
+
+      <div id="checkout-form-container">
+        <!-- Resumen del Pedido -->
+        <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin-bottom: 14px;">
+          <div style="font-size: 10px; font-weight: 800; color: #64748B; margin-bottom: 4px; text-transform: uppercase;">Resumen de tu compra:</div>
+          <div style="font-size: 13px; font-weight: 800; color: #1E293B;" id="checkout-promo-title">-</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;" id="checkout-merchant-name">-</div>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border); padding-top: 8px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 11px; font-weight: 700; color: #334155;">Cantidad:</span>
+              <button type="button" onclick="changeCheckoutQty(-1)" style="width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border); background: #FFF; font-weight: 900; cursor: pointer;">-</button>
+              <span id="checkout-qty-val" style="font-size: 13px; font-weight: 800; min-width: 18px; text-align: center;">1</span>
+              <button type="button" onclick="changeCheckoutQty(1)" style="width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border); background: #FFF; font-weight: 900; cursor: pointer;">+</button>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 10px; color: #64748B;">Total a Pagar:</div>
+              <div style="font-size: 18px; font-weight: 900; color: var(--primary);" id="checkout-total-val">Bs. 0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Datos del Comprador -->
+        <div style="margin-bottom: 12px;">
+          <div style="font-size: 11px; font-weight: 800; color: #334155; margin-bottom: 6px;">1. Datos de Contacto y Envío de Comprobante:</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <input type="text" id="checkout-name" placeholder="Nombre completo" class="form-input" style="padding: 7px 10px; font-size: 12px;" required>
+            <input type="email" id="checkout-email" placeholder="correo@ejemplo.com" class="form-input" style="padding: 7px 10px; font-size: 12px;" required>
+          </div>
+        </div>
+
+        <!-- Método de Pago -->
+        <div style="margin-bottom: 14px;">
+          <div style="font-size: 11px; font-weight: 800; color: #334155; margin-bottom: 6px;">2. Selecciona Método de Pago:</div>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <div class="payment-method-card selected" id="method-card-opt" onclick="selectPaymentMethod('credit_card')">
+              <span style="font-size: 18px;">💳</span>
+              <div style="flex: 1;">
+                <div style="font-size: 12px; font-weight: 800; color: #1E293B;">Tarjeta de Crédito / Débito</div>
+                <div style="font-size: 10px; color: #64748B;">Visa, Mastercard, Cabal (Acreditación inmediata)</div>
+              </div>
+            </div>
+            <div class="payment-method-card" id="method-mp-opt" onclick="selectPaymentMethod('mercadopago')">
+              <span style="font-size: 18px;">⚡</span>
+              <div style="flex: 1;">
+                <div style="font-size: 12px; font-weight: 800; color: #1E293B;">Mercado Pago / Billetera Digital</div>
+                <div style="font-size: 10px; color: #64748B;">Dinero en cuenta o QR</div>
+              </div>
+            </div>
+            <div class="payment-method-card" id="method-transfer-opt" onclick="selectPaymentMethod('bank_transfer')">
+              <span style="font-size: 18px;">🏦</span>
+              <div style="flex: 1;">
+                <div style="font-size: 12px; font-weight: 800; color: #1E293B;">Transferencia Bancaria Directa</div>
+                <div style="font-size: 10px; color: #64748B;">Alias / CBU sin comisiones</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Campos de Tarjeta Simulada -->
+        <div id="checkout-card-fields" style="background: #F1F5F9; border-radius: 12px; padding: 10px; margin-bottom: 12px;">
+          <div class="form-group" style="margin-bottom: 6px;">
+            <label class="form-label" style="font-size: 10px;">Número de Tarjeta</label>
+            <input type="text" id="card-number" class="form-input" placeholder="4532 •••• •••• 8821" value="4532 8821 9012 3456" style="padding: 6px 8px; font-size: 12px;">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-size: 10px;">Vencimiento</label>
+              <input type="text" id="card-exp" class="form-input" placeholder="MM/AA" value="12/28" style="padding: 6px 8px; font-size: 12px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-size: 10px;">CVV / CVC</label>
+              <input type="password" id="card-cvv" class="form-input" placeholder="123" value="789" maxlength="4" style="padding: 6px 8px; font-size: 12px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Garantía de Seguridad -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 10px; color: #059669; font-weight: 700; margin-bottom: 12px;">
+          <span>🔒</span> Transacción protegida con cifrado SSL de 256 bits y Ofertapp Protect
+        </div>
+
+        <!-- Botón Pagar -->
+        <button type="button" id="btn-confirm-payment" class="btn-primary" style="width: 100%; padding: 11px; font-size: 13px; font-weight: 800;" onclick="processOnlinePayment()">
+          🔒 Confirmar Pago Ahora
+        </button>
+      </div>
+
+      <!-- Vista de Comprobante / Éxito -->
+      <div id="checkout-success-view" style="display: none; text-align: center; padding: 10px 0;">
+        <div style="width: 56px; height: 56px; background: #ECFDF5; color: #059669; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 10px auto; border: 2px solid #A7F3D0;">
+          ✓
+        </div>
+        <h4 style="font-size: 16px; font-weight: 900; color: #065F46; margin: 0 0 4px 0;">¡Pago Procesado Exitosamente!</h4>
+        <p style="font-size: 11px; color: #64748B; margin: 0 0 14px 0;">Tu compra ha sido confirmada y acreditada al comercio en tiempo real.</p>
+
+        <!-- Ticket Card -->
+        <div style="background: #F8FAFC; border: 1.5px dashed #CBD5E1; border-radius: 14px; padding: 14px; text-align: left; margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-size: 10px; font-weight: 800; color: #64748B;">Nº DE ORDEN:</span>
+            <span style="font-size: 11px; font-weight: 900; color: var(--primary);" id="receipt-order-num">ORD-12345678</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-size: 10px; font-weight: 800; color: #64748B;">ID TRANSACCIÓN:</span>
+            <span style="font-size: 10px; font-family: monospace; color: #334155;" id="receipt-txn-id">TXN-ABCDEF</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-size: 10px; font-weight: 800; color: #64748B;">PRODUCTO / SERVICIO:</span>
+            <span style="font-size: 11px; font-weight: 800; color: #1E293B;" id="receipt-item-name">-</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span style="font-size: 10px; font-weight: 800; color: #64748B;">TOTAL PAGADO:</span>
+            <span style="font-size: 14px; font-weight: 900; color: #059669;" id="receipt-amount">Bs. 0</span>
+          </div>
+
+          <!-- Código QR de Canje -->
+          <div style="text-align: center; border-top: 1px solid var(--border); padding-top: 10px;">
+            <div style="font-size: 10px; font-weight: 800; color: #64748B; margin-bottom: 6px;">TOKEN QR PARA CANJEAR EN LOCAL:</div>
+            <div style="display: inline-block; background: #FFFFFF; padding: 8px; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.06);">
+              <div style="font-size: 38px; line-height: 1;">📱🔳</div>
+              <div style="font-size: 9px; font-family: monospace; font-weight: 800; color: #475569; margin-top: 4px;" id="receipt-qr-token">OFRTP-1234</div>
+            </div>
+            <p style="font-size: 10px; color: var(--text-muted); margin: 6px 0 0 0;">Muestra este código al llegar al comercio o indica tu número de orden.</p>
+          </div>
+        </div>
+
+        <button type="button" class="btn-primary" style="width: 100%; padding: 10px; font-size: 12px;" onclick="closeOnlineCheckout()">
+          ✓ Listo / Guardar Comprobante
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: PERFIL DE USUARIO, LOGO, BANNER, REDES Y CONTRASEÑA -->
+  <!-- ========================================== -->
+  <div id="modal-user-profile" class="modal-backdrop" onclick="if(event.target === this) closeUserProfileModal()">
+    <div class="modal-box" style="max-width: 520px; padding: 0; overflow: hidden; border-radius: 20px;">
+      
+      <!-- Live Interactive Header Preview -->
+      <div style="position: relative; background: #0F172A;">
+        <!-- Banner Image / Background Preview -->
+        <div id="profile-preview-banner" style="height: 125px; width: 100%; background: linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%); background-size: cover; background-position: center; position: relative;">
+          <!-- Close Modal Button -->
+          <button type="button" onclick="closeUserProfileModal()" style="position: absolute; top: 10px; right: 10px; background: rgba(15,23,42,0.65); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); z-index: 10;">✕</button>
+          
+          <!-- Banner Badge & Quick Upload Action -->
+          <div style="position: absolute; top: 10px; left: 12px; display: flex; gap: 6px; align-items: center;">
+            <div style="background: rgba(15,23,42,0.65); color: #F8FAFC; backdrop-filter: blur(4px); padding: 3px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+              <span>🖼️ Banner</span>
+            </div>
+            <button type="button" onclick="triggerFileInput('banner')" style="background: #FFFFFF; color: #0F172A; border: none; padding: 3px 9px; border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.25);" title="Cargar nueva imagen de banner desde tu equipo">
+              📁 Cargar Banner
+            </button>
+          </div>
+        </div>
+
+        <!-- Avatar / Logo & User Identity -->
+        <div style="padding: 0 16px 12px 16px; display: flex; align-items: flex-end; justify-content: space-between; margin-top: -38px; position: relative; z-index: 2; background: #FFFFFF;">
+          <div style="display: flex; align-items: flex-end; gap: 12px;">
+            <!-- Circular Logo Preview with Upload Overlay -->
+            <div id="profile-preview-logo-container" onclick="triggerFileInput('logo')" style="width: 76px; height: 76px; border-radius: 50%; border: 3.5px solid #FFFFFF; background: #F59E0B; box-shadow: 0 4px 12px rgba(0,0,0,0.18); overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; cursor: pointer;" title="Toca para cargar foto/logo desde tu equipo">
+              <img id="profile-preview-logo-img" src="" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+              <span id="profile-preview-logo-fallback" style="font-size: 28px; font-weight: 900; color: #0F172A;">👤</span>
+              <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(15,23,42,0.72); color: #FFF; font-size: 8px; font-weight: 800; text-align: center; padding: 2px 0;">
+                📷 Cargar
+              </div>
+            </div>
+            
+            <div style="margin-bottom: 2px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <h3 id="profile-preview-name" style="font-size: 16px; font-weight: 900; color: #1E293B; margin: 0; line-height: 1.2;">Mi Nombre</h3>
+                <span id="profile-preview-verified" style="color: #0284C7; font-size: 13px;" title="Perfil Verificado">✓</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-top: 3px; flex-wrap: wrap;">
+                <span id="profile-preview-role-badge" style="background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 6px;">Consumidor</span>
+                <span id="profile-preview-email" style="font-size: 10px; color: #64748B;">correo@ejemplo.com</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social Badges Preview Row -->
+        <div id="profile-preview-socials" style="padding: 0 16px 10px 16px; display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid #E2E8F0; background: #FFFFFF; min-height: 24px;">
+          <!-- Chips de redes se inyectan dinámicamente -->
+        </div>
+      </div>
+
+      <!-- Navigation Tabs inside Profile Modal -->
+      <div style="background: #F8FAFC; border-bottom: 1px solid var(--border); padding: 8px 16px 0 16px; display: flex; gap: 6px;">
+        <button type="button" id="tab-profile-general" class="profile-nav-btn active" onclick="switchProfileTab('general')">
+          👤 Perfil & Contacto
+        </button>
+        <button type="button" id="tab-profile-social" class="profile-nav-btn" onclick="switchProfileTab('social')">
+          🌐 Redes Sociales
+        </button>
+        <button type="button" id="tab-profile-security" class="profile-nav-btn" onclick="switchProfileTab('security')">
+          🔒 Contraseña
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div style="padding: 16px; max-height: 52vh; overflow-y: auto;">
+        
+        <!-- ============================================== -->
+        <!-- PESTAÑA 1: DATOS GENERALES, LOGO, BANNER, CONTACTO -->
+        <!-- ============================================== -->
+        <div id="profile-subtab-general">
+          <form id="form-profile-general" onsubmit="handleProfileUpdate(event)">
+            
+            <!-- Nombre y Correo -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" style="font-size: 11px;">Nombre / Razón Social *</label>
+                <input class="form-input" id="prof-input-name" required placeholder="Tu nombre o negocio" oninput="updateProfileLivePreview()">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" style="font-size: 11px;">Correo Electrónico *</label>
+                <input type="email" class="form-input" id="prof-input-email" required placeholder="tu@correo.com" oninput="updateProfileLivePreview()">
+              </div>
+            </div>
+
+            <!-- Teléfono / Número de contacto -->
+            <div class="form-group">
+              <label class="form-label" style="font-size: 11px;">Número de Contacto / Teléfono</label>
+              <input type="tel" class="form-input" id="prof-input-phone" placeholder="Ej: +54 9 11 1234-5678" oninput="updateProfileLivePreview()">
+            </div>
+
+            <!-- Biografía / Descripción -->
+            <div class="form-group">
+              <label class="form-label" style="font-size: 11px;">Biografía o Descripción Breve</label>
+              <textarea class="form-textarea" id="prof-input-bio" rows="2" placeholder="Presenta tu negocio, especialidad o intereses en Ofertapp..." oninput="updateProfileLivePreview()"></textarea>
+            </div>
+
+            <!-- Logo / Foto de Perfil (Carga Directa a BD) -->
+            <div class="form-group" style="background: #F8FAFC; border: 1.5px solid var(--border); border-radius: 14px; padding: 14px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <label class="form-label" style="font-size: 12px; margin: 0; font-weight: 800; color: #1E293B;">🖼️ Logo o Foto de Perfil</label>
+                <span id="upload-status-logo" style="font-size: 10px; color: #059669; font-weight: 700;">Formatos: JPG, PNG, WEBP</span>
+              </div>
+
+              <!-- Input Oculto para persistencia sin validaciones URL -->
+              <input type="hidden" id="prof-input-logo" value="">
+              <input type="file" id="file-input-logo" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" style="display: none;" onchange="handleProfileFileUpload(event, 'logo')">
+
+              <!-- Fila de Miniatura y Acciones de Carga -->
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <div style="width: 52px; height: 52px; border-radius: 50%; border: 2px solid #CBD5E1; overflow: hidden; background: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.06);">
+                  <img id="prof-thumb-logo" src="" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; display: none;" onerror="this.style.display='none'; document.getElementById('prof-thumb-fallback-logo').style.display='flex';">
+                  <div id="prof-thumb-fallback-logo" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 22px; color: #94A3B8;">
+                    👤
+                  </div>
+                </div>
+
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                  <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <button type="button" class="btn-primary" onclick="triggerFileInput('logo')" style="font-size: 11px; padding: 7px 12px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; background: #0F172A; color: #FFFFFF; font-weight: 800;">
+                      📁 Cargar Archivo de Imagen
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="removeProfileImage('logo')" style="font-size: 11px; padding: 7px 10px; border-radius: 8px; color: #DC2626; border-color: #FECACA;">
+                      🗑️ Quitar
+                    </button>
+                  </div>
+                  <div style="font-size: 10px; color: #64748B;">La imagen se guarda directamente en la base de datos de tu usuario.</div>
+                </div>
+              </div>
+              
+              <!-- Presets rápidos de Avatar -->
+              <div style="margin-top: 6px; border-top: 1px dashed var(--border); padding-top: 6px;">
+                <div style="font-size: 10px; color: #64748B; margin-bottom: 4px; font-weight: 700;">O selecciona un avatar rápido:</div>
+                <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;">
+                  <button type="button" class="preset-pill" onclick="applyLogoPreset('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200')">👩 Creativa</button>
+                  <button type="button" class="preset-pill" onclick="applyLogoPreset('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200')">👨 Ejecutivo</button>
+                  <button type="button" class="preset-pill" onclick="applyLogoPreset('https://images.unsplash.com/photo-1579684947550-22e945225d9a?w=200')">🍕 Gastronomía</button>
+                  <button type="button" class="preset-pill" onclick="applyLogoPreset('https://images.unsplash.com/photo-1556740758-90de374c12ad?w=200')">🏪 Comercio</button>
+                  <button type="button" class="preset-pill" onclick="applyLogoPreset('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200')">🐶 Mascota</button>
+                  <button type="button" class="preset-pill" onclick="removeProfileImage('logo')">✕ Sin imagen</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Banner de Portada (Carga Directa a BD) -->
+            <div class="form-group" style="background: #F8FAFC; border: 1.5px solid var(--border); border-radius: 14px; padding: 14px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <label class="form-label" style="font-size: 12px; margin: 0; font-weight: 800; color: #1E293B;">🎨 Banner de Portada</label>
+                <span id="upload-status-banner" style="font-size: 10px; color: #059669; font-weight: 700;">Formatos: JPG, PNG, WEBP</span>
+              </div>
+
+              <!-- Input Oculto para persistencia sin validaciones URL -->
+              <input type="hidden" id="prof-input-banner" value="">
+              <input type="file" id="file-input-banner" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" style="display: none;" onchange="handleProfileFileUpload(event, 'banner')">
+
+              <!-- Fila de Miniatura y Acciones de Carga -->
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <div style="width: 78px; height: 46px; border-radius: 8px; border: 2px solid #CBD5E1; overflow: hidden; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.06);">
+                  <img id="prof-thumb-banner" src="" alt="Banner" style="width: 100%; height: 100%; object-fit: cover; display: none;" onerror="this.style.display='none'; document.getElementById('prof-thumb-fallback-banner').style.display='flex';">
+                  <div id="prof-thumb-fallback-banner" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 16px; color: #FFFFFF;">
+                    🎨
+                  </div>
+                </div>
+
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                  <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <button type="button" class="btn-primary" onclick="triggerFileInput('banner')" style="font-size: 11px; padding: 7px 12px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; background: #0F172A; color: #FFFFFF; font-weight: 800;">
+                      📁 Cargar Archivo de Banner
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="removeProfileImage('banner')" style="font-size: 11px; padding: 7px 10px; border-radius: 8px; color: #DC2626; border-color: #FECACA;">
+                      🗑️ Quitar
+                    </button>
+                  </div>
+                  <div style="font-size: 10px; color: #64748B;">La imagen se guarda directamente en la base de datos de tu usuario.</div>
+                </div>
+              </div>
+              
+              <!-- Presets rápidos de Banner -->
+              <div style="margin-top: 6px; border-top: 1px dashed var(--border); padding-top: 6px;">
+                <div style="font-size: 10px; color: #64748B; margin-bottom: 4px; font-weight: 700;">O selecciona un estilo de banner listo:</div>
+                <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;">
+                  <button type="button" class="preset-pill" onclick="applyBannerPreset('https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1200')">🍕 Pizza / Comida</button>
+                  <button type="button" class="preset-pill" onclick="applyBannerPreset('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200')">🌊 Playa / Verano</button>
+                  <button type="button" class="preset-pill" onclick="applyBannerPreset('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200')">✨ Cyber Degradé</button>
+                  <button type="button" class="preset-pill" onclick="applyBannerPreset('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200')">🛍️ Tienda Urbana</button>
+                  <button type="button" class="preset-pill" onclick="applyBannerPreset('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200')">💻 Tecnología</button>
+                  <button type="button" class="preset-pill" onclick="removeProfileImage('banner')">✕ Degradé default</button>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" id="btn-save-profile-general" class="btn-primary" style="width: 100%; padding: 10px; font-size: 12px; font-weight: 800; border-radius: 12px; margin-top: 4px;">
+              💾 Guardar Datos del Perfil
+            </button>
+          </form>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- PESTAÑA 2: REDES SOCIALES Y SITIO WEB          -->
+        <!-- ============================================== -->
+        <div id="profile-subtab-social" style="display: none;">
+          <form id="form-profile-social" onsubmit="handleProfileUpdate(event)">
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
+              Conecta tus perfiles de redes sociales y tienda web para que tus clientes y amigos puedan contactarte directamente:
+            </p>
+
+            <!-- Instagram -->
+            <div class="form-group">
+              <label class="form-label" style="font-size: 11px; display: flex; align-items: center; gap: 6px;">
+                <span style="color: #E1306C; font-size: 14px;">📸</span> Instagram
+              </label>
+              <input class="form-input" id="prof-input-instagram" placeholder="@tu_cuenta o url completa" oninput="updateProfileLivePreview()">
+            </div>
+
+            <!-- WhatsApp de Contacto Directo -->
+            <div class="form-group">
+              <label class="form-label" style="font-size: 11px; display: flex; align-items: center; gap: 6px;">
+                <span style="color: #25D366; font-size: 14px;">💬</span> WhatsApp de Contacto Directo
+              </label>
+              <input type="tel" class="form-input" id="prof-input-whatsapp" placeholder="+54 9 11 2233-4455" oninput="updateProfileLivePreview()">
+              <span style="font-size: 9px; color: #64748B; margin-top: 2px; display: block;">Permite que te envíen mensajes instantáneos con 1 clic</span>
+            </div>
+
+            <!-- Facebook -->
+            <div class="form-group">
+              <label class="form-label" style="font-size: 11px; display: flex; align-items: center; gap: 6px;">
+                <span style="color: #1877F2; font-size: 14px;">👥</span> Facebook
+              </label>
+              <input class="form-input" id="prof-input-facebook" placeholder="facebook.com/tu_pagina o usuario" oninput="updateProfileLivePreview()">
+            </div>
+
+            <!-- X / Twitter -->
+            <div class="form-group">
+              <label class="form-label" style="font-size: 11px; display: flex; align-items: center; gap: 6px;">
+                <span style="color: #0F172A; font-size: 14px;">✖️</span> X (Twitter)
+              </label>
+              <input class="form-input" id="prof-input-twitter" placeholder="@tu_usuario" oninput="updateProfileLivePreview()">
+            </div>
+
+            <!-- Sitio Web o Tienda Online -->
+            <div class="form-group">
+              <label class="form-label" style="font-size: 11px; display: flex; align-items: center; gap: 6px;">
+                <span style="color: #0284C7; font-size: 14px;">🌐</span> Sitio Web o Catálogo Online
+              </label>
+              <input type="text" class="form-input" id="prof-input-website" placeholder="https://tucomercio.com o tucomercio.com" oninput="updateProfileLivePreview()">
+            </div>
+
+            <button type="submit" id="btn-save-profile-social" class="btn-primary" style="width: 100%; padding: 10px; font-size: 12px; font-weight: 800; border-radius: 12px; margin-top: 4px;">
+              💾 Guardar Redes Sociales
+            </button>
+          </form>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- PESTAÑA 3: SEGURIDAD Y CAMBIO DE CONTRASEÑA    -->
+        <!-- ============================================== -->
+        <div id="profile-subtab-security" style="display: none;">
+          <form id="form-profile-password" onsubmit="handleChangePasswordSubmit(event)">
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
+              Para proteger tu cuenta, introduce tu contraseña actual y luego escribe la nueva contraseña.
+            </p>
+
+            <div class="form-group">
+              <label class="form-label" style="font-size: 11px;">Contraseña Actual *</label>
+              <div style="position: relative;">
+                <input type="password" class="form-input" id="prof-pwd-current" required placeholder="Tu contraseña actual" style="padding-right: 36px;">
+                <button type="button" onclick="togglePasswordVisibility('prof-pwd-current', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 14px; color: #64748B;">👁️</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" style="font-size: 11px;">Nueva Contraseña *</label>
+              <div style="position: relative;">
+                <input type="password" class="form-input" id="prof-pwd-new" required minlength="6" placeholder="Mínimo 6 caracteres" style="padding-right: 36px;" oninput="validatePasswordStrength()">
+                <button type="button" onclick="togglePasswordVisibility('prof-pwd-new', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 14px; color: #64748B;">👁️</button>
+              </div>
+              <div id="pwd-strength-bar" style="height: 3px; border-radius: 2px; background: #E2E8F0; margin-top: 4px; overflow: hidden;">
+                <div id="pwd-strength-fill" style="height: 100%; width: 0%; transition: all 0.3s; background: #EF4444;"></div>
+              </div>
+              <span id="pwd-strength-text" style="font-size: 9px; color: #94A3B8; margin-top: 2px; display: block;">Mínimo 6 caracteres</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" style="font-size: 11px;">Confirmar Nueva Contraseña *</label>
+              <div style="position: relative;">
+                <input type="password" class="form-input" id="prof-pwd-confirm" required minlength="6" placeholder="Repite la nueva contraseña" style="padding-right: 36px;">
+                <button type="button" onclick="togglePasswordVisibility('prof-pwd-confirm', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 14px; color: #64748B;">👁️</button>
+              </div>
+            </div>
+
+            <button type="submit" id="btn-submit-change-pwd" class="btn-primary" style="width: 100%; padding: 10px; font-size: 12px; font-weight: 800; border-radius: 12px; margin-top: 6px; background: #0F172A; color: #FFFFFF;">
+              🔑 Actualizar Contraseña Ahora
+            </button>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div style="padding: 10px 16px; background: #F8FAFC; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 10px; color: #64748B;">Tus cambios se sincronizan en la nube</span>
+        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 6px 12px;" onclick="closeUserProfileModal()">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <script>
   const API_BASE = window.location.origin + '/api/v1';
+
+  function getAuthHeaders(hasBody = true) {
+    const headers = {};
+    if (hasBody) headers['Content-Type'] = 'application/json';
+    if (currentUser && currentUser.token) {
+      headers['Authorization'] = `Bearer ${currentUser.token}`;
+    }
+    return headers;
+  }
 
   let currentRole = 'client';
   let isMapView = false;
@@ -1176,9 +2170,9 @@
 
       // Círculo de proximidad de búsqueda (1.5 km radio inicial)
       userGpsCircle = L.circle([USER_COORDS.lat, USER_COORDS.lon], {
-        color: '#FF5722',
-        fillColor: '#FF5722',
-        fillOpacity: 0.1,
+        color: '#F59E0B',
+        fillColor: '#F59E0B',
+        fillOpacity: 0.12,
         radius: 1500
       }).addTo(cityMap);
     }
@@ -1198,13 +2192,23 @@
         iconAnchor: [18, 18]
       });
 
+      const photosCount = (p.images && p.images.length) ? p.images.length : 1;
       const marker = L.marker([p.latitude, p.longitude], { icon: dealIcon }).addTo(cityMap);
       marker.bindPopup(`
-        <div style="font-family: inherit; font-size: 12px; min-width: 170px;">
-          <img src="${p.image_url}" style="width: 100%; height: 75px; object-fit: cover; border-radius: 6px; margin-bottom: 4px;">
-          <strong style="color: #FF5722; font-size: 13px;">${p.title}</strong><br>
+        <div style="font-family: inherit; font-size: 12px; min-width: 180px;">
+          <div style="position: relative;">
+            <img src="${p.image_url}" style="width: 100%; height: 85px; object-fit: cover; border-radius: 8px; margin-bottom: 6px; cursor: pointer;" onclick="openPromoDetail(${p.id})">
+            ${photosCount > 1 ? `<span style="position: absolute; bottom: 10px; right: 4px; background: rgba(0,0,0,0.7); color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 999px; font-weight: bold;">📸 ${photosCount} fotos</span>` : ''}
+          </div>
+          <strong style="color: #D97706; font-size: 13px; cursor: pointer;" onclick="openPromoDetail(${p.id})">${p.title}</strong><br>
           <span style="color: #64748B;">${p.merchant_name}</span><br>
-          <strong>📍 ${p.distance_label}</strong> • <span style="color: #10B981; font-weight: bold;">$${Math.round(p.promo_price)}</span>
+          <div style="margin: 4px 0;">
+            <strong>📍 ${p.distance_label}</strong> • <span style="color: #059669; font-weight: bold; font-size: 13px;">Bs. ${Math.round(p.promo_price)}</span>
+          </div>
+          <div style="display: flex; gap: 4px; margin-top: 6px;">
+            <button class="btn-primary" style="flex: 1; font-size: 10px; padding: 4px 6px;" onclick="openPromoDetail(${p.id})">👁️ Ver Fotos y Detalle</button>
+            <button class="btn-secondary" style="font-size: 10px; padding: 4px 6px;" onclick="openOnlineCheckoutWithPromo(${p.id})">💳 Pagar</button>
+          </div>
         </div>
       `);
       cityMarkers.push(marker);
@@ -1279,6 +2283,7 @@
         currentUser = JSON.parse(savedAuth);
         updateAuthUI(true);
         fetchUserTastesFromServer();
+        fetchUserProfileFromServer();
       } catch (e) {
         localStorage.removeItem('ofertapp_auth');
         updateAuthUI(false);
@@ -1319,7 +2324,10 @@
     const dEmail = document.getElementById('drawer-user-email');
     const dAvatar = document.getElementById('drawer-user-avatar');
     const dBtnAuth = document.getElementById('drawer-btn-auth');
+    const dBtnProfile = document.getElementById('drawer-btn-profile');
     const dBtnLogout = document.getElementById('drawer-btn-logout');
+    const headerAvatarBtn = document.getElementById('header-avatar-btn');
+    const headerAvatarContent = document.getElementById('header-avatar-content');
 
     // Legacy elements (si existen)
     const badge = document.getElementById('user-badge');
@@ -1340,12 +2348,35 @@
       }
 
       if (dEmail) dEmail.textContent = `${currentUser.email || ''} • ${roleLabel}`;
+      
+      // Avatar con foto/logo real o iniciales
       if (dAvatar) {
-        const initials = currentUser.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || '👤';
-        dAvatar.textContent = initials;
-        dAvatar.style.background = avatarBg;
+        if (currentUser.logo_url) {
+          dAvatar.innerHTML = `<img src="${currentUser.logo_url}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+          dAvatar.style.background = 'transparent';
+        } else {
+          const initials = currentUser.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || '👤';
+          dAvatar.textContent = initials;
+          dAvatar.style.background = avatarBg;
+          dAvatar.style.color = '#FFFFFF';
+        }
       }
+
+      // Avatar rápido en Header
+      if (headerAvatarBtn && headerAvatarContent) {
+        headerAvatarBtn.style.display = 'inline-flex';
+        if (currentUser.logo_url) {
+          headerAvatarContent.innerHTML = `<img src="${currentUser.logo_url}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">`;
+        } else {
+          const initials = currentUser.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || '👤';
+          headerAvatarContent.textContent = initials;
+          headerAvatarContent.style.background = avatarBg;
+          headerAvatarContent.style.color = '#FFFFFF';
+        }
+      }
+
       if (dBtnAuth) dBtnAuth.style.display = 'none';
+      if (dBtnProfile) dBtnProfile.style.display = 'block';
       if (dBtnLogout) dBtnLogout.style.display = 'block';
 
       if (badge) {
@@ -1360,9 +2391,12 @@
       if (dEmail) dEmail.textContent = 'Modo Exploración';
       if (dAvatar) {
         dAvatar.textContent = '👤';
-        dAvatar.style.background = '#FF5722';
+        dAvatar.style.background = '#F59E0B';
+        dAvatar.style.color = '#0F172A';
       }
+      if (headerAvatarBtn) headerAvatarBtn.style.display = 'none';
       if (dBtnAuth) dBtnAuth.style.display = 'block';
+      if (dBtnProfile) dBtnProfile.style.display = 'none';
       if (dBtnLogout) dBtnLogout.style.display = 'none';
 
       if (badge) {
@@ -1376,6 +2410,542 @@
 
     // Re-evaluar interfaces habilitadas según rol autenticado
     renderRoleAccessUI();
+  }
+
+  // ==========================================
+  // GESTIÓN DE PERFIL DE USUARIO, LOGO, BANNER, REDES Y CONTRASEÑA
+  // ==========================================
+
+  async function fetchUserProfileFromServer() {
+    if (!currentUser || !currentUser.token) return;
+    try {
+      const res = await fetch(`${API_BASE}/auth/me`, {
+        headers: { 'Authorization': `Bearer ${currentUser.token}` }
+      });
+      if (res.ok) {
+        const profileData = await res.json();
+        currentUser = {
+          ...currentUser,
+          ...profileData
+        };
+        localStorage.setItem('ofertapp_auth', JSON.stringify(currentUser));
+        updateAuthUI(true);
+      }
+    } catch (e) {
+      console.error('Error al sincronizar perfil:', e);
+    }
+  }
+
+  function openUserProfileModal(tab = 'general') {
+    const hasToken = currentUser && (currentUser.token || currentUser.access_token);
+    if (!currentUser || !hasToken) {
+      alert('⚠️ Para gestionar tu perfil de usuario, por favor inicia sesión o crea una cuenta.');
+      openAuthModal('login');
+      return;
+    }
+
+    switchProfileTab(tab);
+
+    const safeSetVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val || '';
+    };
+
+    // Cargar datos en los inputs del formulario
+    safeSetVal('prof-input-name', currentUser.full_name);
+    safeSetVal('prof-input-email', currentUser.email);
+    safeSetVal('prof-input-phone', currentUser.phone);
+    safeSetVal('prof-input-bio', currentUser.bio);
+    safeSetVal('prof-input-logo', currentUser.logo_url);
+    safeSetVal('prof-input-banner', currentUser.banner_url);
+
+    // Redes Sociales
+    safeSetVal('prof-input-instagram', currentUser.social_instagram);
+    safeSetVal('prof-input-facebook', currentUser.social_facebook);
+    safeSetVal('prof-input-whatsapp', currentUser.social_whatsapp);
+    safeSetVal('prof-input-twitter', currentUser.social_twitter);
+    safeSetVal('prof-input-website', currentUser.website);
+
+    // Limpiar campos de contraseña
+    safeSetVal('prof-pwd-current', '');
+    safeSetVal('prof-pwd-new', '');
+    safeSetVal('prof-pwd-confirm', '');
+    const bar = document.getElementById('pwd-strength-fill');
+    if (bar) { bar.style.width = '0%'; bar.style.background = '#EF4444'; }
+    const txt = document.getElementById('pwd-strength-text');
+    if (txt) { txt.textContent = 'Mínimo 6 caracteres'; txt.style.color = '#94A3B8'; }
+
+    const statusLogo = document.getElementById('upload-status-logo');
+    if (statusLogo) statusLogo.innerHTML = currentUser.logo_url ? '<span style="color:#059669; font-weight:700;">✅ Imagen guardada</span>' : 'Formatos: JPG, PNG, WEBP';
+    const statusBanner = document.getElementById('upload-status-banner');
+    if (statusBanner) statusBanner.innerHTML = currentUser.banner_url ? '<span style="color:#059669; font-weight:700;">✅ Banner guardado</span>' : 'Formatos: JPG, PNG, WEBP';
+
+    updateProfileLivePreview();
+
+    const modal = document.getElementById('modal-user-profile');
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.style.zIndex = '10005';
+    }
+
+    // Refrescar en segundo plano desde el servidor
+    fetchUserProfileFromServer().then(() => {
+      updateProfileLivePreview();
+    }).catch(e => console.warn('Sync profile:', e));
+  }
+
+  function closeUserProfileModal() {
+    const modal = document.getElementById('modal-user-profile');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function switchProfileTab(tab) {
+    const isGeneral = tab === 'general';
+    const isSocial = tab === 'social';
+    const isSecurity = tab === 'security';
+
+    document.getElementById('profile-subtab-general').style.display = isGeneral ? 'block' : 'none';
+    document.getElementById('profile-subtab-social').style.display = isSocial ? 'block' : 'none';
+    document.getElementById('profile-subtab-security').style.display = isSecurity ? 'block' : 'none';
+
+    document.getElementById('tab-profile-general').className = 'profile-nav-btn' + (isGeneral ? ' active' : '');
+    document.getElementById('tab-profile-social').className = 'profile-nav-btn' + (isSocial ? ' active' : '');
+    document.getElementById('tab-profile-security').className = 'profile-nav-btn' + (isSecurity ? ' active' : '');
+  }
+
+  function updateProfileLivePreview() {
+    const getVal = (id) => (document.getElementById(id) ? document.getElementById(id).value.trim() : '');
+    const name = getVal('prof-input-name');
+    const email = getVal('prof-input-email');
+    const logoUrl = getVal('prof-input-logo');
+    const bannerUrl = getVal('prof-input-banner');
+
+    // Actualizar nombre y email
+    const pName = document.getElementById('profile-preview-name');
+    if (pName) pName.textContent = name || (currentUser ? currentUser.full_name : 'Mi Nombre');
+
+    const pEmail = document.getElementById('profile-preview-email');
+    if (pEmail) pEmail.textContent = email || (currentUser ? currentUser.email : 'correo@ejemplo.com');
+
+    // Actualizar Banner
+    const pBanner = document.getElementById('profile-preview-banner');
+    if (pBanner) {
+      if (bannerUrl) {
+        pBanner.style.backgroundImage = `url('${bannerUrl}')`;
+      } else {
+        pBanner.style.backgroundImage = `linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%)`;
+      }
+    }
+
+    // Actualizar Logo
+    const pLogoImg = document.getElementById('profile-preview-logo-img');
+    const pLogoFallback = document.getElementById('profile-preview-logo-fallback');
+    if (pLogoImg && pLogoFallback) {
+      if (logoUrl) {
+        pLogoImg.src = logoUrl;
+        pLogoImg.style.display = 'block';
+        pLogoFallback.style.display = 'none';
+        pLogoImg.onerror = function() {
+          pLogoImg.style.display = 'none';
+          pLogoFallback.style.display = 'block';
+        };
+      } else {
+        pLogoImg.style.display = 'none';
+        pLogoFallback.style.display = 'block';
+        const initials = (name || (currentUser ? currentUser.full_name : 'U'))
+          .split(' ')
+          .map(n => n[0])
+          .join('')
+          .substring(0, 2)
+          .toUpperCase() || '👤';
+        pLogoFallback.textContent = initials;
+      }
+    }
+
+    // Actualizar Badge de Rol
+    const pRoleBadge = document.getElementById('profile-preview-role-badge');
+    if (pRoleBadge && currentUser) {
+      if (currentUser.role === 'admin') {
+        pRoleBadge.textContent = '🛡️ Administrador Global';
+        pRoleBadge.style.background = '#FEE2E2';
+        pRoleBadge.style.color = '#B91C1C';
+        pRoleBadge.style.borderColor = '#FCA5A5';
+      } else if (currentUser.role === 'merchant') {
+        pRoleBadge.textContent = '🏪 Comercio Verificado';
+        pRoleBadge.style.background = '#FEF3C7';
+        pRoleBadge.style.color = '#B45309';
+        pRoleBadge.style.borderColor = '#FCD34D';
+      } else {
+        pRoleBadge.textContent = '📱 Consumidor';
+        pRoleBadge.style.background = '#ECFDF5';
+        pRoleBadge.style.color = '#065F46';
+        pRoleBadge.style.borderColor = '#A7F3D0';
+      }
+    }
+
+    // Actualizar Redes Sociales en la barra de preview
+    const ig = getVal('prof-input-instagram');
+    const fb = getVal('prof-input-facebook');
+    const wa = getVal('prof-input-whatsapp');
+    const tw = getVal('prof-input-twitter');
+    const web = getVal('prof-input-website');
+
+    const socialsContainer = document.getElementById('profile-preview-socials');
+    if (socialsContainer) {
+      let chipsHtml = '';
+      if (wa) {
+        chipsHtml += `<span class="social-chip-badge" style="background:#DCFCE7; color:#15803D; border:1px solid #86EFAC;">💬 WhatsApp: ${wa}</span>`;
+      }
+      if (ig) {
+        chipsHtml += `<span class="social-chip-badge" style="background:#FDF2F8; color:#BE185D; border:1px solid #FBCFE8;">📸 ${ig.startsWith('@') ? ig : '@' + ig}</span>`;
+      }
+      if (fb) {
+        chipsHtml += `<span class="social-chip-badge" style="background:#EFF6FF; color:#1D4ED8; border:1px solid #BFDBFE;">👥 Facebook</span>`;
+      }
+      if (tw) {
+        chipsHtml += `<span class="social-chip-badge" style="background:#F1F5F9; color:#0F172A; border:1px solid #CBD5E1;">✖️ ${tw.startsWith('@') ? tw : '@' + tw}</span>`;
+      }
+      if (web) {
+        chipsHtml += `<span class="social-chip-badge" style="background:#F0F9FF; color:#0369A1; border:1px solid #BAE6FD;">🌐 ${web.replace(/^https?:\/\//, '')}</span>`;
+      }
+      if (!chipsHtml) {
+        chipsHtml = `<span style="font-size:10px; color:#94A3B8; font-style:italic;">Sin redes configuradas todavía</span>`;
+      }
+      socialsContainer.innerHTML = chipsHtml;
+    }
+
+    // Actualizar thumbnails en la tarjeta del formulario
+    const thumbLogo = document.getElementById('prof-thumb-logo');
+    const thumbLogoFallback = document.getElementById('prof-thumb-fallback-logo');
+    if (thumbLogo && thumbLogoFallback) {
+      if (logoUrl) {
+        thumbLogo.src = logoUrl;
+        thumbLogo.style.display = 'block';
+        thumbLogoFallback.style.display = 'none';
+        thumbLogo.onerror = function() {
+          thumbLogo.style.display = 'none';
+          thumbLogoFallback.style.display = 'flex';
+        };
+      } else {
+        thumbLogo.style.display = 'none';
+        thumbLogoFallback.style.display = 'flex';
+      }
+    }
+
+    const thumbBanner = document.getElementById('prof-thumb-banner');
+    const thumbBannerFallback = document.getElementById('prof-thumb-fallback-banner');
+    if (thumbBanner && thumbBannerFallback) {
+      if (bannerUrl) {
+        thumbBanner.src = bannerUrl;
+        thumbBanner.style.display = 'block';
+        thumbBannerFallback.style.display = 'none';
+        thumbBanner.onerror = function() {
+          thumbBanner.style.display = 'none';
+          thumbBannerFallback.style.display = 'flex';
+        };
+      } else {
+        thumbBanner.style.display = 'none';
+        thumbBannerFallback.style.display = 'flex';
+      }
+    }
+  }
+
+  function applyLogoPreset(url) {
+    const input = document.getElementById('prof-input-logo');
+    if (input) input.value = url;
+    const status = document.getElementById('upload-status-logo');
+    if (status) status.innerHTML = url ? '<span style="color:#0284C7; font-weight:700;">Preset seleccionado</span>' : '<span style="color:#64748B;">Sin imagen</span>';
+    updateProfileLivePreview();
+  }
+
+  function applyBannerPreset(url) {
+    const input = document.getElementById('prof-input-banner');
+    if (input) input.value = url;
+    const status = document.getElementById('upload-status-banner');
+    if (status) status.innerHTML = url ? '<span style="color:#0284C7; font-weight:700;">Preset seleccionado</span>' : '<span style="color:#64748B;">Degradé default</span>';
+    updateProfileLivePreview();
+  }
+
+  function removeProfileImage(target) {
+    if (target === 'logo') {
+      const input = document.getElementById('prof-input-logo');
+      if (input) input.value = '';
+      const thumb = document.getElementById('prof-thumb-logo');
+      const fallback = document.getElementById('prof-thumb-fallback-logo');
+      if (thumb) { thumb.src = ''; thumb.style.display = 'none'; }
+      if (fallback) fallback.style.display = 'flex';
+      const status = document.getElementById('upload-status-logo');
+      if (status) status.innerHTML = '<span style="color:#64748B;">Sin imagen</span>';
+    } else {
+      const input = document.getElementById('prof-input-banner');
+      if (input) input.value = '';
+      const thumb = document.getElementById('prof-thumb-banner');
+      const fallback = document.getElementById('prof-thumb-fallback-banner');
+      if (thumb) { thumb.src = ''; thumb.style.display = 'none'; }
+      if (fallback) fallback.style.display = 'flex';
+      const status = document.getElementById('upload-status-banner');
+      if (status) status.innerHTML = '<span style="color:#64748B;">Degradé default</span>';
+    }
+    updateProfileLivePreview();
+  }
+
+  function triggerFileInput(target) {
+    const input = document.getElementById(`file-input-${target}`);
+    if (input) input.click();
+  }
+
+  async function handleProfileFileUpload(event, target) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    // Validación de tamaño (máx 5 MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('⚠️ El archivo seleccionado excede el tamaño máximo permitido de 5 MB.');
+      return;
+    }
+
+    // 1. Previsualización instantánea en cliente con FileReader
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const dataUrl = e.target.result;
+      if (target === 'logo') {
+        const inputLogo = document.getElementById('prof-input-logo');
+        if (inputLogo) inputLogo.value = dataUrl;
+      } else {
+        const inputBanner = document.getElementById('prof-input-banner');
+        if (inputBanner) inputBanner.value = dataUrl;
+      }
+      updateProfileLivePreview();
+    };
+    reader.readAsDataURL(file);
+
+    // 2. Subida física al backend y persistencia en Base de Datos
+    const statusEl = document.getElementById(`upload-status-${target}`);
+    if (statusEl) {
+      statusEl.innerHTML = '<span style="color: #D97706; font-weight: 700;">⏳ Guardando en base de datos...</span>';
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('target', target);
+
+      const token = (currentUser && (currentUser.token || currentUser.access_token)) ? (currentUser.token || currentUser.access_token) : '';
+      const res = await fetch(`${API_BASE}/auth/profile/upload-image`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const serverUrl = data.logo_url || data.banner_url || data.url;
+        if (target === 'logo') {
+          const inputLogo = document.getElementById('prof-input-logo');
+          if (inputLogo) inputLogo.value = serverUrl;
+          if (currentUser) currentUser.logo_url = serverUrl;
+        } else {
+          const inputBanner = document.getElementById('prof-input-banner');
+          if (inputBanner) inputBanner.value = serverUrl;
+          if (currentUser) currentUser.banner_url = serverUrl;
+        }
+        localStorage.setItem('ofertapp_auth', JSON.stringify(currentUser));
+        updateAuthUI(true);
+        updateProfileLivePreview();
+        if (statusEl) {
+          statusEl.innerHTML = '<span style="color: #059669; font-weight: 800;">✅ Guardado en base de datos</span>';
+        }
+      } else {
+        const err = await res.json().catch(() => ({}));
+        if (statusEl) {
+          statusEl.innerHTML = `<span style="color: #DC2626;">⚠️ ${err.detail || 'Error al guardar'}</span>`;
+        }
+      }
+    } catch (err) {
+      console.warn('Error al subir imagen al servidor:', err);
+      if (statusEl) {
+        statusEl.innerHTML = '<span style="color: #059669; font-weight: 700;">✅ Guardado local (presiona Guardar)</span>';
+      }
+    }
+  }
+
+  function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const isPwd = input.type === 'password';
+    input.type = isPwd ? 'text' : 'password';
+    btn.textContent = isPwd ? '🙈' : '👁️';
+  }
+
+  function validatePasswordStrength() {
+    const pwd = document.getElementById('prof-pwd-new').value;
+    const bar = document.getElementById('pwd-strength-fill');
+    const txt = document.getElementById('pwd-strength-text');
+    if (!bar || !txt) return;
+
+    if (!pwd) {
+      bar.style.width = '0%';
+      txt.textContent = 'Mínimo 6 caracteres';
+      txt.style.color = '#94A3B8';
+      return;
+    }
+
+    let score = 0;
+    if (pwd.length >= 6) score += 30;
+    if (pwd.length >= 10) score += 30;
+    if (/[A-Z]/.test(pwd)) score += 20;
+    if (/[0-9]/.test(pwd)) score += 20;
+
+    bar.style.width = `${Math.min(100, score)}%`;
+    if (score < 40) {
+      bar.style.background = '#EF4444';
+      txt.textContent = 'Contraseña débil (mínimo 6 caracteres)';
+      txt.style.color = '#EF4444';
+    } else if (score < 70) {
+      bar.style.background = '#F59E0B';
+      txt.textContent = 'Contraseña aceptable';
+      txt.style.color = '#D97706';
+    } else {
+      bar.style.background = '#10B981';
+      txt.textContent = '¡Contraseña fuerte y segura!';
+      txt.style.color = '#059669';
+    }
+  }
+
+  async function handleProfileUpdate(e) {
+    e.preventDefault();
+    if (!currentUser || !currentUser.token) {
+      alert('⚠️ Sesión expirada o no iniciada');
+      return;
+    }
+
+    const name = document.getElementById('prof-input-name').value.trim();
+    const email = document.getElementById('prof-input-email').value.trim();
+    const phone = document.getElementById('prof-input-phone').value.trim();
+    const bio = document.getElementById('prof-input-bio').value.trim();
+    const logoUrl = document.getElementById('prof-input-logo').value.trim();
+    const bannerUrl = document.getElementById('prof-input-banner').value.trim();
+
+    const instagram = document.getElementById('prof-input-instagram').value.trim();
+    const facebook = document.getElementById('prof-input-facebook').value.trim();
+    const whatsapp = document.getElementById('prof-input-whatsapp').value.trim();
+    const twitter = document.getElementById('prof-input-twitter').value.trim();
+    const website = document.getElementById('prof-input-website').value.trim();
+
+    if (!name || !email) {
+      alert('⚠️ El nombre y el correo electrónico son obligatorios.');
+      return;
+    }
+
+    const btn1 = document.getElementById('btn-save-profile-general');
+    const btn2 = document.getElementById('btn-save-profile-social');
+    if (btn1) { btn1.disabled = true; btn1.textContent = 'Guardando cambios...'; }
+    if (btn2) { btn2.disabled = true; btn2.textContent = 'Guardando cambios...'; }
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentUser.token}`
+        },
+        body: JSON.stringify({
+          full_name: name,
+          email: email,
+          phone: phone || null,
+          bio: bio || null,
+          logo_url: logoUrl || null,
+          banner_url: bannerUrl || null,
+          social_instagram: instagram || null,
+          social_facebook: facebook || null,
+          social_whatsapp: whatsapp || null,
+          social_twitter: twitter || null,
+          website: website || null
+        })
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        currentUser = {
+          ...currentUser,
+          ...updated
+        };
+        localStorage.setItem('ofertapp_auth', JSON.stringify(currentUser));
+        updateAuthUI(true);
+        updateProfileLivePreview();
+        alert('🎉 ¡Perfil actualizado exitosamente!');
+      } else {
+        const err = await res.json();
+        alert(`⚠️ ${err.detail || 'Error al actualizar el perfil'}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('❌ Error al conectar con el servidor.');
+    } finally {
+      if (btn1) { btn1.disabled = false; btn1.textContent = '💾 Guardar Datos del Perfil'; }
+      if (btn2) { btn2.disabled = false; btn2.textContent = '💾 Guardar Redes Sociales'; }
+    }
+  }
+
+  async function handleChangePasswordSubmit(e) {
+    e.preventDefault();
+    if (!currentUser || !currentUser.token) {
+      alert('⚠️ Inicia sesión para cambiar tu contraseña.');
+      return;
+    }
+
+    const currentPwd = document.getElementById('prof-pwd-current').value;
+    const newPwd = document.getElementById('prof-pwd-new').value;
+    const confirmPwd = document.getElementById('prof-pwd-confirm').value;
+
+    if (!currentPwd) {
+      alert('⚠️ Ingresa tu contraseña actual.');
+      return;
+    }
+    if (newPwd.length < 6) {
+      alert('⚠️ La nueva contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+    if (newPwd !== confirmPwd) {
+      alert('⚠️ La nueva contraseña y la confirmación no coinciden.');
+      return;
+    }
+
+    const btn = document.getElementById('btn-submit-change-pwd');
+    if (btn) { btn.disabled = true; btn.textContent = 'Actualizando contraseña...'; }
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentUser.token}`
+        },
+        body: JSON.stringify({
+          current_password: currentPwd,
+          new_password: newPwd,
+          confirm_password: confirmPwd
+        })
+      });
+
+      if (res.ok) {
+        document.getElementById('prof-pwd-current').value = '';
+        document.getElementById('prof-pwd-new').value = '';
+        document.getElementById('prof-pwd-confirm').value = '';
+        alert('🔑 ¡Tu contraseña ha sido actualizada exitosamente!');
+        switchProfileTab('general');
+      } else {
+        const err = await res.json();
+        alert(`⚠️ ${err.detail || 'No se pudo cambiar la contraseña'}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('❌ Error al comunicar con el servidor.');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '🔑 Actualizar Contraseña Ahora'; }
+    }
   }
 
   function updateTastesBadgeCount() {
@@ -1484,10 +3054,14 @@
           email: tokenData.email,
           full_name: tokenData.full_name,
           role: tokenData.role,
-          token: tokenData.access_token
+          token: tokenData.access_token,
+          phone: tokenData.phone || phone || '',
+          logo_url: tokenData.logo_url || '',
+          banner_url: tokenData.banner_url || ''
         };
         localStorage.setItem('ofertapp_auth', JSON.stringify(currentUser));
         updateAuthUI(true);
+        fetchUserProfileFromServer();
 
         // Guardar automáticamente los gustos actuales en el perfil
         await saveUserTastesDirect(false);
@@ -1536,11 +3110,15 @@
           email: tokenData.email,
           full_name: tokenData.full_name,
           role: tokenData.role,
-          token: tokenData.access_token
+          token: tokenData.access_token,
+          phone: tokenData.phone || '',
+          logo_url: tokenData.logo_url || '',
+          banner_url: tokenData.banner_url || ''
         };
         localStorage.setItem('ofertapp_auth', JSON.stringify(currentUser));
         updateAuthUI(true);
         await fetchUserTastesFromServer();
+        await fetchUserProfileFromServer();
         alert(`✅ Sesión iniciada como: ${currentUser.full_name}`);
         closeAuthModal();
         if (currentUser.role === 'admin') {
@@ -1829,23 +3407,48 @@
     items.forEach(p => {
       const card = document.createElement('div');
       card.className = `promo-card ${p.matches_taste ? 'matched' : ''}`;
+      const photosCount = (p.images && p.images.length) ? p.images.length : 1;
+      const photosBadge = photosCount > 1 
+        ? `<span class="badge-pill badge-pill-photos">📷 ${photosCount} fotos</span>` 
+        : '';
+
       card.innerHTML = `
-        <div style="position: relative;">
+        <div style="position: relative; cursor: pointer;" onclick="openPromoDetail(${p.id})">
           <img src="${p.image_url}" onerror="this.src='https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=600'">
-          <div class="badge-tag badge-discount">-${Math.round(p.discount_percent)}% OFF</div>
-          <div class="badge-tag badge-dist">📍 ${p.distance_label}</div>
-          ${p.matches_taste ? '<div class="badge-tag badge-taste">⭐ Tus gustos</div>' : ''}
+          
+          <!-- Contenedor superior de badges organizados sin superposición -->
+          <div class="promo-card-badges-header">
+            <!-- Esquina Superior Izquierda: Descuento + Afinidad de Gustos -->
+            <div class="promo-badges-col-left">
+              <span class="badge-pill badge-pill-discount">-${Math.round(p.discount_percent)}% OFF</span>
+              ${p.matches_taste ? '<span class="badge-pill badge-pill-taste">⭐ Tus gustos</span>' : ''}
+            </div>
+            
+            <!-- Esquina Superior Derecha: Distancia + Fotos -->
+            <div class="promo-badges-col-right">
+              <span class="badge-pill badge-pill-dist">📍 ${p.distance_label}</span>
+              ${photosBadge}
+            </div>
+          </div>
         </div>
         <div style="padding: 12px;">
-          <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">${p.category_icon || '🏷️'} ${p.category_name} • ${p.merchant_name}</div>
-          <h4 style="font-size: 15px; font-weight: 800; margin: 4px 0;">${p.title}</h4>
-          <p style="font-size: 11px; color: #64748B;">📍 ${p.address}</p>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">${p.category_icon || '🏷️'} ${p.category_name} • ${p.merchant_name}</div>
+          </div>
+          <h4 style="font-size: 15px; font-weight: 800; margin: 4px 0; cursor: pointer;" onclick="openPromoDetail(${p.id})">${p.title}</h4>
+          <p style="font-size: 11px; color: #64748B; margin-bottom: 6px; cursor: pointer; line-height: 1.4;" onclick="openPromoDetail(${p.id})">
+            ${p.description ? (p.description.length > 80 ? p.description.substring(0, 80) + '...' : p.description) : 'Toca para ver fotos y descripción completa...'}
+          </p>
+          <div style="font-size: 10px; color: #94A3B8;">📍 ${p.address}</div>
           <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 8px;">
-            <div>
-              <span style="font-size: 11px; color: #94A3B8; text-decoration: line-through;">$${Math.round(p.original_price)}</span>
-              <div style="font-size: 18px; font-weight: 800; color: var(--primary);">$${Math.round(p.promo_price)}</div>
+            <div style="cursor: pointer;" onclick="openPromoDetail(${p.id})">
+              <span style="font-size: 11px; color: #94A3B8; text-decoration: line-through;">Bs. ${Math.round(p.original_price)}</span>
+              <div style="font-size: 18px; font-weight: 800; color: var(--primary);">Bs. ${Math.round(p.promo_price)}</div>
             </div>
-            <button class="btn-primary" style="font-size: 11px; padding: 6px 12px;" onclick="alert('¡Cupón canjeado para ${p.merchant_name}!')">Aprovechar</button>
+            <div style="display: flex; gap: 6px;">
+              <button class="btn-secondary" style="font-size: 11px; padding: 6px 10px;" onclick="openPromoDetail(${p.id})">👁️ Ver Detalle</button>
+              <button class="btn-primary" style="font-size: 11px; padding: 6px 12px; font-weight: 800;" onclick="openOnlineCheckoutWithPromo(${p.id})">💳 Comprar</button>
+            </div>
           </div>
         </div>
       `;
@@ -1854,23 +3457,312 @@
   }
 
   // ==========================================
+  // DETALLE DE OFERTA Y GALERÍA DE FOTOS
+  // ==========================================
+  let currentDetailPromo = null;
+  let currentGalleryIndex = 0;
+  let currentGalleryImages = [];
+
+  function openPromoDetail(promoId) {
+    const promo = allPromotions.find(p => p.id === promoId);
+    if (!promo) return;
+    currentDetailPromo = promo;
+
+    // Preparar lista de imágenes unificadas
+    currentGalleryImages = (promo.images && promo.images.length) 
+      ? promo.images 
+      : [promo.image_url || 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=800'];
+    currentGalleryIndex = 0;
+
+    // Actualizar datos en el modal
+    document.getElementById('detail-cat-badge').textContent = `${promo.category_icon || '🏷️'} ${promo.category_name || 'General'}`;
+    document.getElementById('detail-merchant-label').textContent = promo.merchant_name || 'Comercio';
+    document.getElementById('detail-title').textContent = promo.title;
+    document.getElementById('detail-description').textContent = promo.description || 'Sin descripción disponible.';
+    document.getElementById('detail-original-price').textContent = `Bs. ${Math.round(promo.original_price)}`;
+    document.getElementById('detail-promo-price').textContent = `Bs. ${Math.round(promo.promo_price)}`;
+    document.getElementById('detail-discount-percent').textContent = `-${Math.round(promo.discount_percent)}% OFF`;
+    
+    const savings = Math.max(0, Math.round(promo.original_price - promo.promo_price));
+    document.getElementById('detail-savings-text').textContent = `¡Ahorras Bs. ${savings}!`;
+
+    document.getElementById('detail-merchant-name').textContent = promo.merchant_name;
+    document.getElementById('detail-address').textContent = `📍 ${promo.address}`;
+    document.getElementById('detail-distance').textContent = `📏 ${promo.distance_label || 'Cerca de ti'}`;
+
+    // Tags
+    const tagsRow = document.getElementById('detail-tags-row');
+    tagsRow.innerHTML = '';
+    if (promo.tags && promo.tags.length) {
+      promo.tags.forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'tag-chip';
+        span.textContent = `#${t}`;
+        tagsRow.appendChild(span);
+      });
+    }
+
+    // Badges Row
+    const badgesRow = document.getElementById('detail-badges-row');
+    badgesRow.innerHTML = '';
+    if (promo.matches_taste) {
+      badgesRow.innerHTML += `<span style="background: #FFF7ED; color: #C2410C; border: 1px solid #FFEDD5; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 999px;">⭐ Coincide con tus gustos</span>`;
+    }
+    badgesRow.innerHTML += `<span style="background: #ECFDF5; color: #047857; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 999px;">📍 ${promo.distance_label || 'En tu ciudad'}</span>`;
+
+    // Renderizar Galería interactiva
+    renderGalleryView();
+
+    // Actualizar botón de pago en línea
+    document.getElementById('btn-detail-buy-online').textContent = `💳 Comprar / Pagar en Línea (Bs. ${Math.round(promo.promo_price)})`;
+
+    // Incrementar vista en backend de forma asíncrona
+    fetch(`${API_BASE}/promotions/${promo.id}`).catch(() => {});
+
+    // Acciones de gestión para dueño (merchant) o Administrador global
+    const ownerActions = document.getElementById('detail-owner-actions');
+    if (ownerActions) {
+      const isOwnerOrAdmin = currentUser && (
+        currentUser.role === 'admin' || 
+        (currentUser.role === 'merchant' && Number(currentUser.id) === Number(promo.merchant_id))
+      );
+      ownerActions.style.display = isOwnerOrAdmin ? 'flex' : 'none';
+    }
+
+    // Mostrar modal
+    document.getElementById('modal-promo-detail').style.display = 'flex';
+  }
+
+  function editCurrentDetailPromo() {
+    if (!currentDetailPromo) return;
+    const pid = currentDetailPromo.id;
+    closePromoDetail();
+    openEditPromoModal(pid);
+  }
+
+  function deleteCurrentDetailPromo() {
+    if (!currentDetailPromo) return;
+    const pid = currentDetailPromo.id;
+    closePromoDetail();
+    deletePromo(pid);
+  }
+
+  function closePromoDetail() {
+    document.getElementById('modal-promo-detail').style.display = 'none';
+  }
+
+  function renderGalleryView() {
+    if (!currentGalleryImages.length) return;
+    if (currentGalleryIndex >= currentGalleryImages.length) currentGalleryIndex = 0;
+    if (currentGalleryIndex < 0) currentGalleryIndex = currentGalleryImages.length - 1;
+
+    const mainImg = document.getElementById('detail-main-img');
+    mainImg.src = currentGalleryImages[currentGalleryIndex];
+
+    const counter = document.getElementById('detail-gallery-counter');
+    counter.textContent = `📸 ${currentGalleryIndex + 1} / ${currentGalleryImages.length}`;
+
+    // Thumbnails
+    const thumbsStrip = document.getElementById('detail-gallery-thumbs');
+    thumbsStrip.innerHTML = '';
+    currentGalleryImages.forEach((imgUrl, idx) => {
+      const thumb = document.createElement('img');
+      thumb.className = `gallery-thumb-item ${idx === currentGalleryIndex ? 'active' : ''}`;
+      thumb.src = imgUrl;
+      thumb.alt = `Miniatura ${idx + 1}`;
+      thumb.onclick = () => {
+        currentGalleryIndex = idx;
+        renderGalleryView();
+      };
+      thumbsStrip.appendChild(thumb);
+    });
+  }
+
+  function prevGalleryImage() {
+    if (!currentGalleryImages.length) return;
+    currentGalleryIndex--;
+    if (currentGalleryIndex < 0) currentGalleryIndex = currentGalleryImages.length - 1;
+    renderGalleryView();
+  }
+
+  function nextGalleryImage() {
+    if (!currentGalleryImages.length) return;
+    currentGalleryIndex++;
+    if (currentGalleryIndex >= currentGalleryImages.length) currentGalleryIndex = 0;
+    renderGalleryView();
+  }
+
+  function viewPromoOnMap() {
+    closePromoDetail();
+    if (!isMapView) {
+      toggleFeedMapView();
+    }
+    if (currentDetailPromo && cityMap) {
+      setTimeout(() => {
+        cityMap.setView([currentDetailPromo.latitude, currentDetailPromo.longitude], 16);
+      }, 150);
+    }
+  }
+
+  function claimCouponInstant() {
+    if (!currentDetailPromo) return;
+    alert(`🎟️ ¡Cupón Canjeado con Éxito!\n\nPromoción: ${currentDetailPromo.title}\nComercio: ${currentDetailPromo.merchant_name}\nDirección: ${currentDetailPromo.address}\n\nPresenta este cupón en el local para obtener tu ${Math.round(currentDetailPromo.discount_percent)}% de descuento.`);
+  }
+
+  // ==========================================
+  // PASARELA DE PAGO EN LÍNEA (CHECKOUT)
+  // ==========================================
+  let checkoutPromo = null;
+  let checkoutQty = 1;
+  let selectedPaymentMethod = 'credit_card';
+
+  function openOnlineCheckout() {
+    if (currentDetailPromo) {
+      openOnlineCheckoutWithPromo(currentDetailPromo.id);
+    }
+  }
+
+  function openOnlineCheckoutWithPromo(promoId) {
+    const promo = allPromotions.find(p => p.id === promoId);
+    if (!promo) return;
+    checkoutPromo = promo;
+    checkoutQty = 1;
+
+    // Resetear formulario a vista inicial
+    document.getElementById('checkout-form-container').style.display = 'block';
+    document.getElementById('checkout-success-view').style.display = 'none';
+
+    // Llenar datos de la oferta
+    document.getElementById('checkout-promo-title').textContent = promo.title;
+    document.getElementById('checkout-merchant-name').textContent = `🏪 ${promo.merchant_name} • 📍 ${promo.address}`;
+    updateCheckoutTotals();
+
+    // Autollenar datos de comprador si hay usuario autenticado
+    if (currentUser) {
+      document.getElementById('checkout-name').value = currentUser.full_name || '';
+      document.getElementById('checkout-email').value = currentUser.email || '';
+    } else {
+      document.getElementById('checkout-name').value = 'Comprador Ofertapp';
+      document.getElementById('checkout-email').value = 'cliente@ofertapp.com';
+    }
+
+    selectPaymentMethod('credit_card');
+    document.getElementById('modal-checkout').style.display = 'flex';
+  }
+
+  function closeOnlineCheckout() {
+    document.getElementById('modal-checkout').style.display = 'none';
+  }
+
+  function changeCheckoutQty(delta) {
+    checkoutQty = Math.max(1, checkoutQty + delta);
+    updateCheckoutTotals();
+  }
+
+  function updateCheckoutTotals() {
+    if (!checkoutPromo) return;
+    document.getElementById('checkout-qty-val').textContent = checkoutQty;
+    const total = Math.round(checkoutPromo.promo_price * checkoutQty);
+    document.getElementById('checkout-total-val').textContent = `Bs. ${total}`;
+    document.getElementById('btn-confirm-payment').textContent = `🔒 Confirmar y Pagar Bs. ${total} Ahora`;
+  }
+
+  function selectPaymentMethod(method) {
+    selectedPaymentMethod = method;
+    document.querySelectorAll('.payment-method-card').forEach(el => el.classList.remove('selected'));
+    
+    if (method === 'credit_card') {
+      document.getElementById('method-card-opt').classList.add('selected');
+      document.getElementById('checkout-card-fields').style.display = 'block';
+    } else if (method === 'mercadopago') {
+      document.getElementById('method-mp-opt').classList.add('selected');
+      document.getElementById('checkout-card-fields').style.display = 'none';
+    } else if (method === 'bank_transfer') {
+      document.getElementById('method-transfer-opt').classList.add('selected');
+      document.getElementById('checkout-card-fields').style.display = 'none';
+    }
+  }
+
+  async function processOnlinePayment() {
+    if (!checkoutPromo) return;
+    const name = document.getElementById('checkout-name').value.trim();
+    const email = document.getElementById('checkout-email').value.trim();
+
+    if (!name || !email) {
+      alert('Por favor completa tu nombre y correo electrónico para recibir el comprobante.');
+      return;
+    }
+
+    const btn = document.getElementById('btn-confirm-payment');
+    btn.disabled = true;
+    btn.textContent = 'Procesando pago seguro...';
+
+    const payload = {
+      promotion_id: checkoutPromo.id,
+      user_id: currentUser ? currentUser.id : null,
+      customer_name: name,
+      customer_email: email,
+      quantity: checkoutQty,
+      payment_method: selectedPaymentMethod,
+      card_number_masked: selectedPaymentMethod === 'credit_card' ? '•••• 3456' : null
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/orders/checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        const orderData = await res.json();
+        // Mostrar vista de éxito con ticket y QR
+        document.getElementById('checkout-form-container').style.display = 'none';
+        document.getElementById('checkout-success-view').style.display = 'block';
+
+        document.getElementById('receipt-order-num').textContent = orderData.order_number;
+        document.getElementById('receipt-txn-id').textContent = orderData.transaction_id;
+        document.getElementById('receipt-item-name').textContent = `${orderData.promotion_title} (x${orderData.quantity})`;
+        document.getElementById('receipt-amount').textContent = `Bs. ${Math.round(orderData.total_amount)}`;
+        document.getElementById('receipt-qr-token').textContent = orderData.qr_code_token;
+      } else {
+        const err = await res.json();
+        alert(`Error al procesar el pago: ${err.detail || 'Intenta nuevamente.'}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Error de conexión al procesar el pago en línea.');
+    } finally {
+      btn.disabled = false;
+      updateCheckoutTotals();
+    }
+  }
+
+  // ==========================================
   // PORTAL DE COMERCIO: GESTIÓN
   // ==========================================
   function setMerchantSubtab(tab) {
     document.getElementById('merch-subtab-promos').style.display = tab === 'my-promos' ? 'block' : 'none';
     document.getElementById('merch-subtab-new').style.display = tab === 'new-promo' ? 'block' : 'none';
+    document.getElementById('merch-subtab-orders').style.display = tab === 'orders' ? 'block' : 'none';
 
     document.getElementById('btn-merch-promos').className = tab === 'my-promos' ? 'btn-primary' : 'btn-secondary';
     document.getElementById('btn-merch-new').className = tab === 'new-promo' ? 'btn-primary' : 'btn-secondary';
+    document.getElementById('btn-merch-orders').className = tab === 'orders' ? 'btn-primary' : 'btn-secondary';
 
     if (tab === 'new-promo') {
       setTimeout(initMerchantMap, 150);
+    } else if (tab === 'orders') {
+      loadMerchantOrders();
     }
   }
 
   async function loadMerchantPromotions() {
+    const merchantId = (currentUser && currentUser.id) ? currentUser.id : 1;
     try {
-      const res = await fetch(`${API_BASE}/merchants/1/promotions`);
+      const res = await fetch(`${API_BASE}/merchants/${merchantId}/promotions`, {
+        headers: getAuthHeaders(false)
+      });
       if (res.ok) {
         const promos = await res.json();
         document.getElementById('merchant-promos-count').textContent = `${promos.length} ofertas`;
@@ -1878,7 +3770,7 @@
         list.innerHTML = '';
 
         if (!promos.length) {
-          list.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;">No tienes promociones registradas.</div>';
+          list.innerHTML = '<div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 12px; background: #FFF; border-radius: 12px; border: 1px dashed var(--border);">No tienes promociones registradas aún. ¡Publica tu primera oferta usando la pestaña superior!</div>';
           return;
         }
 
@@ -1888,42 +3780,138 @@
           item.style.border = '1px solid var(--border)';
           item.style.borderRadius = '12px';
           item.style.padding = '12px';
+          const pPhotos = (p.images && p.images.length) ? p.images.length : 1;
           item.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div style="display: flex; justify-content: space-between; align-items: start; gap: 8px;">
               <div>
                 <span style="font-size: 10px; font-weight: bold; background: ${p.is_active ? '#ECFDF5' : '#FEF2F2'}; color: ${p.is_active ? '#059669' : '#DC2626'}; padding: 2px 6px; border-radius: 4px;">
                   ${p.is_active ? '● Activa' : '● Pausada'}
                 </span>
+                <span style="font-size: 10px; color: #64748B; margin-left: 6px;">📸 ${pPhotos} foto${pPhotos > 1 ? 's' : ''}</span>
                 <h4 style="font-size: 13px; font-weight: 800; margin-top: 4px;">${p.title}</h4>
-                <div style="font-size: 11px; color: var(--text-muted);">$${Math.round(p.promo_price)} (${Math.round(p.discount_percent)}% OFF) • 📍 ${p.address}</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Bs. ${Math.round(p.promo_price)} <span style="text-decoration: line-through; font-size: 10px;">Bs. ${Math.round(p.original_price)}</span> (${Math.round(p.discount_percent)}% OFF) • 📍 ${p.address}</div>
               </div>
-              <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="display: flex; flex-direction: column; gap: 4px; min-width: 80px;">
+                <button class="btn-secondary" style="font-size: 10px; padding: 4px 8px;" onclick="openPromoDetail(${p.id})">
+                  👁️ Ver
+                </button>
+                <button class="btn-secondary" style="font-size: 10px; padding: 4px 8px; color: #2563EB;" onclick="openEditPromoModal(${p.id})">
+                  ✏️ Modificar
+                </button>
                 <button class="btn-secondary" style="font-size: 10px; padding: 4px 8px;" onclick="togglePromoStatus(${p.id})">
                   ${p.is_active ? 'Pausar' : 'Activar'}
                 </button>
                 <button class="btn-secondary" style="font-size: 10px; padding: 4px 8px; color: #DC2626;" onclick="deletePromo(${p.id})">
-                  Eliminar
+                  🗑️ Eliminar
                 </button>
               </div>
             </div>
           `;
           list.appendChild(item);
         });
+      } else {
+        const err = await res.json().catch(() => ({}));
+        document.getElementById('merchant-promos-list').innerHTML = `<div style="text-align: center; color: #DC2626; padding: 20px; font-size: 11px;">⚠️ Acceso restringido: ${err.detail || 'No autorizado'}</div>`;
       }
     } catch (e) {
       console.error(e);
     }
   }
 
+  async function loadMerchantOrders() {
+    const list = document.getElementById('merchant-orders-list');
+    list.innerHTML = '<div style="text-align: center; padding: 14px; font-size: 11px; color: var(--text-muted);">Cargando compras y pagos recibidos...</div>';
+
+    const merchantId = (currentUser && currentUser.id) ? currentUser.id : 1;
+
+    try {
+      const res = await fetch(`${API_BASE}/merchants/${merchantId}/orders`, {
+        headers: getAuthHeaders(false)
+      });
+      if (res.ok) {
+        const orders = await res.json();
+        list.innerHTML = '';
+        if (!orders.length) {
+          list.innerHTML = `
+            <div style="text-align: center; padding: 24px 12px; background: #FFFFFF; border-radius: 12px; border: 1px dashed var(--border);">
+              <div style="font-size: 28px; margin-bottom: 6px;">📦</div>
+              <strong style="font-size: 12px; color: #1E293B;">Aún no has recibido pagos en línea</strong>
+              <p style="font-size: 11px; color: var(--text-muted); margin: 4px 0 0 0;">Cuando los consumidores compren tus ofertas con tarjeta o Mercado Pago, aparecerán aquí con su código QR para canje.</p>
+            </div>
+          `;
+          return;
+        }
+
+        orders.forEach(o => {
+          const card = document.createElement('div');
+          card.style.background = '#FFFFFF';
+          card.style.border = '1px solid var(--border)';
+          card.style.borderRadius = '12px';
+          card.style.padding = '12px';
+          card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 6px;">
+              <div>
+                <span style="font-size: 11px; font-weight: 900; color: var(--primary);">${o.order_number}</span>
+                <span style="font-size: 10px; background: #ECFDF5; color: #047857; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">● Pagado</span>
+              </div>
+              <div style="font-size: 14px; font-weight: 900; color: #059669;">Bs. ${Math.round(o.total_amount)}</div>
+            </div>
+            <div style="font-size: 12px; font-weight: 800; color: #1E293B;">${o.promotion_title} (x${o.quantity})</div>
+            <div style="font-size: 11px; color: #64748B; margin: 2px 0 6px 0;">Cliente: <strong>${o.customer_name}</strong> (${o.customer_email})</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border); padding-top: 6px; font-size: 10px; color: #64748B;">
+              <span>Método: <strong>${o.payment_method}</strong></span>
+              <span style="font-family: monospace; font-weight: 800; background: #F1F5F9; padding: 2px 6px; border-radius: 4px;">QR: ${o.qr_code_token}</span>
+            </div>
+          `;
+          list.appendChild(card);
+        });
+      } else {
+        const err = await res.json().catch(() => ({}));
+        list.innerHTML = `<div style="text-align: center; color: #DC2626; font-size: 11px; padding: 20px;">⚠️ Acceso restringido: ${err.detail || 'No autorizado'}</div>`;
+      }
+    } catch (e) {
+      list.innerHTML = '<div style="text-align: center; color: #DC2626; font-size: 11px;">Error al cargar órdenes de compra.</div>';
+    }
+  }
+
   async function togglePromoStatus(id) {
-    await fetch(`${API_BASE}/promotions/${id}/toggle-status`, { method: 'PATCH' });
-    loadMerchantPromotions();
+    try {
+      const res = await fetch(`${API_BASE}/promotions/${id}/toggle-status`, { 
+        method: 'PATCH',
+        headers: getAuthHeaders(false)
+      });
+      if (res.ok) {
+        if (document.getElementById('portal-merchant').style.display !== 'none') loadMerchantPromotions();
+        if (document.getElementById('portal-admin').style.display !== 'none') loadAdminPromotions();
+        loadFeed();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(`⚠️ No autorizado: ${err.detail || 'Solo puedes modificar tus propias promociones.'}`);
+      }
+    } catch (e) {
+      alert('Error de conexión al cambiar estado de la oferta.');
+    }
   }
 
   async function deletePromo(id) {
-    if (confirm('¿Eliminar esta promoción?')) {
-      await fetch(`${API_BASE}/promotions/${id}`, { method: 'DELETE' });
-      loadMerchantPromotions();
+    if (confirm('¿Eliminar esta promoción definitivamente? Esta acción no se puede deshacer.')) {
+      try {
+        const res = await fetch(`${API_BASE}/promotions/${id}`, { 
+          method: 'DELETE',
+          headers: getAuthHeaders(false)
+        });
+        if (res.ok) {
+          alert('✅ Promoción eliminada exitosamente.');
+          if (document.getElementById('portal-merchant').style.display !== 'none') loadMerchantPromotions();
+          if (document.getElementById('portal-admin').style.display !== 'none') loadAdminPromotions();
+          loadFeed();
+        } else {
+          const err = await res.json().catch(() => ({}));
+          alert(`⚠️ No autorizado: ${err.detail || 'Solo puedes eliminar tus propias promociones.'}`);
+        }
+      } catch (e) {
+        alert('Error de conexión al eliminar la promoción.');
+      }
     }
   }
 
@@ -1931,58 +3919,284 @@
     e.preventDefault();
     const btn = document.getElementById('btn-save-merch');
     btn.disabled = true;
-    btn.textContent = 'Guardando y emitiendo alertas...';
+    btn.textContent = 'Guardando con galería de fotos y emitiendo alertas...';
+
+    const galleryVal = document.getElementById('m-gallery').value;
+    const galleryList = galleryVal.split(',').map(t => t.trim()).filter(Boolean);
+
+    const merchantId = (currentUser && currentUser.id) ? currentUser.id : 1;
+    const merchantName = (currentUser && currentUser.full_name) ? currentUser.full_name : 'Tu Comercio';
 
     const payload = {
-      merchant_id: 1,
-      merchant_name: 'Pizzería Bella Napoli (Tu Comercio)',
-      title: document.getElementById('m-title').value,
-      description: 'Oferta exclusiva registrada desde el Portal de Comercio.',
+      merchant_id: merchantId,
+      merchant_name: merchantName,
+      title: document.getElementById('m-title').value.trim(),
+      description: document.getElementById('m-description').value.trim(),
       category_id: parseInt(document.getElementById('m-category').value),
       original_price: parseFloat(document.getElementById('m-price').value),
       discount_percent: parseFloat(document.getElementById('m-discount').value),
-      image_url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600',
+      image_url: document.getElementById('m-image-url').value.trim() || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800',
+      gallery: galleryList,
       tags: document.getElementById('m-tags').value.split(',').map(t => t.trim()).filter(Boolean),
       latitude: parseFloat(document.getElementById('m-lat').value),
       longitude: parseFloat(document.getElementById('m-lon').value),
-      address: document.getElementById('m-address').value
+      address: document.getElementById('m-address').value.trim()
     };
 
     try {
       const res = await fetch(`${API_BASE}/promotions`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(true),
         body: JSON.stringify(payload)
       });
       if (res.ok) {
-        alert('✅ ¡Promoción registrada exitosamente!\n\nSe georreferenció en el mapa y se enviaron alertas a los usuarios interesados cercanos.');
+        alert('✅ ¡Promoción registrada exitosamente con su galería de fotos!\n\nSe georreferenció en el mapa y se enviaron alertas automáticas a los usuarios interesados cercanos.');
         setMerchantSubtab('my-promos');
         loadMerchantPromotions();
+        loadFeed();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(`Error al registrar: ${err.detail || 'Verifica los campos y tus permisos de comercio'}`);
       }
     } catch (err) {
-      alert('Error al registrar promoción.');
+      alert('Error de conexión al registrar promoción.');
     } finally {
       btn.disabled = false;
-      btn.textContent = '🚀 Publicar y Disparar Alertas a Usuarios';
+      btn.textContent = '🚀 Publicar con Galería y Disparar Alertas';
     }
   }
 
   // ==========================================
-  // PANEL ADMINISTRADOR (ROLES & CONFIG)
+  // MODAL EDICIÓN DE PROMOCIONES (MERCHANT / ADMIN)
+  // ==========================================
+  async function openEditPromoModal(promoId) {
+    let promo = allPromotions.find(p => p.id === promoId);
+    if (!promo) {
+      try {
+        const res = await fetch(`${API_BASE}/promotions/${promoId}`);
+        if (res.ok) promo = await res.json();
+      } catch (e) {}
+    }
+    if (!promo) {
+      alert('No se pudo cargar la información de la promoción.');
+      return;
+    }
+
+    // Llenar select de categorías
+    const catSelect = document.getElementById('edit-promo-category');
+    catSelect.innerHTML = '';
+    availableCategories.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = `${c.icon} ${c.name}`;
+      if (c.id === promo.category_id) opt.selected = true;
+      catSelect.appendChild(opt);
+    });
+
+    document.getElementById('edit-promo-id').value = promo.id;
+    document.getElementById('edit-promo-title').value = promo.title || '';
+    document.getElementById('edit-promo-description').value = promo.description || '';
+    document.getElementById('edit-promo-stock').value = promo.stock !== undefined ? promo.stock : 10;
+    document.getElementById('edit-promo-price').value = promo.original_price || '';
+    document.getElementById('edit-promo-discount').value = promo.discount_percent || '';
+    document.getElementById('edit-promo-image-url').value = promo.image_url || '';
+    document.getElementById('edit-promo-gallery').value = (promo.images && promo.images.length) ? promo.images.join(', ') : '';
+    document.getElementById('edit-promo-tags').value = (promo.tags && promo.tags.length) ? promo.tags.join(', ') : '';
+    document.getElementById('edit-promo-address').value = promo.address || '';
+    document.getElementById('edit-promo-active').checked = promo.is_active !== false;
+
+    document.getElementById('modal-edit-promo').style.display = 'flex';
+  }
+
+  function closeEditPromoModal() {
+    document.getElementById('modal-edit-promo').style.display = 'none';
+  }
+
+  async function handleSaveEditPromo(e) {
+    e.preventDefault();
+    const promoId = document.getElementById('edit-promo-id').value;
+    const btn = document.getElementById('btn-save-edit-promo');
+    btn.disabled = true;
+    btn.textContent = 'Guardando cambios...';
+
+    const galleryVal = document.getElementById('edit-promo-gallery').value;
+    const galleryList = galleryVal.split(',').map(t => t.trim()).filter(Boolean);
+
+    const payload = {
+      title: document.getElementById('edit-promo-title').value.trim(),
+      description: document.getElementById('edit-promo-description').value.trim(),
+      category_id: parseInt(document.getElementById('edit-promo-category').value),
+      original_price: parseFloat(document.getElementById('edit-promo-price').value),
+      discount_percent: parseFloat(document.getElementById('edit-promo-discount').value),
+      stock: parseInt(document.getElementById('edit-promo-stock').value) || 10,
+      image_url: document.getElementById('edit-promo-image-url').value.trim() || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800',
+      gallery: galleryList,
+      tags: document.getElementById('edit-promo-tags').value.split(',').map(t => t.trim()).filter(Boolean),
+      address: document.getElementById('edit-promo-address').value.trim(),
+      is_active: document.getElementById('edit-promo-active').checked
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/promotions/${promoId}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(true),
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        alert('🎉 ¡Promoción actualizada correctamente!');
+        closeEditPromoModal();
+        loadFeed();
+        if (document.getElementById('portal-merchant').style.display !== 'none') {
+          loadMerchantPromotions();
+        }
+        if (document.getElementById('portal-admin').style.display !== 'none') {
+          loadAdminPromotions();
+        }
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(`⚠️ No autorizado para modificar: ${err.detail || 'Solo puedes modificar tus propias promociones.'}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('❌ Error al conectar con el servidor.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '💾 Guardar Cambios';
+    }
+  }
+
+  // ==========================================
+  // PANEL ADMINISTRADOR (ROLES, AJUSTES, OFERTAS)
   // ==========================================
   function setAdminSubtab(tab) {
     document.getElementById('adm-subtab-users').style.display = tab === 'users' ? 'block' : 'none';
     document.getElementById('adm-subtab-settings').style.display = tab === 'settings' ? 'block' : 'none';
     document.getElementById('adm-subtab-categories').style.display = tab === 'categories' ? 'block' : 'none';
+    document.getElementById('adm-subtab-promos').style.display = tab === 'promos' ? 'block' : 'none';
 
     document.getElementById('btn-adm-users').className = tab === 'users' ? 'btn-primary' : 'btn-secondary';
     document.getElementById('btn-adm-settings').className = tab === 'settings' ? 'btn-primary' : 'btn-secondary';
     document.getElementById('btn-adm-cats').className = tab === 'categories' ? 'btn-primary' : 'btn-secondary';
+    document.getElementById('btn-adm-promos').className = tab === 'promos' ? 'btn-primary' : 'btn-secondary';
+
+    if (tab === 'users') loadAdminUsers();
+    else if (tab === 'settings') loadAdminSettings();
+    else if (tab === 'categories') loadAdminCategories();
+    else if (tab === 'promos') loadAdminPromotions();
+  }
+
+  let adminPromotionsList = [];
+
+  async function loadAdminPromotions() {
+    const list = document.getElementById('admin-promos-list');
+    list.innerHTML = '<div style="text-align: center; padding: 20px; font-size: 11px; color: var(--text-muted);">Cargando catálogo completo de ofertas...</div>';
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/promotions`, {
+        headers: getAuthHeaders(false)
+      });
+      if (res.ok) {
+        adminPromotionsList = await res.json();
+        
+        // Popular filtro de comercios
+        const filterSelect = document.getElementById('admin-filter-merchant');
+        const currentSelected = filterSelect.value;
+        const merchantsMap = new Map();
+        adminPromotionsList.forEach(p => {
+          if (p.merchant_id) {
+            merchantsMap.set(p.merchant_id, p.merchant_name || `Comercio #${p.merchant_id}`);
+          }
+        });
+        filterSelect.innerHTML = '<option value="">🏪 Todos los Comercios</option>';
+        merchantsMap.forEach((name, id) => {
+          const opt = document.createElement('option');
+          opt.value = id;
+          opt.textContent = `🏪 ${name} (ID: ${id})`;
+          if (currentSelected && String(currentSelected) === String(id)) opt.selected = true;
+          filterSelect.appendChild(opt);
+        });
+
+        renderAdminPromotions();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        list.innerHTML = `<div style="text-align: center; color: #DC2626; padding: 20px; font-size: 11px;">⚠️ Error al cargar ofertas: ${err.detail || 'Sin autorización de administrador'}</div>`;
+      }
+    } catch (e) {
+      console.error(e);
+      list.innerHTML = '<div style="text-align: center; color: #DC2626; padding: 20px; font-size: 11px;">Error de conexión con el servidor.</div>';
+    }
+  }
+
+  function renderAdminPromotions() {
+    const list = document.getElementById('admin-promos-list');
+    const filterVal = document.getElementById('admin-filter-merchant').value;
+    
+    let filtered = adminPromotionsList;
+    if (filterVal) {
+      filtered = adminPromotionsList.filter(p => String(p.merchant_id) === String(filterVal));
+    }
+
+    list.innerHTML = '';
+    if (!filtered.length) {
+      list.innerHTML = '<div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 12px; background: #FFF; border-radius: 12px; border: 1px dashed var(--border);">No hay ofertas registradas para este filtro.</div>';
+      return;
+    }
+
+    filtered.forEach(p => {
+      const item = document.createElement('div');
+      item.style.background = '#FFFFFF';
+      item.style.border = '1px solid var(--border)';
+      item.style.borderRadius = '12px';
+      item.style.padding = '12px';
+      const pPhotos = (p.images && p.images.length) ? p.images.length : 1;
+      item.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: start; gap: 8px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+              <span style="font-size: 10px; font-weight: bold; background: ${p.is_active ? '#ECFDF5' : '#FEF2F2'}; color: ${p.is_active ? '#059669' : '#DC2626'}; padding: 2px 6px; border-radius: 4px;">
+                ${p.is_active ? '● Activa' : '● Pausada'}
+              </span>
+              <span style="font-size: 10px; font-weight: 800; background: #FFF7ED; color: #C2410C; padding: 2px 6px; border-radius: 4px;">
+                🏪 ${p.merchant_name} (ID: ${p.merchant_id})
+              </span>
+              <span style="font-size: 10px; color: #64748B;">📸 ${pPhotos} foto${pPhotos > 1 ? 's' : ''}</span>
+            </div>
+            <h4 style="font-size: 13px; font-weight: 800; margin: 2px 0;">${p.title}</h4>
+            <div style="font-size: 11px; color: var(--text-muted);">
+              Bs. ${Math.round(p.promo_price)} <span style="text-decoration: line-through; font-size: 10px; color: #94A3B8;">Bs. ${Math.round(p.original_price)}</span> (${Math.round(p.discount_percent)}% OFF) • 📍 ${p.address}
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px; min-width: 80px;">
+            <button class="btn-secondary" style="font-size: 10px; padding: 4px 8px;" onclick="openPromoDetail(${p.id})">
+              👁️ Ver
+            </button>
+            <button class="btn-secondary" style="font-size: 10px; padding: 4px 8px; color: #2563EB;" onclick="openEditPromoModal(${p.id})">
+              ✏️ Modificar
+            </button>
+            <button class="btn-secondary" style="font-size: 10px; padding: 4px 8px;" onclick="togglePromoStatus(${p.id})">
+              ${p.is_active ? 'Pausar' : 'Activar'}
+            </button>
+            <button class="btn-secondary" style="font-size: 10px; padding: 4px 8px; color: #DC2626;" onclick="deletePromo(${p.id})">
+              🗑️ Eliminar
+            </button>
+          </div>
+        </div>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  function openAdminNewPromo() {
+    switchRole('merchant');
+    setMerchantSubtab('new-promo');
   }
 
   async function loadAdminUsers() {
     try {
-      const res = await fetch(`${API_BASE}/admin/users`);
+      const res = await fetch(`${API_BASE}/admin/users`, {
+        headers: getAuthHeaders(false)
+      });
       if (res.ok) {
         const users = await res.json();
         const tbody = document.getElementById('admin-users-tbody');
@@ -2021,6 +4235,9 @@
           `;
           tbody.appendChild(tr);
         });
+      } else {
+        const err = await res.json().catch(() => ({}));
+        document.getElementById('admin-users-tbody').innerHTML = `<tr><td colspan="5" style="text-align: center; color: #DC2626;">⚠️ Error: ${err.detail || 'No autorizado'}</td></tr>`;
       }
     } catch (e) {
       console.error(e);
@@ -2042,7 +4259,7 @@
     try {
       const res = await fetch(`${API_BASE}/admin/users`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(true),
         body: JSON.stringify({
           full_name: fullName,
           email: email,
@@ -2059,7 +4276,7 @@
         document.getElementById('form-create-user').reset();
         loadAdminUsers();
       } else {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         alert(`⚠️ No se pudo crear el usuario: ${err.detail || 'Verifique los datos ingresados'}`);
       }
     } catch (err) {
@@ -2076,13 +4293,14 @@
     }
     try {
       const res = await fetch(`${API_BASE}/admin/users/${userId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: getAuthHeaders(false)
       });
       if (res.ok) {
         alert(`✅ Usuario #${userId} eliminado con éxito.`);
         loadAdminUsers();
       } else {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         alert(`⚠️ Error al eliminar usuario: ${err.detail || 'No se pudo eliminar'}`);
       }
     } catch (e) {
@@ -2094,11 +4312,14 @@
     try {
       const res = await fetch(`${API_BASE}/admin/users/${userId}/role`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(true),
         body: JSON.stringify({ role: newRole })
       });
       if (res.ok) {
         alert(`✅ Permiso actualizado a: ${newRole.toUpperCase()}`);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(`⚠️ Error: ${err.detail || 'No se pudo cambiar el rol'}`);
       }
     } catch (e) {
       alert('Error al actualizar rol');
@@ -2107,12 +4328,17 @@
 
   async function toggleUserActive(userId, active) {
     try {
-      await fetch(`${API_BASE}/admin/users/${userId}`, {
+      const res = await fetch(`${API_BASE}/admin/users/${userId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(true),
         body: JSON.stringify({ is_active: active })
       });
-      loadAdminUsers();
+      if (res.ok) {
+        loadAdminUsers();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(`⚠️ Error: ${err.detail || 'No se pudo cambiar el estado'}`);
+      }
     } catch (e) {
       alert('Error al actualizar estado del usuario');
     }
@@ -2120,7 +4346,9 @@
 
   async function loadAdminSettings() {
     try {
-      const res = await fetch(`${API_BASE}/admin/settings`);
+      const res = await fetch(`${API_BASE}/admin/settings`, {
+        headers: getAuthHeaders(false)
+      });
       if (res.ok) {
         const settings = await res.json();
         const container = document.getElementById('admin-settings-container');
@@ -2153,11 +4381,14 @@
     try {
       const res = await fetch(`${API_BASE}/admin/settings/${key}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(true),
         body: JSON.stringify({ key: key, value: val })
       });
       if (res.ok) {
         alert(`✅ Configuración [${key}] actualizada a: ${val}`);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(`⚠️ Error: ${err.detail || 'No se pudo guardar la configuración'}`);
       }
     } catch (e) {
       alert('Error al guardar configuración');
@@ -2166,9 +4397,12 @@
 
   async function loadAdminCategories() {
     try {
-      const res = await fetch(`${API_BASE}/categories`);
+      const res = await fetch(`${API_BASE}/categories`, {
+        headers: getAuthHeaders(false)
+      });
       if (res.ok) {
         const cats = await res.json();
+        availableCategories = cats;
         const list = document.getElementById('admin-categories-list');
         list.innerHTML = '';
         cats.forEach(c => {
@@ -2179,16 +4413,40 @@
           div.style.padding = '8px 12px';
           div.style.display = 'flex';
           div.style.justifyContent = 'space-between';
+          div.style.alignItems = 'center';
           div.style.fontSize = '12px';
+          const safeName = (c.name || '').replace(/'/g, "\\'");
           div.innerHTML = `
-            <span>${c.icon} <strong>${c.name}</strong> (${c.slug})</span>
-            <span style="color: var(--text-muted); font-size: 11px;">ID: ${c.id}</span>
+            <span>${c.icon} <strong>${c.name}</strong> (${c.slug}) <span style="color: var(--text-muted); font-size: 10px;">ID: ${c.id}</span></span>
+            <button class="btn-secondary" style="font-size: 10px; padding: 3px 6px; color: #DC2626; border-color: #FECACA;" onclick="deleteAdminCategory(${c.id}, '${safeName}')" title="Eliminar categoría">
+              🗑️
+            </button>
           `;
           list.appendChild(div);
         });
       }
     } catch (e) {
       console.error(e);
+    }
+  }
+
+  async function deleteAdminCategory(catId, catName) {
+    if (!confirm(`¿Eliminar la categoría "${catName}" (ID #${catId})?`)) return;
+    try {
+      const res = await fetch(`${API_BASE}/admin/categories/${catId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(false)
+      });
+      if (res.ok) {
+        alert('✅ Categoría eliminada exitosamente.');
+        loadAdminCategories();
+        loadAvailableCategories();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(`⚠️ Error: ${err.detail || 'No se pudo eliminar la categoría'}`);
+      }
+    } catch (e) {
+      alert('Error de conexión al eliminar categoría.');
     }
   }
 
@@ -2201,14 +4459,18 @@
     try {
       const res = await fetch(`${API_BASE}/admin/categories`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(true),
         body: JSON.stringify({ name, slug, icon })
       });
       if (res.ok) {
-        alert('✅ Categoría creada');
+        alert('✅ Categoría creada exitosamente');
         document.getElementById('cat-name').value = '';
         document.getElementById('cat-icon').value = '';
         loadAdminCategories();
+        loadAvailableCategories();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(`⚠️ Error al crear categoría: ${err.detail || 'No autorizado'}`);
       }
     } catch (e) {
       alert('Error al crear categoría');

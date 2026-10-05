@@ -1,4 +1,5 @@
 import os
+import urllib.parse
 import httpx
 from fastapi import FastAPI, Request, Response, HTTPException, status
 from fastapi.responses import HTMLResponse, FileResponse
@@ -25,10 +26,16 @@ app.add_middleware(
 
 async def forward_request(target_url: str, request: Request) -> Response:
     """Reenvía la petición HTTP entrante al microservicio de destino"""
-    # Copiar headers y extraer usuario si hay JWT
-    headers = dict(request.headers)
-    headers.pop("host", None)
-    headers.pop("content-length", None)
+    # Copiar headers y filtrar/codificar valores no-ASCII para evitar fallos en httpx
+    headers = {}
+    for k, v in request.headers.items():
+        if k.lower() in ("host", "content-length"):
+            continue
+        try:
+            v.encode("ascii")
+            headers[k] = v
+        except UnicodeEncodeError:
+            headers[k] = urllib.parse.quote(v)
 
     # Validar JWT opcionalmente para inyectar headers X-User-Id y X-User-Role
     auth_header = request.headers.get("authorization")
@@ -38,10 +45,16 @@ async def forward_request(target_url: str, request: Request) -> Response:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
             user_id = payload.get("sub")
             role = payload.get("role")
+            email = payload.get("email")
+            name = payload.get("name")
             if user_id:
                 headers["x-user-id"] = str(user_id)
             if role:
                 headers["x-user-role"] = str(role)
+            if email:
+                headers["x-user-email"] = str(email)
+            if name:
+                headers["x-user-name"] = urllib.parse.quote(str(name))
         except JWTError:
             pass  # Si el token es inválido, el microservicio downstream devolverá 401 si la ruta lo requiere
 
@@ -56,10 +69,13 @@ async def forward_request(target_url: str, request: Request) -> Response:
                 params=request.query_params,
                 content=body
             )
+            # Filtrar headers hop-by-hop y de longitud/compresión para que Starlette los calcule adecuadamente
+            excluded_headers = {"content-encoding", "content-length", "transfer-encoding", "connection"}
+            filtered_headers = {k: v for k, v in response.headers.items() if k.lower() not in excluded_headers}
             return Response(
                 content=response.content,
                 status_code=response.status_code,
-                headers=dict(response.headers)
+                headers=filtered_headers
             )
     except httpx.ConnectError:
         raise HTTPException(
@@ -74,7 +90,7 @@ async def forward_request(target_url: str, request: Request) -> Response:
 
 # --- RUTAS DE PROXY REVERSO ---
 
-# 1. Auth & Gustos (auth-service)
+# 1. Auth, Gustos y Admin Auth (auth-service)
 @app.api_route("/api/v1/auth/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"], tags=["Auth"])
 async def proxy_auth(path: str, request: Request):
     target = f"{settings.AUTH_SERVICE_URL}/auth/{path}"
@@ -88,6 +104,17 @@ async def proxy_tastes(path: str, request: Request):
 @app.api_route("/api/v1/location/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"], tags=["Location"])
 async def proxy_location(path: str, request: Request):
     target = f"{settings.AUTH_SERVICE_URL}/location/{path}"
+    return await forward_request(target, request)
+
+# Rutas de administración para transacciones / catálogo
+@app.api_route("/api/v1/admin/promotions", methods=["GET", "POST", "PUT", "DELETE", "PATCH"], tags=["Admin - Promotions"])
+async def proxy_admin_promotions(request: Request):
+    target = f"{settings.TRANSACTIONS_SERVICE_URL}/admin/promotions"
+    return await forward_request(target, request)
+
+@app.api_route("/api/v1/admin/orders", methods=["GET", "POST", "PUT", "DELETE", "PATCH"], tags=["Admin - Orders"])
+async def proxy_admin_orders(request: Request):
+    target = f"{settings.TRANSACTIONS_SERVICE_URL}/admin/orders"
     return await forward_request(target, request)
 
 @app.api_route("/api/v1/admin/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"], tags=["Admin"])
@@ -111,14 +138,36 @@ async def proxy_merchants(path: str, request: Request):
     target = f"{settings.TRANSACTIONS_SERVICE_URL}/merchants/{path}"
     return await forward_request(target, request)
 
-@app.api_route("/api/v1/categories", methods=["GET"], tags=["Categories"])
+@app.api_route("/api/v1/categories", methods=["GET", "POST"], tags=["Categories"])
 async def proxy_categories_root(request: Request):
     target = f"{settings.TRANSACTIONS_SERVICE_URL}/categories"
     return await forward_request(target, request)
 
-@app.api_route("/api/v1/categories/{path:path}", methods=["GET"], tags=["Categories"])
+@app.api_route("/api/v1/categories/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"], tags=["Categories"])
 async def proxy_categories(path: str, request: Request):
     target = f"{settings.TRANSACTIONS_SERVICE_URL}/categories/{path}"
+    return await forward_request(target, request)
+
+# 2.1 Órdenes y Pagos en Línea (transactions-service)
+@app.api_route("/api/v1/orders", methods=["GET", "POST"], tags=["Orders & Payments"])
+async def proxy_orders_root(request: Request):
+    target = f"{settings.TRANSACTIONS_SERVICE_URL}/orders"
+    return await forward_request(target, request)
+
+@app.api_route("/api/v1/orders/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"], tags=["Orders & Payments"])
+async def proxy_orders(path: str, request: Request):
+    target = f"{settings.TRANSACTIONS_SERVICE_URL}/orders/{path}"
+    return await forward_request(target, request)
+
+# 2.2 Transacciones Directas (transactions-service)
+@app.api_route("/api/v1/transactions", methods=["GET", "POST"], tags=["Transactions"])
+async def proxy_transactions_root(request: Request):
+    target = f"{settings.TRANSACTIONS_SERVICE_URL}/transactions"
+    return await forward_request(target, request)
+
+@app.api_route("/api/v1/transactions/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"], tags=["Transactions"])
+async def proxy_transactions(path: str, request: Request):
+    target = f"{settings.TRANSACTIONS_SERVICE_URL}/transactions/{path}"
     return await forward_request(target, request)
 
 # 3. Notificaciones y Alertas (notifications-services)
@@ -167,7 +216,14 @@ async def health_check():
 async def serve_app():
     index_file = os.path.join(WEB_DIR, "index.html")
     if os.path.exists(index_file):
-        return FileResponse(index_file)
+        return FileResponse(
+            index_file,
+            headers={
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0",
+            },
+        )
     return "App visualizer not found"
 
 @app.get("/", response_class=HTMLResponse, tags=["Web"])

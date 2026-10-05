@@ -26,9 +26,17 @@ def seed_initial_data(db: Session):
         merchant = models.User(
             email="comercio@ofertapp.com",
             hashed_password=get_password_hash("comercio123"),
-            full_name="Pizzería Bella Napoli (Comercio Demo)",
-            phone="+5491122334455",
-            role="merchant"
+            full_name="Pizzería Bella Napoli",
+            phone="+54 9 11 2233-4455",
+            role="merchant",
+            logo_url="https://images.unsplash.com/photo-1579684947550-22e945225d9a?w=200",
+            banner_url="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1200",
+            bio="Pizzería artesanal al horno de leña en el centro de la ciudad. Auténtica tradición italiana.",
+            social_instagram="@bellanapoli.pizza",
+            social_facebook="bellanapolipizza",
+            social_whatsapp="+5491122334455",
+            social_twitter="@bellanapoli_ar",
+            website="https://bellanapoli.com.ar"
         )
         db.add(merchant)
 
@@ -36,9 +44,15 @@ def seed_initial_data(db: Session):
         user = models.User(
             email="usuario@ofertapp.com",
             hashed_password=get_password_hash("usuario123"),
-            full_name="Juan Pérez (Usuario)",
-            phone="+5491199887766",
-            role="user"
+            full_name="Juan Pérez",
+            phone="+54 9 11 9988-7766",
+            role="user",
+            logo_url="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200",
+            banner_url="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200",
+            bio="Amante de la gastronomía urbana, el café de especialidad y la tecnología móvil.",
+            social_instagram="@juanperez_cba",
+            social_whatsapp="+5491199887766",
+            website="https://juanperez.me"
         )
         db.add(user)
         db.commit()
@@ -81,8 +95,12 @@ def seed_initial_data(db: Session):
             email="admin@ofertapp.com",
             hashed_password=get_password_hash("admin123"),
             full_name="Administrador Global (Ofertapp)",
-            phone="+5491100112233",
-            role="admin"
+            phone="+54 9 11 0011-2233",
+            role="admin",
+            logo_url="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
+            banner_url="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200",
+            bio="Panel de control y gobierno central de la plataforma de ofertas Ofertapp.",
+            website="https://ofertapp.com"
         )
         db.add(admin)
 

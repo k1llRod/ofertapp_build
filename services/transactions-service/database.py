@@ -21,3 +21,18 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def migrate_db():
+    """Migración automática de columnas y tablas para SQLite y Postgres sin romper bases existentes"""
+    from sqlalchemy import inspect, text
+    try:
+        inspector = inspect(engine)
+        tables = inspector.get_table_names()
+        if "promotions" in tables:
+            columns = [c["name"] for c in inspector.get_columns("promotions")]
+            if "gallery" not in columns:
+                with engine.begin() as conn:
+                    conn.execute(text("ALTER TABLE promotions ADD COLUMN gallery TEXT DEFAULT ''"))
+                    print("[MIGRATION] Columna 'gallery' agregada exitosamente a 'promotions'.")
+    except Exception as e:
+        print(f"[Warning] Error en migración de base de datos: {e}")

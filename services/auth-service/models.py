@@ -14,6 +14,14 @@ class User(Base):
     phone = Column(String(50), nullable=True)
     role = Column(String(50), default="user")  # 'user', 'merchant', 'admin'
     is_active = Column(Boolean, default=True)
+    logo_url = Column(Text, nullable=True)
+    banner_url = Column(Text, nullable=True)
+    bio = Column(Text, nullable=True)
+    social_instagram = Column(String(255), nullable=True)
+    social_facebook = Column(String(255), nullable=True)
+    social_twitter = Column(String(255), nullable=True)
+    social_whatsapp = Column(String(255), nullable=True)
+    website = Column(String(255), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     tastes = relationship("UserTastePreference", back_populates="user", cascade="all, delete-orphan")

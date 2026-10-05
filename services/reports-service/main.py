@@ -52,7 +52,7 @@ async def get_dashboard_summary():
             "total_active_promotions": total_promos,
             "total_promotions_views": total_views,
             "average_discount_percentage": round(avg_discount, 1),
-            "estimated_city_savings_currency": "ARS"
+            "estimated_city_savings_currency": "BOB"
         },
         "promotions_by_category": category_counts,
         "top_viewed_promotions": [

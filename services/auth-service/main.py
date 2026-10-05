@@ -1,18 +1,25 @@
 import math
+import os
+import uuid
 from typing import List
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 from config import settings
-from database import engine, Base, get_db
+from database import engine, Base, get_db, migrate_db
 import models
 import schemas
-from security import verify_password, get_password_hash, create_access_token, get_current_user
+from security import verify_password, get_password_hash, create_access_token, get_current_user, require_admin, require_merchant_or_admin
 from seed_data import seed_initial_data
 
-# Crear tablas en arranque
+# Crear tablas en arranque y migrar nuevas columnas
 Base.metadata.create_all(bind=engine)
+migrate_db()
+
+UPLOAD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -28,8 +35,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.mount("/auth/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
 @app.on_event("startup")
 def startup_event():
+    migrate_db()
     db = next(get_db())
     try:
         seed_initial_data(db)
@@ -72,19 +82,148 @@ def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
     if not user.is_active:
         raise HTTPException(status_code=400, detail="Usuario inactivo")
 
-    access_token = create_access_token(data={"sub": str(user.id), "role": user.role, "email": user.email})
+    access_token = create_access_token(data={"sub": str(user.id), "role": user.role, "email": user.email, "name": user.full_name})
     return schemas.Token(
         access_token=access_token,
         token_type="bearer",
         user_id=user.id,
         email=user.email,
         full_name=user.full_name,
-        role=user.role
+        role=user.role,
+        phone=user.phone,
+        logo_url=user.logo_url,
+        banner_url=user.banner_url
     )
 
 @app.get("/auth/me", response_model=schemas.UserResponse, tags=["Auth"])
 def get_me(current_user: models.User = Depends(get_current_user)):
+    """Obtiene la información del usuario autenticado actualmente"""
     return current_user
+
+@app.get("/auth/profile", response_model=schemas.UserResponse, tags=["Auth"])
+def get_profile(current_user: models.User = Depends(get_current_user)):
+    """Devuelve los datos completos del perfil del usuario autenticado"""
+    return current_user
+
+@app.put("/auth/profile", response_model=schemas.UserResponse, tags=["Auth"])
+def update_profile(
+    profile_in: schemas.UserProfileUpdate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Actualiza la información del perfil del usuario (nombre, logo, banner, correo, teléfono, redes sociales)"""
+    if profile_in.email is not None and profile_in.email != current_user.email:
+        existing = db.query(models.User).filter(models.User.email == profile_in.email, models.User.id != current_user.id).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="El correo ya se encuentra en uso por otra cuenta")
+        current_user.email = profile_in.email
+
+    if profile_in.full_name is not None:
+        current_user.full_name = profile_in.full_name.strip()
+    if profile_in.phone is not None:
+        current_user.phone = profile_in.phone.strip() if profile_in.phone else None
+    if profile_in.logo_url is not None:
+        current_user.logo_url = profile_in.logo_url.strip() if profile_in.logo_url else None
+    if profile_in.banner_url is not None:
+        current_user.banner_url = profile_in.banner_url.strip() if profile_in.banner_url else None
+    if profile_in.bio is not None:
+        current_user.bio = profile_in.bio.strip() if profile_in.bio else None
+    if profile_in.social_instagram is not None:
+        current_user.social_instagram = profile_in.social_instagram.strip() if profile_in.social_instagram else None
+    if profile_in.social_facebook is not None:
+        current_user.social_facebook = profile_in.social_facebook.strip() if profile_in.social_facebook else None
+    if profile_in.social_twitter is not None:
+        current_user.social_twitter = profile_in.social_twitter.strip() if profile_in.social_twitter else None
+    if profile_in.social_whatsapp is not None:
+        current_user.social_whatsapp = profile_in.social_whatsapp.strip() if profile_in.social_whatsapp else None
+    if profile_in.website is not None:
+        current_user.website = profile_in.website.strip() if profile_in.website else None
+
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+@app.post("/auth/profile/upload-image", response_model=schemas.UserResponse, tags=["Auth"])
+async def upload_profile_image(
+    file: UploadFile = File(...),
+    target: str = Form(...),  # 'logo' o 'banner'
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Permite cargar y guardar directamente un archivo de imagen para el logo o banner del usuario"""
+    if target not in ["logo", "banner"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El destino de la imagen debe ser 'logo' o 'banner'"
+        )
+
+    allowed_types = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Formato no permitido ({file.content_type}). Usa imágenes JPG, PNG, WEBP, GIF o SVG."
+        )
+
+    # Determinar extensión del archivo
+    ext = os.path.splitext(file.filename)[1].lower() if file.filename else ".jpg"
+    if not ext or ext not in [".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"]:
+        ext = ".jpg" if "jpeg" in file.content_type else ".png"
+
+    # Generar nombre de archivo único
+    filename = f"{target}_{current_user.id}_{uuid.uuid4().hex[:10]}{ext}"
+    file_path = os.path.join(UPLOAD_DIR, filename)
+
+    # Leer contenido y validar tamaño (máximo 5 MB)
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El archivo excede el tamaño máximo permitido de 5 MB"
+        )
+
+    with open(file_path, "wb") as f:
+        f.write(contents)
+
+    # URL pública a través del API Gateway
+    public_url = f"/api/v1/auth/uploads/{filename}"
+
+    if target == "logo":
+        current_user.logo_url = public_url
+    else:
+        current_user.banner_url = public_url
+
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+@app.post("/auth/change-password", tags=["Auth"])
+def change_password(
+    req: schemas.ChangePasswordRequest,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Permite al usuario autenticado cambiar su contraseña actual por una nueva"""
+    if not verify_password(req.current_password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La contraseña actual ingresada es incorrecta"
+        )
+
+    if req.confirm_password is not None and req.new_password != req.confirm_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La nueva contraseña y la confirmación no coinciden"
+        )
+
+    if len(req.new_password.strip()) < 6:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La nueva contraseña debe tener al menos 6 caracteres"
+        )
+
+    current_user.hashed_password = get_password_hash(req.new_password.strip())
+    db.commit()
+    return {"status": "ok", "message": "Contraseña actualizada exitosamente"}
 
 # --- TASTES & PREFERENCES ENDPOINTS ---
 
@@ -264,8 +403,8 @@ def match_audience(req: schemas.MatchAudienceRequest, db: Session = Depends(get_
 
 # 1. CRUD USUARIOS (Create, Read, Update, Delete)
 @app.post("/admin/users", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED, tags=["Admin - Users CRUD"])
-def admin_create_user(user_in: schemas.UserCreateAdmin, db: Session = Depends(get_db)):
-    """[C - Create] Crea un nuevo usuario o comercio directamente desde el panel de administración"""
+def admin_create_user(user_in: schemas.UserCreateAdmin, admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
+    """[C - Create] Crea un nuevo usuario o comercio directamente desde el panel de administración (Requiere Admin)"""
     existing = db.query(models.User).filter(models.User.email == user_in.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="El correo ya se encuentra registrado")
@@ -276,7 +415,15 @@ def admin_create_user(user_in: schemas.UserCreateAdmin, db: Session = Depends(ge
         full_name=user_in.full_name,
         phone=user_in.phone,
         role=user_in.role if user_in.role in ["user", "merchant", "admin"] else "user",
-        is_active=user_in.is_active
+        is_active=user_in.is_active,
+        logo_url=user_in.logo_url,
+        banner_url=user_in.banner_url,
+        bio=user_in.bio,
+        social_instagram=user_in.social_instagram,
+        social_facebook=user_in.social_facebook,
+        social_twitter=user_in.social_twitter,
+        social_whatsapp=user_in.social_whatsapp,
+        website=user_in.website
     )
     db.add(new_user)
     db.commit()
@@ -284,21 +431,21 @@ def admin_create_user(user_in: schemas.UserCreateAdmin, db: Session = Depends(ge
     return new_user
 
 @app.get("/admin/users", response_model=List[schemas.UserResponse], tags=["Admin - Users CRUD"])
-def list_all_users(db: Session = Depends(get_db)):
-    """[R - Read List] Lista todos los usuarios y comercios con sus roles y estados"""
+def list_all_users(admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
+    """[R - Read List] Lista todos los usuarios y comercios con sus roles y estados (Requiere Admin)"""
     return db.query(models.User).order_by(models.User.id.asc()).all()
 
 @app.get("/admin/users/{user_id}", response_model=schemas.UserResponse, tags=["Admin - Users CRUD"])
-def get_user_detail(user_id: int, db: Session = Depends(get_db)):
-    """[R - Read Detail] Obtiene la información detallada de un usuario específico"""
+def get_user_detail(user_id: int, admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
+    """[R - Read Detail] Obtiene la información detallada de un usuario específico (Requiere Admin)"""
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return user
 
 @app.put("/admin/users/{user_id}", response_model=schemas.UserResponse, tags=["Admin - Users CRUD"])
-def update_user_info(user_id: int, req: schemas.UserUpdate, db: Session = Depends(get_db)):
-    """[U - Update] Modifica los datos completos de un usuario (nombre, email, teléfono, rol, estado)"""
+def update_user_info(user_id: int, req: schemas.UserUpdate, admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
+    """[U - Update] Modifica los datos completos de un usuario (nombre, email, teléfono, rol, estado, perfil) (Requiere Admin)"""
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -313,14 +460,30 @@ def update_user_info(user_id: int, req: schemas.UserUpdate, db: Session = Depend
         user.role = req.role
     if req.is_active is not None:
         user.is_active = req.is_active
+    if req.logo_url is not None:
+        user.logo_url = req.logo_url
+    if req.banner_url is not None:
+        user.banner_url = req.banner_url
+    if req.bio is not None:
+        user.bio = req.bio
+    if req.social_instagram is not None:
+        user.social_instagram = req.social_instagram
+    if req.social_facebook is not None:
+        user.social_facebook = req.social_facebook
+    if req.social_twitter is not None:
+        user.social_twitter = req.social_twitter
+    if req.social_whatsapp is not None:
+        user.social_whatsapp = req.social_whatsapp
+    if req.website is not None:
+        user.website = req.website
 
     db.commit()
     db.refresh(user)
     return user
 
 @app.put("/admin/users/{user_id}/role", response_model=schemas.UserResponse, tags=["Admin - Users CRUD"])
-def update_user_role(user_id: int, req: schemas.UserRoleUpdate, db: Session = Depends(get_db)):
-    """[U - Update Role] Administra los permisos y roles de un usuario ('admin', 'merchant', 'user')"""
+def update_user_role(user_id: int, req: schemas.UserRoleUpdate, admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
+    """[U - Update Role] Administra los permisos y roles de un usuario ('admin', 'merchant', 'user') (Requiere Admin)"""
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -335,8 +498,8 @@ def update_user_role(user_id: int, req: schemas.UserRoleUpdate, db: Session = De
     return user
 
 @app.delete("/admin/users/{user_id}", tags=["Admin - Users CRUD"])
-def delete_user(user_id: int, db: Session = Depends(get_db)):
-    """[D - Delete] Elimina un usuario del sistema y sus datos relacionados"""
+def delete_user(user_id: int, admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
+    """[D - Delete] Elimina un usuario del sistema y sus datos relacionados (Requiere Admin)"""
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -347,8 +510,8 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 
 # 2. CRUD CATEGORÍAS (Create, Read, Update, Delete)
 @app.post("/admin/categories", response_model=schemas.TasteCategoryResponse, status_code=status.HTTP_201_CREATED, tags=["Admin - Categories CRUD"])
-def create_category(cat_in: schemas.CategoryCreate, db: Session = Depends(get_db)):
-    """[C - Create] Crea una nueva categoría para clasificar ofertas y gustos"""
+def create_category(cat_in: schemas.CategoryCreate, admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
+    """[C - Create] Crea una nueva categoría para clasificar ofertas y gustos (Requiere Admin)"""
     existing = db.query(models.TasteCategory).filter(models.TasteCategory.slug == cat_in.slug).first()
     if existing:
         raise HTTPException(status_code=400, detail="El slug de categoría ya existe")
@@ -365,16 +528,16 @@ def create_category(cat_in: schemas.CategoryCreate, db: Session = Depends(get_db
     return new_cat
 
 @app.get("/admin/categories/{category_id}", response_model=schemas.TasteCategoryResponse, tags=["Admin - Categories CRUD"])
-def get_category_detail(category_id: int, db: Session = Depends(get_db)):
-    """[R - Read Detail] Obtiene los detalles de una categoría"""
+def get_category_detail(category_id: int, admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
+    """[R - Read Detail] Obtiene los detalles de una categoría (Requiere Admin)"""
     cat = db.query(models.TasteCategory).filter(models.TasteCategory.id == category_id).first()
     if not cat:
         raise HTTPException(status_code=404, detail="Categoría no encontrada")
     return cat
 
 @app.put("/admin/categories/{category_id}", response_model=schemas.TasteCategoryResponse, tags=["Admin - Categories CRUD"])
-def update_category(category_id: int, cat_in: schemas.CategoryUpdate, db: Session = Depends(get_db)):
-    """[U - Update] Modifica los datos de una categoría (nombre, slug, icono, descripción)"""
+def update_category(category_id: int, cat_in: schemas.CategoryUpdate, admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
+    """[U - Update] Modifica los datos de una categoría (nombre, slug, icono, descripción) (Requiere Admin)"""
     cat = db.query(models.TasteCategory).filter(models.TasteCategory.id == category_id).first()
     if not cat:
         raise HTTPException(status_code=404, detail="Categoría no encontrada")
@@ -393,8 +556,8 @@ def update_category(category_id: int, cat_in: schemas.CategoryUpdate, db: Sessio
     return cat
 
 @app.delete("/admin/categories/{category_id}", tags=["Admin - Categories CRUD"])
-def delete_category(category_id: int, db: Session = Depends(get_db)):
-    """[D - Delete] Elimina una categoría del sistema"""
+def delete_category(category_id: int, admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
+    """[D - Delete] Elimina una categoría del sistema (Requiere Admin)"""
     cat = db.query(models.TasteCategory).filter(models.TasteCategory.id == category_id).first()
     if not cat:
         raise HTTPException(status_code=404, detail="Categoría no encontrada")
@@ -405,8 +568,8 @@ def delete_category(category_id: int, db: Session = Depends(get_db)):
 
 # 3. CRUD CONFIGURACIONES DEL SISTEMA (Create, Read, Update, Delete)
 @app.post("/admin/settings", response_model=schemas.SystemSettingResponse, status_code=status.HTTP_201_CREATED, tags=["Admin - Settings CRUD"])
-def create_system_setting(setting_in: schemas.SystemSettingCreate, db: Session = Depends(get_db)):
-    """[C - Create] Registra un nuevo parámetro operativo del sistema"""
+def create_system_setting(setting_in: schemas.SystemSettingCreate, admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
+    """[C - Create] Registra un nuevo parámetro operativo del sistema (Requiere Admin)"""
     existing = db.query(models.SystemSetting).filter(models.SystemSetting.key == setting_in.key).first()
     if existing:
         raise HTTPException(status_code=400, detail="La clave de configuración ya existe")
@@ -423,21 +586,21 @@ def create_system_setting(setting_in: schemas.SystemSettingCreate, db: Session =
     return new_setting
 
 @app.get("/admin/settings", response_model=List[schemas.SystemSettingResponse], tags=["Admin - Settings CRUD"])
-def get_system_settings(db: Session = Depends(get_db)):
-    """[R - Read List] Obtiene el listado completo de configuraciones del sistema"""
+def get_system_settings(admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
+    """[R - Read List] Obtiene el listado completo de configuraciones del sistema (Requiere Admin)"""
     return db.query(models.SystemSetting).order_by(models.SystemSetting.id.asc()).all()
 
 @app.get("/admin/settings/{key}", response_model=schemas.SystemSettingResponse, tags=["Admin - Settings CRUD"])
-def get_system_setting_detail(key: str, db: Session = Depends(get_db)):
-    """[R - Read Detail] Obtiene el valor y descripción de una configuración por su clave"""
+def get_system_setting_detail(key: str, admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
+    """[R - Read Detail] Obtiene el valor y descripción de una configuración por su clave (Requiere Admin)"""
     setting = db.query(models.SystemSetting).filter(models.SystemSetting.key == key).first()
     if not setting:
         raise HTTPException(status_code=404, detail="Configuración no encontrada")
     return setting
 
 @app.put("/admin/settings/{key}", response_model=schemas.SystemSettingResponse, tags=["Admin - Settings CRUD"])
-def update_system_setting(key: str, req: schemas.SystemSettingUpdate, db: Session = Depends(get_db)):
-    """[U - Update] Modifica el valor de una configuración del sistema"""
+def update_system_setting(key: str, req: schemas.SystemSettingUpdate, admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
+    """[U - Update] Modifica el valor de una configuración del sistema (Requiere Admin)"""
     setting = db.query(models.SystemSetting).filter(models.SystemSetting.key == key).first()
     if not setting:
         setting = models.SystemSetting(key=key, value=req.value, description=f"Configuración para {key}")
@@ -450,8 +613,8 @@ def update_system_setting(key: str, req: schemas.SystemSettingUpdate, db: Sessio
     return setting
 
 @app.delete("/admin/settings/{key}", tags=["Admin - Settings CRUD"])
-def delete_system_setting(key: str, db: Session = Depends(get_db)):
-    """[D - Delete] Elimina una configuración personalizada del sistema"""
+def delete_system_setting(key: str, admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
+    """[D - Delete] Elimina una configuración personalizada del sistema (Requiere Admin)"""
     setting = db.query(models.SystemSetting).filter(models.SystemSetting.key == key).first()
     if not setting:
         raise HTTPException(status_code=404, detail="Configuración no encontrada")

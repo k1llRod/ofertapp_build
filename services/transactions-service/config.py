@@ -7,5 +7,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./transactions.db")
     AUTH_SERVICE_URL: str = os.getenv("AUTH_SERVICE_URL", "http://localhost:8001")
     NOTIFICATIONS_SERVICE_URL: str = os.getenv("NOTIFICATIONS_SERVICE_URL", "http://localhost:8003")
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "ofertapp_super_secret_jwt_key_2026")
+    ALGORITHM: str = "HS256"
 
 settings = Settings()

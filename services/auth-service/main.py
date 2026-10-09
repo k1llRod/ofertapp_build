@@ -509,22 +509,94 @@ def delete_user(user_id: int, admin: models.User = Depends(require_admin), db: S
 
 
 # 2. CRUD CATEGORÍAS (Create, Read, Update, Delete)
+
+EMOTICON_MAP_AUTH = {
+    ":d": "😃", ":D": "😃",
+    ":)": "😊", ":-)": "😊",
+    ";)": "😉", ";-)": "😉",
+    ":p": "😋", ":P": "😋",
+    ":o": "😮", ":O": "😮",
+    "<3": "❤️",
+    ":3": "😺",
+    "xd": "😆", "XD": "😆",
+    ":(": "🙁", ":/": "😕"
+}
+
+def clean_icon_auth(icon_str: Optional[str]) -> str:
+    if not icon_str:
+        return "🏷️"
+    icon_str = icon_str.strip()
+    return EMOTICON_MAP_AUTH.get(icon_str, icon_str)
+
+def generate_unique_name_auth(db: Session, base_name: str, current_id: Optional[int] = None) -> str:
+    name = base_name.strip()
+    candidate = name
+    counter = 1
+    while True:
+        query = db.query(models.TasteCategory).filter(models.TasteCategory.name == candidate)
+        if current_id:
+            query = query.filter(models.TasteCategory.id != current_id)
+        if not query.first():
+            return candidate
+        candidate = f"{name} ({counter})"
+        counter += 1
+
+def generate_unique_slug_auth(db: Session, base_text: str, current_id: Optional[int] = None) -> str:
+    import re
+    slug = re.sub(r'[^a-zA-Z0-9]+', '-', base_text.strip().lower()).strip('-')
+    if not slug:
+        slug = "categoria"
+    candidate = slug
+    counter = 1
+    while True:
+        query = db.query(models.TasteCategory).filter(models.TasteCategory.slug == candidate)
+        if current_id:
+            query = query.filter(models.TasteCategory.id != current_id)
+        if not query.first():
+            return candidate
+        candidate = f"{slug}-{counter}"
+        counter += 1
+
+def sync_category_to_transactions(cat_id: int, name: str, slug: str, icon: str, description: Optional[str] = None, delete: bool = False):
+    try:
+        import sqlite3
+        tx_db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "transactions-service", "transactions.db")
+        if os.path.exists(tx_db_path):
+            conn = sqlite3.connect(tx_db_path)
+            cur = conn.cursor()
+            if delete:
+                cur.execute("DELETE FROM categories WHERE id = ?", (cat_id,))
+            else:
+                cur.execute("SELECT id FROM categories WHERE id = ?", (cat_id,))
+                if cur.fetchone():
+                    cur.execute("UPDATE categories SET name = ?, slug = ?, icon = ?, description = ? WHERE id = ?", 
+                                (name, slug, icon, description, cat_id))
+                else:
+                    cur.execute("INSERT INTO categories (id, name, slug, icon, description) VALUES (?, ?, ?, ?, ?)",
+                                (cat_id, name, slug, icon, description))
+            conn.commit()
+            conn.close()
+    except Exception as e:
+        print(f"[Warning] Failed to sync category to transactions.db: {e}")
+
 @app.post("/admin/categories", response_model=schemas.TasteCategoryResponse, status_code=status.HTTP_201_CREATED, tags=["Admin - Categories CRUD"])
 def create_category(cat_in: schemas.CategoryCreate, admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
     """[C - Create] Crea una nueva categoría para clasificar ofertas y gustos (Requiere Admin)"""
-    existing = db.query(models.TasteCategory).filter(models.TasteCategory.slug == cat_in.slug).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="El slug de categoría ya existe")
+    unique_name = generate_unique_name_auth(db, cat_in.name)
+    base_slug = cat_in.slug if cat_in.slug and cat_in.slug.strip() else unique_name
+    unique_slug = generate_unique_slug_auth(db, base_slug)
+    icon_clean = clean_icon_auth(cat_in.icon)
 
     new_cat = models.TasteCategory(
-        name=cat_in.name,
-        slug=cat_in.slug,
-        icon=cat_in.icon,
+        name=unique_name,
+        slug=unique_slug,
+        icon=icon_clean,
         description=cat_in.description
     )
     db.add(new_cat)
     db.commit()
     db.refresh(new_cat)
+    sync_category_to_transactions(new_cat.id, new_cat.name, new_cat.slug, new_cat.icon, new_cat.description)
     return new_cat
 
 @app.get("/admin/categories/{category_id}", response_model=schemas.TasteCategoryResponse, tags=["Admin - Categories CRUD"])
@@ -542,17 +614,20 @@ def update_category(category_id: int, cat_in: schemas.CategoryUpdate, admin: mod
     if not cat:
         raise HTTPException(status_code=404, detail="Categoría no encontrada")
 
-    if cat_in.name is not None:
-        cat.name = cat_in.name
-    if cat_in.slug is not None:
-        cat.slug = cat_in.slug
+    if cat_in.name is not None and cat_in.name.strip():
+        cat.name = generate_unique_name_auth(db, cat_in.name, current_id=category_id)
+    if cat_in.slug is not None and cat_in.slug.strip():
+        cat.slug = generate_unique_slug_auth(db, cat_in.slug, current_id=category_id)
+    elif cat_in.name is not None and not cat.slug:
+        cat.slug = generate_unique_slug_auth(db, cat.name, current_id=category_id)
     if cat_in.icon is not None:
-        cat.icon = cat_in.icon
+        cat.icon = clean_icon_auth(cat_in.icon)
     if cat_in.description is not None:
         cat.description = cat_in.description
 
     db.commit()
     db.refresh(cat)
+    sync_category_to_transactions(cat.id, cat.name, cat.slug, cat.icon, cat.description)
     return cat
 
 @app.delete("/admin/categories/{category_id}", tags=["Admin - Categories CRUD"])
@@ -561,9 +636,11 @@ def delete_category(category_id: int, admin: models.User = Depends(require_admin
     cat = db.query(models.TasteCategory).filter(models.TasteCategory.id == category_id).first()
     if not cat:
         raise HTTPException(status_code=404, detail="Categoría no encontrada")
+    cat_name = cat.name
     db.delete(cat)
     db.commit()
-    return {"status": "ok", "message": f"Categoría {cat.name} eliminada con éxito"}
+    sync_category_to_transactions(category_id, "", "", "", delete=True)
+    return {"status": "ok", "message": f"Categoría {cat_name} eliminada con éxito"}
 
 
 # 3. CRUD CONFIGURACIONES DEL SISTEMA (Create, Read, Update, Delete)

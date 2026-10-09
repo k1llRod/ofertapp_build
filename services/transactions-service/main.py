@@ -4,8 +4,9 @@ import uuid
 import asyncio
 from typing import List, Optional
 import httpx
-from fastapi import FastAPI, Depends, HTTPException, Query, status, BackgroundTasks
+from fastapi import FastAPI, Depends, HTTPException, Query, status, BackgroundTasks, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 from config import settings
@@ -25,6 +26,9 @@ from security import (
 migrate_db()
 Base.metadata.create_all(bind=engine)
 
+UPLOAD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="Servicio de transacciones, catálogo de productos, registro de promociones, galería de fotos y pagos en línea",
@@ -38,6 +42,34 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.mount("/promotions/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
+@app.post("/promotions/upload-image", tags=["Promotions"])
+async def upload_promotion_image(file: UploadFile = File(...)):
+    """Permite subir una imagen física para portada o galería de la promoción"""
+    allowed_extensions = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"}
+    ext = os.path.splitext(file.filename or "")[1].lower()
+    if ext not in allowed_extensions:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Formato de imagen no permitido ({ext}). Formatos válidos: {', '.join(allowed_extensions)}"
+        )
+
+    contents = await file.read()
+    if len(contents) > 10 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La imagen excede el tamaño máximo permitido de 10 MB"
+        )
+
+    filename = f"promo_{uuid.uuid4().hex[:12]}{ext}"
+    file_path = os.path.join(UPLOAD_DIR, filename)
+    with open(file_path, "wb") as f:
+        f.write(contents)
+
+    public_url = f"/api/v1/promotions/uploads/{filename}"
+    return {"url": public_url, "filename": filename}
 
 @app.on_event("startup")
 def startup_event():
@@ -93,6 +125,76 @@ async def dispatch_promo_created_event(promo_data: dict):
 
 # --- CATEGORIES ENDPOINTS ---
 
+EMOTICON_MAP = {
+    ":d": "😃", ":D": "😃",
+    ":)": "😊", ":-)": "😊",
+    ";)": "😉", ";-)": "😉",
+    ":p": "😋", ":P": "😋",
+    ":o": "😮", ":O": "😮",
+    "<3": "❤️",
+    ":3": "😺",
+    "xd": "😆", "XD": "😆",
+    ":(": "🙁", ":/": "😕"
+}
+
+def clean_icon(icon_str: Optional[str]) -> str:
+    if not icon_str:
+        return "🏷️"
+    icon_str = icon_str.strip()
+    return EMOTICON_MAP.get(icon_str, icon_str)
+
+def generate_unique_name(db: Session, base_name: str, current_id: Optional[int] = None) -> str:
+    name = base_name.strip()
+    candidate = name
+    counter = 1
+    while True:
+        query = db.query(models.Category).filter(models.Category.name == candidate)
+        if current_id:
+            query = query.filter(models.Category.id != current_id)
+        if not query.first():
+            return candidate
+        candidate = f"{name} ({counter})"
+        counter += 1
+
+def generate_unique_slug(db: Session, base_text: str, current_id: Optional[int] = None) -> str:
+    import re
+    slug = re.sub(r'[^a-zA-Z0-9]+', '-', base_text.strip().lower()).strip('-')
+    if not slug:
+        slug = "categoria"
+    
+    candidate = slug
+    counter = 1
+    while True:
+        query = db.query(models.Category).filter(models.Category.slug == candidate)
+        if current_id:
+            query = query.filter(models.Category.id != current_id)
+        if not query.first():
+            return candidate
+        candidate = f"{slug}-{counter}"
+        counter += 1
+
+def sync_category_to_auth(cat_id: int, name: str, slug: str, icon: str, description: Optional[str] = None, delete: bool = False):
+    try:
+        import sqlite3
+        auth_db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "auth-service", "auth.db")
+        if os.path.exists(auth_db_path):
+            conn = sqlite3.connect(auth_db_path)
+            cur = conn.cursor()
+            if delete:
+                cur.execute("DELETE FROM taste_categories WHERE id = ?", (cat_id,))
+            else:
+                cur.execute("SELECT id FROM taste_categories WHERE id = ?", (cat_id,))
+                if cur.fetchone():
+                    cur.execute("UPDATE taste_categories SET name = ?, slug = ?, icon = ?, description = ? WHERE id = ?", 
+                                (name, slug, icon, description, cat_id))
+                else:
+                    cur.execute("INSERT INTO taste_categories (id, name, slug, icon, description) VALUES (?, ?, ?, ?, ?)",
+                                (cat_id, name, slug, icon, description))
+            conn.commit()
+            conn.close()
+    except Exception as e:
+        print(f"[Warning] Failed to sync category to auth.db: {e}")
+
 @app.get("/categories", response_model=List[schemas.CategoryResponse], tags=["Categories"])
 def get_categories(db: Session = Depends(get_db)):
     """Obtiene el listado de categorías del catálogo"""
@@ -101,18 +203,21 @@ def get_categories(db: Session = Depends(get_db)):
 @app.post("/categories", response_model=schemas.CategoryResponse, status_code=status.HTTP_201_CREATED, tags=["Categories"])
 def create_category(cat_in: schemas.CategoryCreate, admin: AuthUser = Depends(require_admin), db: Session = Depends(get_db)):
     """[Admin] Crea una nueva categoría en el catálogo (Acceso total Admin)"""
-    existing = db.query(models.Category).filter(models.Category.slug == cat_in.slug).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="El slug de categoría ya existe")
+    unique_name = generate_unique_name(db, cat_in.name)
+    base_slug = cat_in.slug if cat_in.slug and cat_in.slug.strip() else unique_name
+    unique_slug = generate_unique_slug(db, base_slug)
+    icon_clean = clean_icon(cat_in.icon)
+
     new_cat = models.Category(
-        name=cat_in.name,
-        slug=cat_in.slug,
-        icon=cat_in.icon or "🏷️",
+        name=unique_name,
+        slug=unique_slug,
+        icon=icon_clean,
         description=cat_in.description
     )
     db.add(new_cat)
     db.commit()
     db.refresh(new_cat)
+    sync_category_to_auth(new_cat.id, new_cat.name, new_cat.slug, new_cat.icon, new_cat.description)
     return new_cat
 
 @app.put("/categories/{category_id}", response_model=schemas.CategoryResponse, tags=["Categories"])
@@ -121,16 +226,19 @@ def update_category(category_id: int, cat_in: schemas.CategoryUpdate, admin: Aut
     cat = db.query(models.Category).filter(models.Category.id == category_id).first()
     if not cat:
         raise HTTPException(status_code=404, detail="Categoría no encontrada")
-    if cat_in.name is not None:
-        cat.name = cat_in.name
-    if cat_in.slug is not None:
-        cat.slug = cat_in.slug
+    if cat_in.name is not None and cat_in.name.strip():
+        cat.name = generate_unique_name(db, cat_in.name, current_id=category_id)
+    if cat_in.slug is not None and cat_in.slug.strip():
+        cat.slug = generate_unique_slug(db, cat_in.slug, current_id=category_id)
+    elif cat_in.name is not None and not cat.slug:
+        cat.slug = generate_unique_slug(db, cat.name, current_id=category_id)
     if cat_in.icon is not None:
-        cat.icon = cat_in.icon
+        cat.icon = clean_icon(cat_in.icon)
     if cat_in.description is not None:
         cat.description = cat_in.description
     db.commit()
     db.refresh(cat)
+    sync_category_to_auth(cat.id, cat.name, cat.slug, cat.icon, cat.description)
     return cat
 
 @app.delete("/categories/{category_id}", tags=["Categories"])
@@ -139,9 +247,11 @@ def delete_category(category_id: int, admin: AuthUser = Depends(require_admin), 
     cat = db.query(models.Category).filter(models.Category.id == category_id).first()
     if not cat:
         raise HTTPException(status_code=404, detail="Categoría no encontrada")
+    cat_name = cat.name
     db.delete(cat)
     db.commit()
-    return {"status": "ok", "message": f"Categoría {cat.name} eliminada con éxito"}
+    sync_category_to_auth(category_id, "", "", "", delete=True)
+    return {"status": "ok", "message": f"Categoría {cat_name} eliminada con éxito"}
 
 # --- PROMOTIONS ENDPOINTS ---
 

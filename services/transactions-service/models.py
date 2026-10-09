@@ -28,7 +28,7 @@ class Promotion(Base):
     discount_percent = Column(Float, nullable=False)
     promo_price = Column(Float, nullable=False)
     
-    image_url = Column(String(500), nullable=True)
+    image_url = Column(Text, nullable=True)
     gallery = Column(Text, nullable=True, default="")  # URLs de fotos adicionales separadas por coma
     tags = Column(Text, default="")  # ej: "pizza,artesanal,2x1"
     

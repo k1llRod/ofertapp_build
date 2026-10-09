@@ -117,6 +117,16 @@ async def proxy_admin_orders(request: Request):
     target = f"{settings.TRANSACTIONS_SERVICE_URL}/admin/orders"
     return await forward_request(target, request)
 
+@app.api_route("/api/v1/admin/categories", methods=["GET", "POST"], tags=["Admin - Categories"])
+async def proxy_admin_categories_root(request: Request):
+    target = f"{settings.TRANSACTIONS_SERVICE_URL}/categories"
+    return await forward_request(target, request)
+
+@app.api_route("/api/v1/admin/categories/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"], tags=["Admin - Categories"])
+async def proxy_admin_categories(path: str, request: Request):
+    target = f"{settings.TRANSACTIONS_SERVICE_URL}/categories/{path}"
+    return await forward_request(target, request)
+
 @app.api_route("/api/v1/admin/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"], tags=["Admin"])
 async def proxy_admin(path: str, request: Request):
     target = f"{settings.AUTH_SERVICE_URL}/admin/{path}"
@@ -171,6 +181,11 @@ async def proxy_transactions(path: str, request: Request):
     return await forward_request(target, request)
 
 # 3. Notificaciones y Alertas (notifications-services)
+@app.api_route("/api/v1/notifications", methods=["GET", "POST"], tags=["Notifications"])
+async def proxy_notifications_root(request: Request):
+    target = f"{settings.NOTIFICATIONS_SERVICE_URL}/notifications"
+    return await forward_request(target, request)
+
 @app.api_route("/api/v1/notifications/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"], tags=["Notifications"])
 async def proxy_notifications(path: str, request: Request):
     target = f"{settings.NOTIFICATIONS_SERVICE_URL}/notifications/{path}"

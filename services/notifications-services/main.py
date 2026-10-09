@@ -112,12 +112,51 @@ async def handle_promotion_created(event: schemas.PromotionCreatedEvent, db: Ses
         "alerts_dispatched": alerts_created
     }
 
+@app.get("/notifications", response_model=schemas.NotificationListResponse, tags=["Notifications"])
+def list_notifications(
+    user_id: Optional[int] = None,
+    only_pending: bool = False,
+    db: Session = Depends(get_db)
+):
+    """Obtiene el historial de notificaciones y alertas (filtrables por usuario y pendientes)"""
+    query = db.query(models.Notification)
+    if user_id:
+        query = query.filter(models.Notification.user_id == user_id)
+    if only_pending:
+        query = query.filter(models.Notification.is_read == False)
+
+    notifs = query.order_by(models.Notification.created_at.desc()).all()
+    unread_count = sum(1 for n in notifs if not n.is_read)
+
+    items = [
+        schemas.NotificationResponse(
+            id=n.id,
+            user_id=n.user_id,
+            promotion_id=n.promotion_id,
+            title=n.title,
+            message=n.message,
+            category_name=n.category_name,
+            distance_km=n.distance_km,
+            discount_percent=n.discount_percent,
+            is_read=n.is_read,
+            created_at=str(n.created_at)
+        )
+        for n in notifs
+    ]
+
+    return schemas.NotificationListResponse(
+        total=len(items),
+        unread_count=unread_count,
+        items=items
+    )
+
 @app.get("/notifications/user/{user_id}", response_model=schemas.NotificationListResponse, tags=["Notifications"])
-def get_user_notifications(user_id: int, db: Session = Depends(get_db)):
+def get_user_notifications(user_id: int, only_pending: bool = False, db: Session = Depends(get_db)):
     """Obtiene el historial de notificaciones y alertas de un usuario"""
-    notifs = db.query(models.Notification).filter(
-        models.Notification.user_id == user_id
-    ).order_by(models.Notification.created_at.desc()).all()
+    query = db.query(models.Notification).filter(models.Notification.user_id == user_id)
+    if only_pending:
+        query = query.filter(models.Notification.is_read == False)
+    notifs = query.order_by(models.Notification.created_at.desc()).all()
 
     unread_count = sum(1 for n in notifs if not n.is_read)
 

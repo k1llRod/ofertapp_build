@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/main_navigation_screen.dart';
+import 'screens/web_platform_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() {
@@ -8,7 +8,7 @@ void main() {
 }
 
 class OfertappApp extends StatelessWidget {
-  const OfertappApp({Key? key}) : super(key: key);
+  const OfertappApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,7 @@ class OfertappApp extends StatelessWidget {
       title: 'Ofertapp',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const MainNavigationScreen(),
+      home: const WebPlatformScreen(),
     );
   }
 }

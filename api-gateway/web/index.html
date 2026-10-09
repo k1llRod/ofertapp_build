@@ -23,21 +23,117 @@
       --text: #0F172A;
       --text-muted: #64748B;
       --border: #E2E8F0;
+      --header-bg: #FFFFFF;
+      --bottom-nav-bg: #FFFFFF;
+      --input-bg: #FFFFFF;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-    body { background: #0B1120; color: var(--text); min-height: 100vh; padding: 20px; display: flex; flex-direction: column; align-items: center; }
 
-    /* Role Switcher Toolbar */
+    /* Modo Oscuro / Dark Mode */
+    body.dark-mode {
+      --bg: #0F172A;
+      --card-bg: #1E293B;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --border: #334155;
+      --header-bg: #1E293B;
+      --bottom-nav-bg: #0F172A;
+      --input-bg: #0F172A;
+      background: #020617 !important;
+      color: var(--text);
+    }
+    body.dark-mode .app-viewport {
+      background: var(--bg) !important;
+      box-shadow: 0 25px 65px rgba(0,0,0,0.9), 0 0 0 10px #0F172A !important;
+    }
+    body.dark-mode .header {
+      background: var(--header-bg) !important;
+      border-bottom-color: var(--border) !important;
+    }
+    body.dark-mode .brand-title {
+      color: #F8FAFC !important;
+    }
+    body.dark-mode .bottom-nav {
+      background: var(--bottom-nav-bg) !important;
+      border-top-color: var(--border) !important;
+    }
+    body.dark-mode .nav-btn {
+      color: #94A3B8 !important;
+    }
+    body.dark-mode .nav-btn.active {
+      color: var(--primary) !important;
+    }
+    body.dark-mode .nav-btn.active svg {
+      stroke: var(--primary) !important;
+    }
+    body.dark-mode .sidebar-drawer {
+      background: #1E293B !important;
+      color: #F8FAFC !important;
+      border-right-color: #334155 !important;
+    }
+    body.dark-mode .sidebar-drawer > div:first-child {
+      background: #0F172A !important;
+      border-bottom-color: #334155 !important;
+    }
+    body.dark-mode .drawer-menu-item {
+      background: #0F172A !important;
+      color: #F8FAFC !important;
+      border-color: #334155 !important;
+    }
+    body.dark-mode .drawer-menu-item div,
+    body.dark-mode .drawer-menu-item span {
+      color: #F8FAFC !important;
+    }
+    body.dark-mode .modal-box {
+      background: #1E293B !important;
+      color: #F8FAFC !important;
+      border: 1px solid #334155 !important;
+    }
+    body.dark-mode .modal-box h3,
+    body.dark-mode .modal-box h4 {
+      color: #F8FAFC !important;
+    }
+    body.dark-mode .form-input,
+    body.dark-mode .form-select,
+    body.dark-mode .form-textarea {
+      background: var(--input-bg) !important;
+      color: #F8FAFC !important;
+      border-color: #334155 !important;
+    }
+    body.dark-mode .form-label {
+      color: #CBD5E1 !important;
+    }
+    body.dark-mode .btn-secondary {
+      background: #334155 !important;
+      color: #F8FAFC !important;
+    }
+    body.dark-mode .admin-card {
+      background: #1E293B !important;
+      border-color: #334155 !important;
+    }
+    body.dark-mode .admin-table th {
+      background: #0F172A !important;
+      color: #94A3B8 !important;
+      border-color: #334155 !important;
+    }
+    body.dark-mode .admin-table td {
+      background: #1E293B !important;
+      color: #F8FAFC !important;
+      border-color: #334155 !important;
+    }
+    body.dark-mode .leaflet-tile {
+      filter: brightness(0.85) contrast(1.15) invert(0.9) hue-rotate(180deg);
+    }
+    body.dark-mode #client-cats-bar {
+      background: #1E293B !important;
+      border-bottom-color: #334155 !important;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { background: #0B1120; color: var(--text); min-height: 100vh; padding: 20px; display: flex; flex-direction: column; align-items: center; transition: background 0.3s; }
+
+    /* Barra superior de roles retirada para ahorrar espacio en la app */
     .role-switcher-bar {
-      width: 100%;
-      max-width: 520px;
-      background: #1E293B;
-      border: 1px solid #334155;
-      padding: 6px;
-      border-radius: 14px;
-      display: flex;
-      gap: 6px;
-      margin-bottom: 16px;
+      display: none !important;
     }
     .role-btn {
       flex: 1;
@@ -77,6 +173,288 @@
 
     /* Notch */
     .notch { width: 130px; height: 20px; background: #1E293B; border-bottom-left-radius: 14px; border-bottom-right-radius: 14px; margin: 0 auto; z-index: 1000; }
+
+    /* Adaptación Responsiva para Pantallas Móviles y WebViews (APK nativa de Android) */
+    @media (max-width: 899px) {
+      body {
+        padding: 0 !important;
+        background: var(--bg) !important;
+      }
+      .role-switcher-bar {
+        max-width: 100% !important;
+        border-radius: 0 !important;
+        margin-bottom: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        border-top: none !important;
+        position: sticky;
+        top: 0;
+        z-index: 1001;
+      }
+      .app-viewport {
+        max-width: 100% !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+      .notch {
+        display: none !important;
+      }
+      .desktop-nav-tabs {
+        display: none !important;
+      }
+    }
+
+    /* ========================================== */
+    /* DISEÑO RESPONSIVO NATIVO: ESCRITORIO vs MÓVIL/APK */
+    /* ========================================== */
+    @media (min-width: 900px) {
+      body {
+        padding: 0 !important;
+        background: var(--bg) !important;
+        align-items: stretch !important;
+        min-height: 100vh !important;
+        overflow-x: hidden !important;
+      }
+
+      .app-viewport {
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 100vh !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+
+      .notch {
+        display: none !important;
+      }
+
+      .header {
+        padding: 12px 32px !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+      }
+
+      .desktop-nav-tabs {
+        display: flex !important;
+      }
+
+      .bottom-nav {
+        display: none !important;
+      }
+
+      .client-search-bar-wrap {
+        padding: 16px 32px 12px 32px !important;
+        max-width: 1400px;
+        margin: 12px auto 0 auto;
+        width: 100%;
+        border-radius: 14px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+      }
+
+      #client-cats-bar {
+        padding: 10px 32px !important;
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+        border-radius: 0 0 14px 14px;
+        display: flex;
+        gap: 10px;
+        flex-shrink: 0 !important;
+        min-height: 48px;
+        align-items: center;
+      }
+
+      #feed-list-view {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+        gap: 22px !important;
+        padding: 22px 32px 40px 32px !important;
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+        align-content: start;
+      }
+
+      .promo-card {
+        margin: 0 !important;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border-radius: 18px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        transition: transform 0.22s ease, box-shadow 0.22s ease;
+      }
+
+      .promo-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+      }
+
+      .promo-card img {
+        height: 175px !important;
+      }
+
+      #portal-merchant,
+      #portal-admin {
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+        padding: 24px 32px !important;
+      }
+
+      .modal-box {
+        max-width: 560px !important;
+      }
+    }
+
+    /* Pestañas de Navegación de Escritorio */
+    .desktop-nav-tabs {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      margin-left: 20px;
+    }
+    .desktop-tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 7px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .desktop-tab-btn:hover {
+      background: #F1F5F9;
+      color: var(--text);
+    }
+    body.dark-mode .desktop-tab-btn:hover {
+      background: #334155;
+      color: #F8FAFC;
+    }
+    .desktop-tab-btn.active {
+      background: var(--primary) !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 3px 10px rgba(245, 158, 11, 0.35);
+    }
+    .desktop-tab-btn.active svg {
+      stroke: #FFFFFF !important;
+    }
+
+    /* Reglas para Pantalla Móvil / Formato APK (< 900px) */
+    @media (max-width: 899px) {
+      body {
+        padding: 0 !important;
+        background: var(--bg) !important;
+      }
+
+      .app-viewport {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+
+      .notch {
+        display: none !important;
+      }
+
+      .desktop-nav-tabs {
+        display: none !important;
+      }
+
+      .bottom-nav {
+        display: flex !important;
+      }
+
+      #feed-list-view {
+        display: block;
+        padding: 6px 0 !important;
+      }
+
+      .promo-card {
+        margin: 10px 14px !important;
+      }
+
+      .promo-card img {
+        height: 135px !important;
+      }
+    }
+
+    /* MODO MAPA: Ocultar la lista de ofertas y dejar que el mapa ocupe el resto exacto de la pantalla sin sobreponerse */
+    body.view-map-mode #portal-client {
+      overflow-y: hidden !important;
+    }
+    body.view-map-mode #feed-list-view {
+      display: none !important;
+    }
+    body.view-map-mode #feed-map-view {
+      display: flex !important;
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      height: 100% !important;
+      width: 100%;
+      position: relative;
+    }
+    body.view-map-mode #city-map {
+      height: 100% !important;
+      width: 100% !important;
+      min-height: 0 !important;
+      flex: 1 1 0% !important;
+    }
+
+    /* MODO LISTA: ocultar mapa */
+    body:not(.view-map-mode) #feed-map-view {
+      display: none !important;
+    }
+
+    /* Barra de Búsqueda y Barra de Categorías / Gustos: Nunca encogerse ni colapsar */
+    .client-search-bar-wrap {
+      flex-shrink: 0 !important;
+    }
+    #client-cats-bar {
+      flex-shrink: 0 !important;
+      min-height: 48px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(203, 213, 225, 0.6) transparent;
+    }
+    #client-cats-bar::-webkit-scrollbar {
+      height: 4px;
+    }
+    #client-cats-bar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    #client-cats-bar::-webkit-scrollbar-thumb {
+      background: rgba(203, 213, 225, 0.7);
+      border-radius: 4px;
+    }
+    #client-cats-bar::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.9);
+    }
+    body.dark-mode #client-cats-bar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Categorías y Gustos Activos en Barra */
+    #client-cats-bar button.taste-selected-cat {
+      border: 1.5px solid rgba(245, 158, 11, 0.5) !important;
+      font-weight: 800;
+    }
+    #client-cats-bar button.active-filter {
+      background: var(--primary) !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+    }
 
     /* Header */
     .header {
@@ -230,21 +608,175 @@
       padding: 7px 12px; border-radius: 8px; cursor: pointer;
     }
 
-    /* Bottom Nav */
-    .bottom-nav {
+    .emoji-picker-btn {
       background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 15px;
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.1s, background-color 0.15s;
+      user-select: none;
+      padding: 0;
+    }
+    .emoji-picker-btn:hover {
+      background: #E2E8F0;
+      transform: scale(1.15);
+    }
+    body.dark-mode .emoji-picker-btn {
+      background: #1E293B;
+      border-color: #334155;
+    }
+    body.dark-mode .emoji-picker-btn:hover {
+      background: #334155;
+    }
+
+    /* Bottom Nav (Estilo Imagen 2 con iconos limpios) */
+    .bottom-nav {
+      background: var(--bottom-nav-bg);
       border-top: 1px solid var(--border);
       display: flex;
-      padding: 6px 0 10px 0;
+      padding: 8px 0 10px 0;
       z-index: 10;
+      box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.03);
     }
     .nav-btn {
       flex: 1; border: none; background: transparent;
-      display: flex; flex-direction: column; align-items: center; gap: 3px;
-      color: #64748B; font-size: 10px; font-weight: 600; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+      color: #64748B; font-size: 10px; font-weight: 700; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-btn svg {
+      transition: stroke 0.2s, transform 0.2s;
+      stroke: #64748B;
     }
     .nav-btn.active { color: var(--primary); font-weight: 800; }
-    .nav-btn span:first-child { font-size: 18px; }
+    .nav-btn.active svg {
+      stroke: var(--primary);
+      transform: scale(1.08);
+    }
+    .nav-btn:active {
+      transform: scale(0.94);
+    }
+
+    /* ========================================== */
+    /* CUADRO MODAL NATIVO ANDROID (MATERIAL 3)   */
+    /* ========================================== */
+    .android-modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 100000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .android-modal-backdrop.active {
+      opacity: 1;
+    }
+    .android-dialog-card {
+      background: #FFFFFF;
+      border-radius: 28px;
+      padding: 24px 22px 20px 22px;
+      width: 100%;
+      max-width: 320px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transform: scale(0.85);
+      transition: transform 0.22s cubic-bezier(0.2, 0, 0, 1);
+      box-sizing: border-box;
+    }
+    .android-modal-backdrop.active .android-dialog-card {
+      transform: scale(1);
+    }
+    .android-dialog-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+    .android-dialog-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0F172A;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+    .android-dialog-message {
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: #64748B;
+      margin-bottom: 22px;
+      word-break: break-word;
+      white-space: pre-line;
+    }
+    .android-dialog-actions {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      justify-content: flex-end;
+    }
+    .android-btn-text {
+      background: transparent;
+      border: none;
+      color: #64748B;
+      font-size: 13.5px;
+      font-weight: 700;
+      padding: 10px 18px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .android-btn-text:active {
+      background: #F1F5F9;
+    }
+    .android-btn-primary {
+      background: #F59E0B;
+      border: none;
+      color: #000000;
+      font-size: 13.5px;
+      font-weight: 800;
+      padding: 10px 22px;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+      transition: all 0.15s;
+      flex: 1;
+    }
+    .android-btn-primary:active {
+      transform: scale(0.97);
+    }
+    body.dark-mode .android-dialog-card {
+      background: #1E293B !important;
+      border: 1px solid #334155 !important;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.7) !important;
+    }
+    body.dark-mode .android-dialog-title {
+      color: #F8FAFC !important;
+    }
+    body.dark-mode .android-dialog-message {
+      color: #94A3B8 !important;
+    }
+    body.dark-mode .android-btn-text {
+      color: #94A3B8 !important;
+    }
+    body.dark-mode .android-btn-text:active {
+      background: #334155 !important;
+    }
 
     /* Custom Leaflet Pin Styling */
     .custom-deal-marker {
@@ -298,10 +830,90 @@
       border: 1px solid var(--border);
       padding: 18px;
       animation: modalFadeIn 0.2s ease-out;
+      position: relative;
     }
     @keyframes modalFadeIn {
       from { opacity: 0; transform: scale(0.96); }
       to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Header Estático y Botón X Fijo para Ventanas Modales */
+    .modal-header-sticky {
+      position: sticky;
+      top: -18px;
+      background: #FFFFFF;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: -18px -18px 14px -18px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      border-top-left-radius: 18px;
+      border-top-right-radius: 18px;
+      backdrop-filter: blur(8px);
+    }
+    body.dark-mode .modal-header-sticky {
+      background: #1E293B;
+      border-color: #334155;
+    }
+    .modal-close-static-btn {
+      background: #F1F5F9;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      font-size: 15px;
+      font-weight: 900;
+      color: #64748B;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+      line-height: 1;
+      padding: 0;
+    }
+    .modal-close-static-btn:hover {
+      background: #E2E8F0;
+      color: #0F172A;
+      transform: scale(1.08);
+    }
+    body.dark-mode .modal-close-static-btn {
+      background: #334155;
+      color: #CBD5E1;
+    }
+    body.dark-mode .modal-close-static-btn:hover {
+      background: #475569;
+      color: #FFFFFF;
+    }
+
+    /* Estilos para Alertas y Notificaciones */
+    .alert-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      transition: all 0.2s ease;
+      position: relative;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+    .alert-card.unread {
+      border-left: 4.5px solid var(--primary);
+      background: #FFFDF7;
+    }
+    .alert-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      transform: translateY(-1px);
+    }
+    body.dark-mode .alert-card {
+      background: #1E293B;
+      border-color: #334155;
+    }
+    body.dark-mode .alert-card.unread {
+      background: #1A2333;
+      border-left-color: var(--primary);
     }
     .tag-chip {
       display: inline-flex;
@@ -507,21 +1119,28 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(15, 23, 42, 0.65);
+      background: rgba(15, 23, 42, 0.7);
       color: #FFFFFF;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.35);
       border-radius: 50%;
-      width: 34px;
-      height: 34px;
-      font-size: 18px;
-      font-weight: 800;
-      display: flex;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       z-index: 5;
       backdrop-filter: blur(4px);
       transition: all 0.15s ease;
+      padding: 0;
+      line-height: 1;
+    }
+    .gallery-nav-btn svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+      margin: auto;
+      pointer-events: none;
     }
     .gallery-nav-btn:hover {
       background: var(--primary);
@@ -595,19 +1214,6 @@
   </style>
 </head>
 <body>
-
-  <!-- Top Role Switcher (Visible ÚNICAMENTE para Administradores o Comercios autorizados) -->
-  <div class="role-switcher-bar" id="top-role-switcher" style="display: none;">
-    <button class="role-btn active" onclick="switchRole('client')" id="btn-role-client">
-      <span>📱</span> Consumidor
-    </button>
-    <button class="role-btn" onclick="switchRole('merchant')" id="btn-role-merchant" style="display: none;">
-      <span>🏪</span> Portal Comercio
-    </button>
-    <button class="role-btn" onclick="switchRole('admin')" id="btn-role-admin" style="display: none;">
-      <span>🛡️</span> Administrador
-    </button>
-  </div>
 
   <!-- Mobile Viewport Shell -->
   <div class="app-viewport">
@@ -698,28 +1304,46 @@
                 <div style="font-size: 10px; color: #64748B;">Notificaciones georreferenciadas</div>
               </div>
             </div>
-            <span style="background: #10B981; color: #FFF; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 6px;">Activo</span>
+            <span id="drawer-alerts-badge" style="background: #DC2626; color: #FFF; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 999px; display: none;">0</span>
           </button>
 
-          <!-- Ubicación GPS -->
-          <div class="drawer-menu-item" style="cursor: default; background: #F8FAFC;">
+          <!-- Modo Oscuro / Claro -->
+          <button class="drawer-menu-item" onclick="toggleDarkMode()">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 16px;">📍</span>
+              <span id="drawer-theme-icon" style="display: flex; align-items: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              </span>
               <div>
-                <div style="font-size: 12px; font-weight: 800; color: #1E293B;">Ubicación GPS</div>
-                <div style="font-size: 10px; color: #64748B;">Centro (-34.6037, -58.3816)</div>
+                <div style="font-size: 12px; font-weight: 800; color: var(--text);" id="drawer-theme-text">Modo Oscuro</div>
+                <div style="font-size: 10px; color: var(--text-muted);" id="drawer-theme-sub">Cambiar tema visual</div>
               </div>
             </div>
-            <span style="font-size: 10px; background: #DCFCE7; color: #15803D; font-weight: 800; padding: 2px 6px; border-radius: 6px;">Fijada</span>
+            <span id="drawer-theme-status" style="font-size: 10px; background: #E2E8F0; color: #475569; font-weight: 800; padding: 2px 7px; border-radius: 6px;">Apagado</span>
+          </button>
+
+          <!-- Ubicación GPS (Detectar coordenadas reales) -->
+          <div class="drawer-menu-item" style="cursor: pointer;" onclick="toggleSidebar(false); updateGpsToCurrentLocation();">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="display: flex; align-items: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+              </span>
+              <div>
+                <div style="font-size: 12px; font-weight: 800; color: var(--text);">Ubicación GPS</div>
+                <div style="font-size: 10px; color: var(--text-muted);" id="drawer-gps-coords">Detectar GPS actual</div>
+              </div>
+            </div>
+            <span style="font-size: 10px; background: #DCFCE7; color: #15803D; font-weight: 800; padding: 2px 6px; border-radius: 6px;" id="drawer-gps-badge">Actualizar GPS</span>
           </div>
 
           <!-- Ver en Mapa de Ciudad -->
           <button class="drawer-menu-item" onclick="toggleSidebar(false); if(!isMapView) toggleFeedMapView();">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 16px;">🗺️</span>
+              <span style="display: flex; align-items: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+              </span>
               <div>
-                <div style="font-size: 12px; font-weight: 800; color: #1E293B;">Mapa de Ciudad</div>
-                <div style="font-size: 10px; color: #64748B;">Ver comercios y ofertas cercanas</div>
+                <div style="font-size: 12px; font-weight: 800; color: var(--text);">Mapa de Ciudad</div>
+                <div style="font-size: 10px; color: var(--text-muted);">Ver comercios y ofertas cercanas</div>
               </div>
             </div>
             <span style="font-size: 11px; color: #94A3B8;">›</span>
@@ -733,30 +1357,30 @@
           </div>
           <button class="drawer-menu-item" onclick="toggleSidebar(false); switchRole('client');" id="drawer-link-client">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span>📱</span>
-              <span style="font-size: 12px; font-weight: 700; color: #1E293B;">Modo Consumidor</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              <span style="font-size: 12px; font-weight: 700; color: var(--text);">Modo Consumidor</span>
             </div>
             <span style="font-size: 10px; color: var(--primary); font-weight: 800;" id="drawer-badge-client">Activo</span>
           </button>
           <button class="drawer-menu-item" onclick="toggleSidebar(false); switchRole('merchant');" id="drawer-link-merchant" style="display: none;">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span>🏪</span>
-              <span style="font-size: 12px; font-weight: 700; color: #1E293B;">Portal Comercio (Publicar)</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              <span style="font-size: 12px; font-weight: 700; color: var(--text);">Portal Comercio (Publicar)</span>
             </div>
             <span style="font-size: 11px; color: #94A3B8;" id="drawer-badge-merchant">›</span>
           </button>
           <button class="drawer-menu-item" onclick="toggleSidebar(false); switchRole('admin');" id="drawer-link-admin" style="display: none;">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span>🛡️</span>
-              <span style="font-size: 12px; font-weight: 700; color: #1E293B;">Panel Administrador</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span style="font-size: 12px; font-weight: 700; color: var(--text);">Panel Administrador</span>
             </div>
             <span style="font-size: 11px; color: #94A3B8;" id="drawer-badge-admin">›</span>
           </button>
 
           <!-- Banner para usuarios comunes e invitados -->
           <div id="drawer-merchant-promo" style="padding: 10px; border-radius: 12px; background: #F8FAFC; border: 1px dashed var(--border); margin-top: 4px;">
-            <div style="font-size: 11px; font-weight: 800; color: #1E293B; margin-bottom: 2px;">🏪 ¿Tienes un comercio?</div>
-            <div style="font-size: 10px; color: #64748B; margin-bottom: 6px;">Publica tus ofertas geolocalizadas con mapa y alertas para tu ciudad.</div>
+            <div style="font-size: 11px; font-weight: 800; color: var(--text); margin-bottom: 2px;">🏪 ¿Tienes un comercio?</div>
+            <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 6px;">Publica tus ofertas geolocalizadas con mapa y alertas para tu ciudad.</div>
             <button onclick="toggleSidebar(false); openAuthModal('register');" style="font-size: 10px; font-weight: 800; color: var(--primary); background: transparent; border: none; padding: 0; cursor: pointer;">
               Crear cuenta de negocio →
             </button>
@@ -774,28 +1398,59 @@
     <!-- Header dinámico con Botón Hamburguesa -->
     <div class="header">
       <div style="display: flex; align-items: center; gap: 8px;">
-        <button onclick="toggleSidebar(true)" class="hamburger-btn" title="Menú principal (Cuenta, Gustos, Portales)">
-          ☰
+        <button onclick="toggleSidebar(true)" class="hamburger-btn" title="Menú principal (Cuenta, Gustos, Portales)" style="display: flex; align-items: center; justify-content: center; padding: 6px; background: transparent; border: none; cursor: pointer; color: var(--text);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
         </button>
-        <div class="brand-title">
-          <span>🏷️</span>
-          <span><span style="color:#0F172A;">Ofert</span><span style="color:var(--primary);">App</span></span>
+        <div class="brand-title" onclick="switchRole('client'); toggleFeedMapView(false);" style="cursor: pointer;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          <span><span style="color:var(--text);">Ofert</span><span style="color:var(--primary);">App</span></span>
         </div>
+
+        <!-- Pestañas de Navegación de Escritorio (Desktop Nav Tabs) -->
+        <nav class="desktop-nav-tabs" id="desktop-nav-tabs">
+          <button class="desktop-tab-btn active" id="desk-tab-offers" onclick="deskSwitchTab('offers')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            <span>Ofertas</span>
+          </button>
+          <button class="desktop-tab-btn" id="desk-tab-map" onclick="deskSwitchTab('map')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+            <span>Mapa de Ciudad</span>
+          </button>
+          <button class="desktop-tab-btn" id="desk-tab-tastes" onclick="openTastesModal()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>Mis Gustos</span>
+            <span id="desk-tastes-badge" style="background: var(--primary); color: #FFF; padding: 1px 6px; border-radius: 999px; font-size: 10px; font-weight: 800; margin-left: 2px;">0</span>
+          </button>
+          <button class="desktop-tab-btn" id="desk-tab-orders" onclick="openMyOrdersModal()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span>Mis Pedidos</span>
+          </button>
+          <button class="desktop-tab-btn" id="desk-tab-merchant" onclick="deskSwitchTab('merchant')" style="display: none;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            <span>Mi Comercio</span>
+          </button>
+          <button class="desktop-tab-btn" id="desk-tab-admin" onclick="deskSwitchTab('admin')" style="display: none;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Admin</span>
+          </button>
+        </nav>
       </div>
+
       <div style="display: flex; align-items: center; gap: 6px;">
-        <!-- Botón rápido Mi Perfil con Avatar -->
-        <button id="header-avatar-btn" onclick="openUserProfileModal()" style="display: none; border: 2px solid #F59E0B; background: #FFF; width: 28px; height: 28px; border-radius: 50%; overflow: hidden; padding: 0; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.12);" title="Ver y Editar Mi Perfil">
-          <span id="header-avatar-content" style="font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">👤</span>
+        <!-- Botón Modo Oscuro / Claro en Header -->
+        <button class="btn-secondary" id="btn-toggle-theme" onclick="toggleDarkMode()" style="font-size: 11px; padding: 6px 8px; font-weight: 700; display: inline-flex; align-items: center;" title="Cambiar a Modo Oscuro/Claro">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
-        <button class="btn-secondary" id="btn-toggle-map" onclick="toggleFeedMapView()" style="font-size: 11px; padding: 5px 9px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-          🗺️ Ver Mapa
+        <!-- Botón Ver Mapa / Lista -->
+        <button class="btn-secondary" id="btn-toggle-map" onclick="toggleFeedMapView()" style="font-size: 11px; padding: 6px 9px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;" title="Alternar entre Vista Lista y Vista Mapa">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+          <span id="btn-toggle-map-text">Mapa</span>
         </button>
-        <button class="btn-secondary" onclick="openAlertsModal()" style="font-size: 11px; padding: 5px 8px; background: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; font-weight: 800; display: inline-flex; align-items: center;" title="Alertas de promociones">
-          🔔
+        <!-- Botón Centro de Alertas -->
+        <button class="btn-secondary" id="btn-header-alerts" onclick="openAlertsModal()" style="font-size: 11px; padding: 6px 8px; background: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; font-weight: 800; display: inline-flex; align-items: center; position: relative;" title="Alertas de promociones">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span id="alerts-header-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: #DC2626; color: #FFFFFF; font-size: 9px; font-weight: 900; padding: 1px 5px; border-radius: 999px; line-height: 1.2; box-shadow: 0 1px 4px rgba(0,0,0,0.3);">0</span>
         </button>
-        <div class="badge-portal badge-client" id="portal-role-indicator">
-          Consumidor
-        </div>
       </div>
     </div>
 
@@ -804,37 +1459,38 @@
     <!-- ========================================== -->
     <div id="portal-client" class="scrollable-body" style="display: flex;">
 
-      <!-- 🔍 BUSCADOR INTEGRADO Y SUB-BARRA DE PROXIMIDAD (VISTA LIMPIA Y ORGANIZADA) -->
-      <div style="background: #FFF; padding: 8px 12px; border-bottom: 1px solid var(--border);">
+      <!-- BUSCADOR INTEGRADO Y SUB-BARRA DE PROXIMIDAD -->
+      <div class="client-search-bar-wrap" style="background: #FFF; padding: 8px 12px; border-bottom: 1px solid var(--border);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 11px;">
-          <div style="display: flex; align-items: center; gap: 5px; color: #475569; font-weight: 700;">
-            <span style="color: #10B981; font-size: 12px;">📍</span>
-            <span>Cerca de ti: <strong style="color: #1E293B;">Centro</strong></span>
+          <div style="display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-weight: 700; cursor: pointer;" onclick="updateGpsToCurrentLocation()" title="Toca para actualizar tu ubicación GPS">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>Cerca de ti: <strong id="feed-near-label" style="color: var(--text);">Centro</strong></span>
           </div>
-          <span style="font-size: 10px; color: var(--primary); font-weight: 700; cursor: pointer;" onclick="openTastesModal()">
-            🎯 Radio: <span id="main-view-radius">15 km</span>
+          <span style="font-size: 10px; color: var(--primary); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" onclick="openTastesModal()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+            Radio: <span id="main-view-radius">15 km</span>
           </span>
         </div>
 
-        <div style="display: flex; align-items: center; background: #F1F5F9; border-radius: 10px; padding: 6px 10px; gap: 8px; border: 1px solid var(--border);">
-          <span style="font-size: 13px; color: #64748B;">🔍</span>
-          <input type="text" id="feed-search-input" placeholder="Buscar comida, tecnología, marcas..." style="border: none; background: transparent; outline: none; flex: 1; font-size: 12px; color: #1E293B;" oninput="onSearchInputChange(event)" onkeydown="if(event.key==='Enter') executeSearch()">
+        <div class="client-search-inner" style="display: flex; align-items: center; background: #F1F5F9; border-radius: 10px; padding: 6px 10px; gap: 8px; border: 1px solid var(--border);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="feed-search-input" placeholder="Buscar comida, tecnología, marcas..." style="border: none; background: transparent; outline: none; flex: 1; font-size: 12px; color: var(--text);" oninput="onSearchInputChange(event)" onkeydown="if(event.key==='Enter') executeSearch()">
           <button id="feed-search-clear-btn" style="display: none; background: transparent; border: none; font-size: 12px; color: #94A3B8; cursor: pointer; padding: 0 4px;" onclick="clearSearch()" title="Limpiar búsqueda">✕</button>
           <button class="btn-primary" style="font-size: 11px; padding: 4px 10px; border-radius: 7px;" onclick="executeSearch()">Buscar</button>
         </div>
-        <div id="search-active-indicator" style="display: none; margin-top: 6px; font-size: 10px; color: #475569; display: flex; justify-content: space-between; align-items: center; background: #FFF7ED; padding: 4px 8px; border-radius: 6px; border: 1px solid #FFEDD5;">
-          <span>🔎 Resultados para: <strong id="search-active-text" style="color: var(--primary);"></strong></span>
+        <div id="search-active-indicator" style="display: none; margin-top: 6px; font-size: 10px; color: var(--text-muted); justify-content: space-between; align-items: center; background: #FFF7ED; padding: 4px 8px; border-radius: 6px; border: 1px solid #FFEDD5;">
+          <span>Resultados para: <strong id="search-active-text" style="color: var(--primary);"></strong></span>
           <a href="javascript:void(0)" onclick="clearSearch()" style="color: #DC2626; font-weight: 700; text-decoration: none;">✕ Quitar búsqueda</a>
         </div>
       </div>
 
-      <!-- Categories & Tastes Bar -->
+      <!-- Categories & Tastes Bar (Dinámico: Actualizado según gustos elegidos por el usuario) -->
       <div style="background: #FFF; padding: 8px 12px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; overflow-x: auto;" id="client-cats-bar">
-        <button class="btn-secondary" style="background: var(--primary); color: #FFF; white-space: nowrap; border-radius: 8px;" onclick="filterFeed('tastes', this)">⭐ Para mis gustos</button>
+        <button class="btn-secondary active-filter" style="background: var(--primary); color: #FFF; white-space: nowrap; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px;" onclick="filterFeed('tastes', this)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span>Para mis gustos</span>
+        </button>
         <button class="btn-secondary" style="white-space: nowrap; border-radius: 8px;" onclick="filterFeed('all', this)">Todas</button>
-        <button class="btn-secondary" style="white-space: nowrap; border-radius: 8px;" onclick="filterFeed(1, this)">🍔 Gastronomía</button>
-        <button class="btn-secondary" style="white-space: nowrap; border-radius: 8px;" onclick="filterFeed(2, this)">💻 Tecnología</button>
-        <button class="btn-secondary" style="white-space: nowrap; border-radius: 8px;" onclick="filterFeed(5, this)">💆 Belleza</button>
       </div>
 
       <!-- Feed Container (List View) -->
@@ -845,11 +1501,15 @@
       <!-- Map View (Pantalla completa de Mapa tipo Google Maps con negocios) -->
       <div id="feed-map-view" style="display: none; flex: 1; position: relative;">
         <div id="city-map" class="map-full"></div>
-        <div style="position: absolute; bottom: 12px; left: 12px; right: 12px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.15); font-size: 11px; z-index: 1000; display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <strong>📍 Vista de Ciudad:</strong> Comercios cercanos a tu posición GPS
+        <div class="map-overlay-info" style="position: absolute; bottom: 12px; left: 12px; right: 12px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.15); font-size: 11px; z-index: 1000; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span><strong>Vista de Ciudad:</strong> Comercios cercanos a tu GPS</span>
           </div>
-          <button class="btn-secondary" style="font-size: 10px; padding: 4px 8px;" onclick="centerMapOnUser()">Mi Ubicación</button>
+          <button class="btn-secondary" style="font-size: 10px; padding: 5px 9px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;" onclick="centerMapOnUser()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+            Mi Ubicación
+          </button>
         </div>
       </div>
     </div>
@@ -935,38 +1595,84 @@
             </div>
           </div>
 
-          <!-- FOTOS DEL PRODUCTO / SERVICIO (GALERÍA MULTI-IMAGEN) -->
-          <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
-            <div style="font-size: 12px; font-weight: 800; color: #1E293B; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-              <span>📸</span> Galería de Fotos del Producto / Servicio
+          <!-- FOTOS DEL PRODUCTO / SERVICIO (CARGA DIRECTA + ENLACE) -->
+          <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+            <div style="font-size: 12px; font-weight: 800; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+              <span style="display: flex; align-items: center; gap: 6px;">📸 Galería de Fotos del Producto / Servicio</span>
+              <span style="font-size: 10px; font-weight: 600; color: var(--text-muted);">Soporta carga y links</span>
             </div>
-            <div class="form-group">
-              <label class="form-label" style="font-size: 11px;">Foto Principal (Portada) *</label>
-              <input class="form-input" id="m-image-url" required value="https://images.unsplash.com/photo-1544025162-d76694265947?w=800" placeholder="https://ejemplo.com/foto1.jpg">
+
+            <!-- FOTO PRINCIPAL / PORTADA -->
+            <div class="form-group" style="margin-bottom: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label class="form-label" style="font-size: 11px; margin: 0;">Foto Principal (Portada) *</label>
+                <span id="cover-upload-status" style="font-size: 10px; color: var(--primary); font-weight: 700;"></span>
+              </div>
+              <input type="file" id="m-cover-file" accept="image/*" style="display: none;" onchange="handleCoverFileSelected(event)">
+              <div style="display: flex; gap: 6px;">
+                <input class="form-input" id="m-image-url" required value="https://images.unsplash.com/photo-1544025162-d76694265947?w=800" placeholder="https://ejemplo.com/foto.jpg o sube archivo" style="flex: 1;" oninput="updateCoverPreviewFromInput()">
+                <button type="button" class="btn-secondary" style="font-size: 11px; padding: 7px 10px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;" onclick="document.getElementById('m-cover-file').click()">
+                  📁 Subir Foto
+                </button>
+              </div>
+
+              <!-- Vista previa miniatura de la portada -->
+              <div id="m-cover-preview-card" style="margin-top: 6px; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.03); padding: 6px 10px; border-radius: 8px; border: 1px dashed var(--border);">
+                <img id="m-cover-preview-img" src="https://images.unsplash.com/photo-1544025162-d76694265947?w=800" style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);" alt="Portada">
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-size: 11px; font-weight: 700; color: var(--text);">Foto de Portada</div>
+                  <div id="m-cover-path-label" style="font-size: 10px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">https://images.unsplash.com/photo-1544025162-d76694265947?w=800</div>
+                </div>
+                <button type="button" class="btn-secondary" style="padding: 4px 8px; font-size: 10px; color: #EF4444; border-color: rgba(239,68,68,0.3);" onclick="clearCoverImage()" title="Limpiar imagen">
+                  ✕ Quitar
+                </button>
+              </div>
             </div>
+
+            <!-- FOTOS ADICIONALES PARA LA GALERÍA -->
             <div class="form-group" style="margin-bottom: 4px;">
-              <label class="form-label" style="font-size: 11px;">Fotos Adicionales para la Galería (Separadas por coma)</label>
-              <input class="form-input" id="m-gallery" value="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800,https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=800" placeholder="https://...foto2.jpg, https://...foto3.jpg">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label class="form-label" style="font-size: 11px; margin: 0;">Fotos Adicionales para la Galería</label>
+                <span id="gallery-upload-status" style="font-size: 10px; color: var(--primary); font-weight: 700;"></span>
+              </div>
+              <input type="file" id="m-gallery-file" accept="image/*" multiple style="display: none;" onchange="handleGalleryFilesSelected(event)">
+              <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                <input class="form-input" id="m-gallery" value="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800,https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=800" placeholder="https://...foto2.jpg, https://...foto3.jpg" style="flex: 1;" oninput="syncGalleryInputToThumbnails()">
+                <button type="button" class="btn-secondary" style="font-size: 11px; padding: 7px 10px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;" onclick="document.getElementById('m-gallery-file').click()">
+                  📁 Añadir Fotos
+                </button>
+              </div>
+
+              <!-- Strip de Miniaturas de la Galería -->
+              <div id="m-gallery-thumbnails" style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px;">
+                <!-- Rellenado dinámicamente -->
+              </div>
             </div>
-            <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">
+
+            <div style="font-size: 10px; color: var(--text-muted); margin-top: 6px;">
               💡 <em>Los clientes podrán navegar el carrusel interactivo y ampliar cada foto antes de pagar en línea.</em>
             </div>
           </div>
 
           <!-- MAPA INTERACTIVO ESTILO GOOGLE MAPS PARA ELEGIR COORDENADAS -->
-          <div class="form-group">
-            <label class="form-label">🗺️ Ubicación del Negocio en Mapa (Arrastra el Pin):</label>
+          <div class="form-group" style="margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+              <label class="form-label" style="margin: 0;">🗺️ Ubicación del Negocio en Mapa (Arrastra el Pin):</label>
+              <button type="button" class="btn-primary" id="btn-gps-merchant" onclick="captureMerchantGpsLocation()" style="font-size: 11px; padding: 5px 12px; background: #059669; border-color: #059669; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 6px rgba(5,150,105,0.25); cursor: pointer;">
+                <span>📍</span> Usar Mi Ubicación Actual (GPS)
+              </button>
+            </div>
             <div id="merchant-loc-map"></div>
           </div>
 
           <div style="display: flex; gap: 10px;">
             <div class="form-group" style="flex: 1;">
               <label class="form-label">Latitud</label>
-              <input class="form-input" id="m-lat" readonly style="background: #F8FAFC;">
+              <input class="form-input" id="m-lat" oninput="onMerchantCoordManualChange()" placeholder="-34.6041" style="background: var(--input-bg);">
             </div>
             <div class="form-group" style="flex: 1;">
               <label class="form-label">Longitud</label>
-              <input class="form-input" id="m-lon" readonly style="background: #F8FAFC;">
+              <input class="form-input" id="m-lon" oninput="onMerchantCoordManualChange()" placeholder="-58.3822" style="background: var(--input-bg);">
             </div>
           </div>
 
@@ -1103,11 +1809,29 @@
         <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 6px;">Gestión de Categorías del Catálogo</h4>
         
         <form onsubmit="handleCreateCategory(event)" style="background: #FFF; padding: 12px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 14px;">
-          <div style="display: flex; gap: 8px;">
-            <input class="form-input" id="cat-name" placeholder="Nombre (ej: Mascotas)" required style="flex: 2;">
-            <input class="form-input" id="cat-icon" placeholder="Emoji (ej: 🐶)" required style="flex: 1;">
+          <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+            <div style="flex: 2;">
+              <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px;">Nombre de la Categoría *</label>
+              <input class="form-input" id="cat-name" placeholder="Ej: Mascotas" required style="width: 100%; padding: 7px 10px; font-size: 12px;">
+            </div>
+            <div style="flex: 1;">
+              <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px;">Emoji / Icono *</label>
+              <input class="form-input" id="cat-icon" placeholder="🐶 o :D" required style="width: 100%; padding: 7px 10px; font-size: 14px; text-align: center;" oninput="handleEmoticonInput(this)">
+            </div>
           </div>
-          <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px; font-size: 12px; padding: 8px;">
+
+          <!-- Selector rápido de emojis -->
+          <div style="margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 10px; font-weight: 700; color: var(--text-muted);">Elige un emoji rápido con 1 clic:</span>
+              <span style="font-size: 10px; color: var(--text-muted);">(o escribe :D, :), etc.)</span>
+            </div>
+            <div id="emoji-picker-create" class="emoji-picker-container" style="display: flex; flex-wrap: wrap; gap: 4px; max-height: 68px; overflow-y: auto; padding: 4px; background: #F8FAFC; border: 1px solid var(--border); border-radius: 8px;">
+              <!-- Emojis clickeables cargados dinámicamente -->
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary" style="width: 100%; font-size: 12px; padding: 8px;">
             ➕ Añadir Categoría
           </button>
         </form>
@@ -1139,22 +1863,37 @@
       </div>
     </div>
 
-    <!-- Bottom Navigation Bar (Modo Consumidor) -->
+    <!-- Bottom Navigation Bar (Modo Consumidor - Estilo Imagen 2 & 3) -->
     <div class="bottom-nav" id="client-bottom-nav">
-      <button class="nav-btn active" onclick="switchRole('client')">
-        <span>🏪</span>
+      <button class="nav-btn active" id="bnav-offers" onclick="handleBottomNavOffers()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
         <span>Ofertas</span>
       </button>
-      <button class="nav-btn" onclick="toggleFeedMapView()">
-        <span>🗺️</span>
+      <button class="nav-btn" id="bnav-map" onclick="handleBottomNavMap()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+          <line x1="8" y1="2" x2="8" y2="18"/>
+          <line x1="16" y1="6" x2="16" y2="22"/>
+        </svg>
         <span>Mapa Ciudad</span>
       </button>
-      <button class="nav-btn" onclick="openAlertsModal()">
-        <span>🔔</span>
+      <button class="nav-btn" onclick="openAlertsModal()" style="position: relative;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span id="bottom-alerts-badge" style="display: none; position: absolute; top: 2px; right: calc(50% - 16px); background: #DC2626; color: #FFFFFF; font-size: 9px; font-weight: 900; padding: 1px 4px; border-radius: 999px; line-height: 1.1;">0</span>
         <span>Alertas</span>
       </button>
       <button class="nav-btn" onclick="handleBottomNavMerchant()" id="bottom-nav-merch-btn">
-        <span>🏪</span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+        </svg>
         <span>Soy Negocio</span>
       </button>
     </div>
@@ -1165,11 +1904,11 @@
   <!-- ========================================== -->
   <div id="modal-auth" class="modal-backdrop">
     <div class="modal-box">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <div class="modal-header-sticky">
         <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin: 0; display: flex; align-items: center; gap: 6px;">
           <span>👤</span> <span id="auth-modal-title">Mi Cuenta en Ofertapp</span>
         </h3>
-        <button onclick="closeAuthModal()" style="background: transparent; border: none; font-size: 18px; color: #64748B; cursor: pointer;">✕</button>
+        <button type="button" onclick="closeAuthModal()" class="modal-close-static-btn" title="Cerrar ventana">✕</button>
       </div>
 
       <!-- Selector de Pestañas: Crear Cuenta vs Iniciar Sesión -->
@@ -1252,11 +1991,11 @@
   <!-- ========================================== -->
   <div id="modal-tastes" class="modal-backdrop">
     <div class="modal-box">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+      <div class="modal-header-sticky">
         <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin: 0; display: flex; align-items: center; gap: 6px;">
           <span>🎯</span> Mis Gustos e Intereses
         </h3>
-        <button onclick="closeTastesModal()" style="background: transparent; border: none; font-size: 18px; color: #64748B; cursor: pointer;">✕</button>
+        <button type="button" onclick="closeTastesModal()" class="modal-close-static-btn" title="Cerrar ventana">✕</button>
       </div>
 
       <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 14px;">
@@ -1311,20 +2050,106 @@
   <!-- ========================================== -->
   <!-- MODAL: BANDEJA DE ALERTAS REALES            -->
   <!-- ========================================== -->
-  <div id="modal-alerts" class="modal-backdrop">
-    <div class="modal-box">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+  <div id="modal-alerts" class="modal-backdrop" onclick="if(event.target === this) closeAlertsModal()">
+    <div class="modal-box" style="max-width: 490px; padding: 18px; max-height: 85vh; overflow-y: auto;">
+      <div class="modal-header-sticky">
         <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin: 0; display: flex; align-items: center; gap: 6px;">
-          <span>🔔</span> Centro de Alertas y Notificaciones
+          <span>🔔</span> Alertas y Notificaciones
         </h3>
-        <button onclick="closeAlertsModal()" style="background: transparent; border: none; font-size: 18px; color: #64748B; cursor: pointer;">✕</button>
+        <button type="button" onclick="closeAlertsModal()" class="modal-close-static-btn" title="Cerrar ventana">✕</button>
       </div>
+
       <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
-        Alertas georreferenciadas disparadas automáticamente cuando los comercios cercanos activan ofertas afines a tus gustos.
+        Alertas georreferenciadas disparadas en tiempo real cuando se publican ofertas cercanas afines a tus gustos.
       </p>
-      <div id="alerts-list-container" style="display: flex; flex-direction: column; gap: 8px;">
-        <!-- Dinámico -->
+
+      <!-- Barra de Filtros y Acción Rápida -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 6px; flex-wrap: wrap;">
+        <div style="display: flex; gap: 6px;" id="alerts-filter-tabs">
+          <button type="button" id="tab-alerts-pending" class="btn-primary" style="font-size: 11px; padding: 6px 10px; border-radius: 8px; font-weight: 800; display: inline-flex; align-items: center; gap: 5px;" onclick="switchAlertsFilter('pending_active')">
+            <span>⚡ Pendientes y Vigentes</span>
+            <span id="badge-alerts-pending-count" style="background: rgba(0,0,0,0.22); color: #FFF; font-size: 10px; padding: 1px 6px; border-radius: 999px;">0</span>
+          </button>
+          <button type="button" id="tab-alerts-all" class="btn-secondary" style="font-size: 11px; padding: 6px 10px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;" onclick="switchAlertsFilter('all')">
+            <span>Todas</span>
+            <span id="badge-alerts-total-count" style="font-size: 10px; opacity: 0.8;">(0)</span>
+          </button>
+        </div>
+
+        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 6px 10px; font-weight: 700; color: #0284C7; display: inline-flex; align-items: center; gap: 4px;" onclick="markAllAlertsAsRead()" title="Marcar todas las alertas como leídas">
+          <span>✓</span> Marcar leídas
+        </button>
       </div>
+
+      <!-- Contenedor dinámico de alertas -->
+      <div id="alerts-list-container" style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 12px;">
+          ⏳ Cargando alertas...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: EDITAR CATEGORÍA (ADMIN)            -->
+  <!-- ========================================== -->
+  <div id="modal-edit-category" class="modal-backdrop" onclick="if(event.target === this) closeEditCategoryModal()">
+    <div class="modal-box" style="max-width: 440px; padding: 18px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header-sticky">
+        <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin: 0; display: flex; align-items: center; gap: 6px;">
+          <span>✏️</span> Editar Categoría
+        </h3>
+        <button type="button" onclick="closeEditCategoryModal()" class="modal-close-static-btn" title="Cerrar ventana">✕</button>
+      </div>
+
+      <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
+        Modifica los datos de la categoría en el catálogo global de Ofertapp.
+      </p>
+
+      <form id="form-edit-category" onsubmit="handleSaveEditCategory(event)">
+        <input type="hidden" id="edit-cat-id">
+
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label class="form-label" style="font-size: 11px;">Nombre de la Categoría *</label>
+          <input class="form-input" id="edit-cat-name" required style="padding: 7px 10px; font-size: 12px;" oninput="syncEditCategorySlug(this.value)">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 11px;">Emoji / Icono *</label>
+            <input class="form-input" id="edit-cat-icon" required style="padding: 7px 10px; font-size: 14px; text-align: center;" oninput="handleEmoticonInput(this)">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 11px;">Slug Único *</label>
+            <input class="form-input" id="edit-cat-slug" required style="padding: 7px 10px; font-size: 12px;">
+          </div>
+        </div>
+
+        <!-- Paleta de emojis para edición -->
+        <div style="margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="font-size: 10px; font-weight: 700; color: var(--text-muted);">Elige un emoji rápido con 1 clic:</span>
+            <span style="font-size: 10px; color: var(--text-muted);">(o escribe :D, :), etc.)</span>
+          </div>
+          <div id="emoji-picker-edit" class="emoji-picker-container" style="display: flex; flex-wrap: wrap; gap: 4px; max-height: 68px; overflow-y: auto; padding: 4px; background: #F8FAFC; border: 1px solid var(--border); border-radius: 8px;">
+            <!-- Emojis clickeables cargados dinámicamente -->
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label" style="font-size: 11px;">Descripción (opcional)</label>
+          <input class="form-input" id="edit-cat-description" placeholder="Descripción breve de la categoría" style="padding: 7px 10px; font-size: 12px;">
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-secondary" style="flex: 1; font-size: 12px; padding: 8px;" onclick="closeEditCategoryModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-primary" style="flex: 2; font-size: 12px; padding: 8px;">
+            💾 Guardar Cambios
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -1332,9 +2157,9 @@
   <!-- MODAL: DETALLE COMPLETO Y GALERÍA DE FOTOS -->
   <!-- ========================================== -->
   <div id="modal-promo-detail" class="modal-backdrop">
-    <div class="modal-box" style="max-width: 460px; padding: 16px;">
-      <!-- Header con Categoría y Botón Cerrar -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+    <div class="modal-box" style="max-width: 460px; padding: 18px;">
+      <!-- Header con Categoría y Botón Cerrar Estático -->
+      <div class="modal-header-sticky">
         <div style="display: flex; align-items: center; gap: 6px;">
           <span id="detail-cat-badge" style="background: #F1F5F9; color: #334155; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 8px;">
             🍔 Gastronomía
@@ -1344,15 +2169,19 @@
           </span>
           <span style="color: #059669; font-size: 12px; font-weight: 900;" title="Comercio Verificado">✓</span>
         </div>
-        <button onclick="closePromoDetail()" style="background: #F1F5F9; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 14px; font-weight: 900; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
+        <button type="button" onclick="closePromoDetail()" class="modal-close-static-btn" title="Cerrar ventana">✕</button>
       </div>
 
       <!-- VISOR / GALERÍA DE FOTOS INTERACTIVA -->
       <div class="gallery-container">
         <div class="gallery-main-viewport">
           <img id="detail-main-img" class="gallery-main-img" src="" alt="Foto de la oferta">
-          <button type="button" class="gallery-nav-btn prev" onclick="prevGalleryImage()" title="Foto anterior">‹</button>
-          <button type="button" class="gallery-nav-btn next" onclick="nextGalleryImage()" title="Siguiente foto">›</button>
+          <button type="button" class="gallery-nav-btn prev" onclick="prevGalleryImage()" title="Foto anterior">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button type="button" class="gallery-nav-btn next" onclick="nextGalleryImage()" title="Siguiente foto">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
           <div class="gallery-counter-badge" id="detail-gallery-counter">📸 1 / 1</div>
         </div>
       </div>
@@ -1440,12 +2269,12 @@
   <!-- MODAL: EDICIÓN DE PROMOCIÓN (COMERCIO / ADMIN) -->
   <!-- ========================================== -->
   <div id="modal-edit-promo" class="modal-backdrop">
-    <div class="modal-box" style="max-width: 480px; padding: 16px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+    <div class="modal-box" style="max-width: 480px; padding: 18px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header-sticky">
         <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin: 0; display: flex; align-items: center; gap: 6px;">
           <span>✏️</span> Editar Promoción
         </h3>
-        <button type="button" onclick="closeEditPromoModal()" style="background: transparent; border: none; font-size: 18px; color: #64748B; cursor: pointer;">✕</button>
+        <button type="button" onclick="closeEditPromoModal()" class="modal-close-static-btn" title="Cerrar ventana">✕</button>
       </div>
 
       <form id="form-edit-promo" onsubmit="handleSaveEditPromo(event)">
@@ -1486,18 +2315,47 @@
         </div>
 
         <div class="form-group" style="margin-bottom: 8px;">
-          <label class="form-label" style="font-size: 11px;">URL Foto Principal</label>
-          <input type="url" class="form-input" id="edit-promo-image-url" placeholder="https://..." style="padding: 6px 8px; font-size: 12px;">
+          <label class="form-label" style="font-size: 11px;">Foto Principal (Portada)</label>
+          <input type="file" id="edit-cover-file" accept="image/*" style="display: none;" onchange="handleEditCoverFileSelected(event)">
+          <div style="display: flex; gap: 6px;">
+            <input class="form-input" id="edit-promo-image-url" placeholder="https://... o sube una imagen" style="padding: 6px 8px; font-size: 12px; flex: 1;">
+            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 6px 10px; white-space: nowrap;" onclick="document.getElementById('edit-cover-file').click()">📁 Subir</button>
+          </div>
         </div>
 
         <div class="form-group" style="margin-bottom: 8px;">
           <label class="form-label" style="font-size: 11px;">Fotos Secundarias (separadas por coma)</label>
-          <input class="form-input" id="edit-promo-gallery" placeholder="https://..., https://..." style="padding: 6px 8px; font-size: 12px;">
+          <input type="file" id="edit-gallery-file" accept="image/*" multiple style="display: none;" onchange="handleEditGalleryFilesSelected(event)">
+          <div style="display: flex; gap: 6px;">
+            <input class="form-input" id="edit-promo-gallery" placeholder="https://..., https://..." style="padding: 6px 8px; font-size: 12px; flex: 1;">
+            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 6px 10px; white-space: nowrap;" onclick="document.getElementById('edit-gallery-file').click()">📁 Subir</button>
+          </div>
         </div>
 
         <div class="form-group" style="margin-bottom: 8px;">
           <label class="form-label" style="font-size: 11px;">Etiquetas (separadas por coma)</label>
           <input class="form-input" id="edit-promo-tags" placeholder="pizza, cena, combo" style="padding: 6px 8px; font-size: 12px;">
+        </div>
+
+        <!-- UBICACIÓN GPS Y MAPA EN EDICIÓN -->
+        <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px; margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+            <label class="form-label" style="font-size: 11px; margin: 0; font-weight: 700;">🗺️ Ubicación GPS de la Oferta (Pin en Mapa):</label>
+            <button type="button" class="btn-primary" id="btn-gps-edit-promo" onclick="captureEditPromoGpsLocation()" style="font-size: 10px; padding: 4px 10px; background: #059669; border-color: #059669; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(5,150,105,0.2); cursor: pointer;">
+              <span>📍</span> Usar Mi Ubicación Actual (GPS)
+            </button>
+          </div>
+          <div id="edit-promo-loc-map" style="width: 100%; height: 180px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 8px;"></div>
+          <div style="display: flex; gap: 8px;">
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+              <label class="form-label" style="font-size: 10px;">Latitud</label>
+              <input class="form-input" id="edit-promo-lat" oninput="onEditPromoCoordManualChange()" placeholder="-34.6041" style="padding: 5px 8px; font-size: 11px; background: var(--input-bg);">
+            </div>
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+              <label class="form-label" style="font-size: 10px;">Longitud</label>
+              <input class="form-input" id="edit-promo-lon" oninput="onEditPromoCoordManualChange()" placeholder="-58.3822" style="padding: 5px 8px; font-size: 11px; background: var(--input-bg);">
+            </div>
+          </div>
         </div>
 
         <div class="form-group" style="margin-bottom: 8px;">
@@ -1524,13 +2382,13 @@
   <!-- MODAL: CHECKOUT / PASARELA DE PAGO EN LÍNEA -->
   <!-- ========================================== -->
   <div id="modal-checkout" class="modal-backdrop">
-    <div class="modal-box" style="max-width: 440px; padding: 16px;">
-      <!-- Header -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+    <div class="modal-box" style="max-width: 440px; padding: 18px;">
+      <!-- Header Estático -->
+      <div class="modal-header-sticky">
         <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin: 0; display: flex; align-items: center; gap: 6px;">
           <span>💳</span> Pago en Línea Seguro
         </h3>
-        <button type="button" onclick="closeOnlineCheckout()" style="background: transparent; border: none; font-size: 18px; color: #64748B; cursor: pointer;">✕</button>
+        <button type="button" onclick="closeOnlineCheckout()" class="modal-close-static-btn" title="Cerrar ventana">✕</button>
       </div>
 
       <div id="checkout-form-container">
@@ -1978,8 +2836,171 @@
     </div>
   </div>
 
+  <!-- ========================================== -->
+  <!-- CUADRO MODAL NATIVO ANDROID (MATERIAL 3)   -->
+  <!-- ========================================== -->
+  <div id="android-dialog-backdrop" class="android-modal-backdrop" style="display: none;">
+    <div class="android-dialog-card">
+      <div id="android-dialog-icon" class="android-dialog-icon"></div>
+      <h3 id="android-dialog-title" class="android-dialog-title">Ofertapp</h3>
+      <p id="android-dialog-message" class="android-dialog-message"></p>
+      <div class="android-dialog-actions">
+        <button id="android-dialog-cancel" class="android-btn-text" style="display: none;">Cancelar</button>
+        <button id="android-dialog-confirm" class="android-btn-primary">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
   const API_BASE = window.location.origin + '/api/v1';
+
+  // ==========================================
+  // MODO OSCURO / DARK MODE MANAGEMENT
+  // ==========================================
+  function initTheme() {
+    const isDark = localStorage.getItem('ofertapp_dark_mode') === 'true';
+    if (isDark) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+    updateThemeUI(isDark);
+  }
+
+  function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('ofertapp_dark_mode', isDark);
+    updateThemeUI(isDark);
+  }
+
+  function updateThemeUI(isDark) {
+    const headerBtn = document.getElementById('btn-toggle-theme');
+    if (headerBtn) {
+      headerBtn.innerHTML = isDark
+        ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`
+        : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+      headerBtn.title = isDark ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro';
+    }
+    const drawerIcon = document.getElementById('drawer-theme-icon');
+    const drawerText = document.getElementById('drawer-theme-text');
+    const drawerStatus = document.getElementById('drawer-theme-status');
+    if (drawerIcon) {
+      drawerIcon.innerHTML = isDark
+        ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`
+        : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+    }
+    if (drawerText) {
+      drawerText.textContent = isDark ? 'Modo Oscuro (Activo)' : 'Modo Claro (Activo)';
+    }
+    if (drawerStatus) {
+      drawerStatus.textContent = isDark ? 'Oscuro' : 'Claro';
+      drawerStatus.style.background = isDark ? '#F59E0B' : '#E2E8F0';
+      drawerStatus.style.color = isDark ? '#000000' : '#475569';
+    }
+  }
+
+  // ==========================================
+  // CUADROS MODALES NATIVOS ANDROID (MATERIAL 3)
+  // ==========================================
+  function showAndroidModal(options) {
+    return new Promise((resolve) => {
+      const opts = typeof options === 'string' ? { message: options } : (options || {});
+      const message = opts.message || '';
+      let title = opts.title || 'Ofertapp';
+      const isConfirm = opts.isConfirm || false;
+      const confirmText = opts.confirmText || 'Aceptar';
+      const cancelText = opts.cancelText || 'Cancelar';
+
+      // Detectar tipo según contenido
+      let type = opts.type || 'info';
+      if (message.includes('🎉') || message.includes('✅') || message.toLowerCase().includes('éxito') || message.toLowerCase().includes('exitosamente')) {
+        type = 'success';
+        if (!opts.title) title = '¡Operación Exitosa!';
+      } else if (message.includes('⚠️') || message.toLowerCase().includes('atención') || message.toLowerCase().includes('restringido') || message.toLowerCase().includes('obligatorio')) {
+        type = 'warning';
+        if (!opts.title) title = 'Atención';
+      } else if (message.includes('❌') || message.includes('⛔') || message.toLowerCase().includes('error') || message.toLowerCase().includes('no autorizado')) {
+        type = 'error';
+        if (!opts.title) title = 'Aviso';
+      }
+
+      const backdrop = document.getElementById('android-dialog-backdrop');
+      const titleEl = document.getElementById('android-dialog-title');
+      const msgEl = document.getElementById('android-dialog-message');
+      const iconEl = document.getElementById('android-dialog-icon');
+      const btnConfirm = document.getElementById('android-dialog-confirm');
+      const btnCancel = document.getElementById('android-dialog-cancel');
+
+      if (!backdrop || !titleEl || !msgEl || !iconEl || !btnConfirm || !btnCancel) {
+        console.log(message);
+        resolve(true);
+        return;
+      }
+
+      let iconBg = '#E0F2FE';
+      let iconColor = '#0284C7';
+      let iconSvg = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
+
+      if (type === 'success') {
+        iconBg = '#DCFCE7';
+        iconColor = '#16A34A';
+        iconSvg = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`;
+      } else if (type === 'warning') {
+        iconBg = '#FEF3C7';
+        iconColor = '#D97706';
+        iconSvg = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+      } else if (type === 'error') {
+        iconBg = '#FEE2E2';
+        iconColor = '#DC2626';
+        iconSvg = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
+      }
+
+      iconEl.style.backgroundColor = iconBg;
+      iconEl.innerHTML = iconSvg;
+      titleEl.textContent = title;
+      const cleanMessage = message.replace(/^[🎉✅⚠️❌⛔ℹ️🚪✨✏️📋📦🏷️💳📍\s]+/, '');
+      msgEl.textContent = cleanMessage || message;
+
+      btnConfirm.textContent = confirmText;
+      if (isConfirm) {
+        btnCancel.style.display = 'inline-flex';
+        btnCancel.textContent = cancelText;
+      } else {
+        btnCancel.style.display = 'none';
+      }
+
+      const closeDialog = (result) => {
+        backdrop.classList.remove('active');
+        setTimeout(() => {
+          backdrop.style.display = 'none';
+        }, 180);
+        resolve(result);
+      };
+
+      btnConfirm.onclick = () => closeDialog(true);
+      btnCancel.onclick = () => closeDialog(false);
+
+      backdrop.style.display = 'flex';
+      requestAnimationFrame(() => {
+        backdrop.classList.add('active');
+      });
+    });
+  }
+
+  function showAndroidConfirm(message, title = 'Confirmar acción') {
+    return showAndroidModal({
+      title: title,
+      message: message,
+      isConfirm: true,
+      confirmText: 'Aceptar',
+      cancelText: 'Cancelar'
+    });
+  }
+
+  // Sobrescribir window.alert del navegador para que nunca muestre diálogo de navegador
+  window.alert = function(msg) {
+    showAndroidModal({ message: msg });
+  };
 
   function getAuthHeaders(hasBody = true) {
     const headers = {};
@@ -1997,10 +3018,122 @@
   let merchantMarker = null;
   let cityMarkers = [];
   let userGpsCircle = null;
+  let userGpsMarker = null;
 
-  // Ubicación GPS inicial de prueba (Centro de la ciudad)
-  const USER_COORDS = { lat: -34.6037, lon: -58.3816 };
+  // Ubicación GPS dinámica (inicia en Centro y se actualiza al detectar dispositivo)
+  let USER_COORDS = { lat: -34.6037, lon: -58.3816 };
+  try {
+    const savedCoords = localStorage.getItem('ofertapp_user_coords');
+    if (savedCoords) {
+      const parsed = JSON.parse(savedCoords);
+      if (parsed && typeof parsed.lat === 'number' && typeof parsed.lon === 'number') {
+        USER_COORDS.lat = parsed.lat;
+        USER_COORDS.lon = parsed.lon;
+      }
+    }
+  } catch(e) {}
   let allPromotions = [];
+
+  // ==========================================
+  // GEOLOCALIZACIÓN GPS DINÁMICA
+  // ==========================================
+  function updateGpsToCurrentLocation(showAlert = true) {
+    if (!navigator.geolocation) {
+      showAndroidModal({
+        title: 'Geolocalización',
+        message: 'Tu dispositivo o navegador no soporta geolocalización GPS.',
+        type: 'warning'
+      });
+      return;
+    }
+
+    const drawerGpsBadge = document.getElementById('drawer-gps-badge');
+    const drawerGpsCoords = document.getElementById('drawer-gps-coords');
+    if (drawerGpsBadge) {
+      drawerGpsBadge.textContent = 'Obteniendo GPS...';
+      drawerGpsBadge.style.background = '#FEF3C7';
+      drawerGpsBadge.style.color = '#B45309';
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        USER_COORDS.lat = lat;
+        USER_COORDS.lon = lon;
+        try {
+          localStorage.setItem('ofertapp_user_coords', JSON.stringify(USER_COORDS));
+        } catch(e) {}
+
+        // Actualizar textos informativos
+        if (drawerGpsCoords) {
+          drawerGpsCoords.textContent = `Actual (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+        }
+        if (drawerGpsBadge) {
+          drawerGpsBadge.textContent = 'En vivo';
+          drawerGpsBadge.style.background = '#DCFCE7';
+          drawerGpsBadge.style.color = '#15803D';
+        }
+        const nearLabel = document.getElementById('feed-near-label');
+        if (nearLabel) {
+          nearLabel.textContent = `GPS (${lat.toFixed(3)}, ${lon.toFixed(3)})`;
+        }
+
+        // Actualizar marcador y vista en Leaflet Map
+        if (cityMap) {
+          if (userGpsMarker) {
+            userGpsMarker.setLatLng([lat, lon]);
+            if (userGpsMarker.getPopup()) {
+              userGpsMarker.getPopup().setContent(`<strong>Tu Ubicación GPS Real</strong><br>${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+            }
+          }
+          if (userGpsCircle) {
+            userGpsCircle.setLatLng([lat, lon]);
+          }
+          cityMap.setView([lat, lon], 15);
+        }
+
+        // Recalcular feed de ofertas con la nueva posición
+        loadFeed(currentCategoryFilter);
+
+        if (showAlert) {
+          showAndroidModal({
+            title: 'GPS Actualizado',
+            message: `📍 Coordenadas detectadas:\nLat: ${lat.toFixed(5)}, Lon: ${lon.toFixed(5)}\n\nLas ofertas cercanas y distancias se han recalculado en base a tu ubicación real.`,
+            type: 'success'
+          });
+        }
+      },
+      (error) => {
+        console.warn('Error al obtener GPS:', error);
+        if (drawerGpsBadge) {
+          drawerGpsBadge.textContent = 'Fijada';
+          drawerGpsBadge.style.background = '#F1F5F9';
+          drawerGpsBadge.style.color = '#64748B';
+        }
+        let msg = 'No se pudo obtener la posición del dispositivo.';
+        if (error.code === 1) { // PERMISSION_DENIED
+          msg = 'Permiso de ubicación denegado. Concede permisos de GPS en tu navegador o ajustes de la app para ver ofertas en tu zona.';
+        } else if (error.code === 2) { // POSITION_UNAVAILABLE
+          msg = 'La señal de GPS o ubicación no está disponible en este momento.';
+        } else if (error.code === 3) { // TIMEOUT
+          msg = 'Tiempo de espera agotado al consultar el GPS.';
+        }
+        if (showAlert) {
+          showAndroidModal({
+            title: 'Ubicación GPS',
+            message: msg,
+            type: 'warning'
+          });
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  }
 
   // Estado global de usuario, gustos y buscador
   let currentUser = null; // { id, email, full_name, role, token }
@@ -2041,17 +3174,23 @@
     document.getElementById('client-bottom-nav').style.display = role === 'client' ? 'flex' : 'none';
 
     if (role === 'client') {
-      ind.className = 'badge-portal badge-client';
-      ind.textContent = 'Modo Consumidor';
+      if (ind) {
+        ind.className = 'badge-portal badge-client';
+        ind.textContent = 'Modo Consumidor';
+      }
       loadFeed();
     } else if (role === 'merchant') {
-      ind.className = 'badge-portal badge-merchant';
-      ind.textContent = 'Portal Comercio';
+      if (ind) {
+        ind.className = 'badge-portal badge-merchant';
+        ind.textContent = 'Portal Comercio';
+      }
       loadMerchantPromotions();
       setTimeout(initMerchantMap, 200);
     } else if (role === 'admin') {
-      ind.className = 'badge-portal badge-admin';
-      ind.textContent = 'Panel Administrador';
+      if (ind) {
+        ind.className = 'badge-portal badge-admin';
+        ind.textContent = 'Panel Administrador';
+      }
       loadAdminUsers();
       loadAdminSettings();
       loadAdminCategories();
@@ -2074,7 +3213,7 @@
 
     if (userRole === 'admin') {
       // Superadministrador: Acceso a todos los portales
-      if (topBar) topBar.style.display = 'flex';
+      if (topBar) topBar.style.display = 'none';
       if (btnClient) btnClient.style.display = 'flex';
       if (btnMerch) btnMerch.style.display = 'flex';
       if (btnAdmin) btnAdmin.style.display = 'flex';
@@ -2084,7 +3223,7 @@
       if (drawerPromo) drawerPromo.style.display = 'none';
     } else if (userRole === 'merchant') {
       // Comercio: Acceso a Consumidor y Comercio, NUNCA a Administrador
-      if (topBar) topBar.style.display = 'flex';
+      if (topBar) topBar.style.display = 'none';
       if (btnClient) btnClient.style.display = 'flex';
       if (btnMerch) btnMerch.style.display = 'flex';
       if (btnAdmin) btnAdmin.style.display = 'none';
@@ -2119,13 +3258,77 @@
     if (dBadgeClient) dBadgeClient.textContent = currentRole === 'client' ? 'Activo' : '›';
     if (dBadgeMerch) dBadgeMerch.textContent = currentRole === 'merchant' ? 'Activo' : '›';
     if (dBadgeAdmin) dBadgeAdmin.textContent = currentRole === 'admin' ? 'Activo' : '›';
+
+    // Actualizar enlaces de navegación de Escritorio
+    const deskMerch = document.getElementById('desk-tab-merchant');
+    const deskAdmin = document.getElementById('desk-tab-admin');
+    if (userRole === 'admin') {
+      if (deskMerch) deskMerch.style.display = 'inline-flex';
+      if (deskAdmin) deskAdmin.style.display = 'inline-flex';
+    } else if (userRole === 'merchant') {
+      if (deskMerch) deskMerch.style.display = 'inline-flex';
+      if (deskAdmin) deskAdmin.style.display = 'none';
+    } else {
+      if (deskMerch) deskMerch.style.display = 'none';
+      if (deskAdmin) deskAdmin.style.display = 'none';
+    }
   }
+
+  // ==========================================
+  // NAVEGACIÓN Y MODO ESCRITORIO / APK
+  // ==========================================
+  function deskSwitchTab(tab) {
+    document.querySelectorAll('.desktop-tab-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById(`desk-tab-${tab}`);
+    if (btn) btn.classList.add('active');
+
+    if (tab === 'offers') {
+      switchRole('client');
+      toggleFeedMapView(false);
+    } else if (tab === 'map') {
+      switchRole('client');
+      toggleFeedMapView(true);
+    } else if (tab === 'merchant') {
+      switchRole('merchant');
+    } else if (tab === 'admin') {
+      switchRole('admin');
+    }
+  }
+
+  function updateDesktopNavActiveTab(tab) {
+    document.querySelectorAll('.desktop-tab-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById(`desk-tab-${tab}`);
+    if (btn) btn.classList.add('active');
+  }
+
+  // ==========================================
+  // DETECCIÓN AUTOMÁTICA DE DISPOSITIVO (ESCRITORIO / MÓVIL APK)
+  // ==========================================
+  function detectAndApplyDeviceMode() {
+    localStorage.removeItem('ofertapp_view_mode');
+    document.body.classList.remove('apk-preview-mode');
+
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 900;
+    const listView = document.getElementById('feed-list-view');
+    if (listView && !isMapView) {
+      listView.style.display = isMobile ? 'block' : 'grid';
+    }
+
+    if (cityMap) cityMap.invalidateSize();
+    if (merchantMap) merchantMap.invalidateSize();
+    if (editPromoMap) editPromoMap.invalidateSize();
+  }
+  window.addEventListener('resize', detectAndApplyDeviceMode);
 
   function handleBottomNavMerchant() {
     if (currentUser && (currentUser.role === 'merchant' || currentUser.role === 'admin')) {
       switchRole('merchant');
     } else {
-      alert('🏪 El Portal de Comercio es exclusivo para negocios afiliados.\n\nInicia sesión con tu cuenta de negocio o regístrate como comercio para publicar promociones en el mapa.');
+      showAndroidModal({
+        title: 'Portal de Comercio',
+        message: 'El Portal de Comercio es exclusivo para negocios afiliados.\nInicia sesión con tu cuenta de negocio o regístrate como comercio para publicar tus ofertas.',
+        icon: '🏪'
+      });
       openAuthModal('login');
     }
   }
@@ -2164,7 +3367,7 @@
         iconSize: [26, 26],
         iconAnchor: [13, 13]
       });
-      L.marker([USER_COORDS.lat, USER_COORDS.lon], { icon: userIcon })
+      userGpsMarker = L.marker([USER_COORDS.lat, USER_COORDS.lon], { icon: userIcon })
         .addTo(cityMap)
         .bindPopup('<strong>Tu Ubicación GPS</strong><br>Centro de la Ciudad');
 
@@ -2185,6 +3388,7 @@
     cityMarkers = [];
 
     allPromotions.forEach(p => {
+      if (p.latitude == null || p.longitude == null || isNaN(p.latitude) || isNaN(p.longitude)) return;
       const dealIcon = L.divIcon({
         className: 'custom-deal-marker',
         html: `-${Math.round(p.discount_percent)}%`,
@@ -2216,23 +3420,201 @@
   }
 
   function centerMapOnUser() {
+    updateGpsToCurrentLocation(false);
     if (cityMap) {
       cityMap.setView([USER_COORDS.lat, USER_COORDS.lon], 15);
     }
   }
 
-  function toggleFeedMapView() {
-    isMapView = !isMapView;
-    document.getElementById('feed-list-view').style.display = isMapView ? 'none' : 'block';
-    document.getElementById('feed-map-view').style.display = isMapView ? 'block' : 'none';
-    document.getElementById('btn-toggle-map').textContent = isMapView ? '📋 Ver en Lista' : '🗺️ Ver en Mapa';
+  // Alternar entre modo Lista y modo Mapa Completo (manteniendo pestañas de categorías en ambos modos)
+  function toggleFeedMapView(forceMap = null) {
+    if (forceMap !== null) {
+      isMapView = forceMap;
+    } else {
+      isMapView = !isMapView;
+    }
+
+    const listView = document.getElementById('feed-list-view');
+    const mapView = document.getElementById('feed-map-view');
+    const catsBar = document.getElementById('client-cats-bar');
+    const isMobile = window.innerWidth < 900;
+
+    if (isMapView) {
+      document.body.classList.add('view-map-mode');
+      if (catsBar) catsBar.style.display = 'flex';
+      if (listView) listView.style.display = 'none';
+      if (mapView) mapView.style.display = 'flex';
+    } else {
+      document.body.classList.remove('view-map-mode');
+      if (catsBar) catsBar.style.display = 'flex';
+      if (listView) listView.style.display = isMobile ? 'block' : 'grid';
+      if (mapView) mapView.style.display = 'none';
+    }
+
+    const mapBtnText = document.getElementById('btn-toggle-map-text');
+    if (mapBtnText) {
+      mapBtnText.textContent = isMapView ? 'Lista' : 'Mapa';
+    }
+
+    updateDesktopNavActiveTab(isMapView ? 'map' : 'offers');
+    updateBottomNavActive(isMapView ? 'map' : 'offers');
 
     if (isMapView) {
       setTimeout(() => {
         initCityMap();
-        cityMap.invalidateSize();
-      }, 100);
+        if (cityMap) cityMap.invalidateSize();
+      }, 50);
+      setTimeout(() => {
+        if (cityMap) cityMap.invalidateSize();
+      }, 250);
     }
+  }
+
+  function handleBottomNavOffers() {
+    switchRole('client');
+    toggleFeedMapView(false);
+  }
+
+  function handleBottomNavMap() {
+    switchRole('client');
+    toggleFeedMapView(true);
+  }
+
+  function updateBottomNavActive(tab) {
+    document.querySelectorAll('.bottom-nav .nav-btn').forEach(b => b.classList.remove('active'));
+    if (tab === 'offers') {
+      const btn = document.getElementById('bnav-offers');
+      if (btn) btn.classList.add('active');
+    } else if (tab === 'map') {
+      const btn = document.getElementById('bnav-map');
+      if (btn) btn.classList.add('active');
+    }
+  }
+
+  // ==========================================
+  // MAPA DEL MODAL DE EDICIÓN DE OFERTA
+  // ==========================================
+  let editPromoMap = null;
+  let editPromoMarker = null;
+
+  function initEditPromoMap(lat, lon) {
+    const validLat = (typeof lat === 'number' && !isNaN(lat)) ? lat : -34.6041;
+    const validLon = (typeof lon === 'number' && !isNaN(lon)) ? lon : -58.3822;
+
+    updateEditPromoCoordsInputs(validLat, validLon);
+
+    const mapContainer = document.getElementById('edit-promo-loc-map');
+    if (!mapContainer) return;
+
+    if (!editPromoMap) {
+      editPromoMap = L.map('edit-promo-loc-map').setView([validLat, validLon], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(editPromoMap);
+
+      editPromoMarker = L.marker([validLat, validLon], { draggable: true }).addTo(editPromoMap);
+
+      editPromoMarker.on('dragend', function (e) {
+        const pos = editPromoMarker.getLatLng();
+        updateEditPromoCoordsInputs(pos.lat, pos.lng);
+      });
+
+      editPromoMap.on('click', function (e) {
+        editPromoMarker.setLatLng(e.latlng);
+        updateEditPromoCoordsInputs(e.latlng.lat, e.latlng.lng);
+      });
+    } else {
+      editPromoMarker.setLatLng([validLat, validLon]);
+      editPromoMap.setView([validLat, validLon], 15);
+      editPromoMap.invalidateSize();
+    }
+  }
+
+  function updateEditPromoCoordsInputs(lat, lon) {
+    const latInput = document.getElementById('edit-promo-lat');
+    const lonInput = document.getElementById('edit-promo-lon');
+    if (latInput) latInput.value = parseFloat(lat).toFixed(6);
+    if (lonInput) lonInput.value = parseFloat(lon).toFixed(6);
+  }
+
+  function onEditPromoCoordManualChange() {
+    const latInput = document.getElementById('edit-promo-lat');
+    const lonInput = document.getElementById('edit-promo-lon');
+    if (!latInput || !lonInput) return;
+    const lat = parseFloat(latInput.value);
+    const lon = parseFloat(lonInput.value);
+    if (!isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+      if (!editPromoMap) {
+        initEditPromoMap(lat, lon);
+      } else {
+        editPromoMarker.setLatLng([lat, lon]);
+        editPromoMap.setView([lat, lon]);
+      }
+    }
+  }
+
+  function captureEditPromoGpsLocation() {
+    const btn = document.getElementById('btn-gps-edit-promo');
+    if (!navigator.geolocation) {
+      showAndroidModal({
+        title: 'GPS No Disponible',
+        message: 'Tu navegador o dispositivo no soporta geolocalización GPS.',
+        icon: '⚠️'
+      });
+      return;
+    }
+
+    const originalHtml = btn ? btn.innerHTML : '<span>📍</span> Usar Mi Ubicación Actual (GPS)';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span> Obteniendo GPS...';
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+
+        updateEditPromoCoordsInputs(lat, lon);
+
+        if (!editPromoMap) {
+          initEditPromoMap(lat, lon);
+        } else {
+          editPromoMarker.setLatLng([lat, lon]);
+          editPromoMap.setView([lat, lon], 16);
+          editPromoMap.invalidateSize();
+        }
+
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+        }
+
+        showAndroidModal({
+          title: '📍 Coordenadas Obtenidas',
+          message: `Coordenadas GPS actualizadas:\nLatitud: ${lat.toFixed(6)}\nLongitud: ${lon.toFixed(6)}\nEl pin de la oferta fue reubicado en el mapa.`,
+          icon: '📍'
+        });
+      },
+      (err) => {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+        }
+        let msg = 'No se pudo obtener la posición GPS.';
+        if (err.code === 1) msg = 'Permiso de ubicación denegado.';
+        else if (err.code === 2) msg = 'Ubicación no disponible en este momento.';
+        else if (err.code === 3) msg = 'Tiempo de espera agotado al consultar el GPS.';
+
+        showAndroidModal({
+          title: 'Aviso de GPS',
+          message: msg,
+          icon: '⚠️'
+        });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   }
 
   // ==========================================
@@ -2269,8 +3651,287 @@
   }
 
   function updateMerchantCoordsInputs(lat, lon) {
-    document.getElementById('m-lat').value = lat.toFixed(6);
-    document.getElementById('m-lon').value = lon.toFixed(6);
+    const latInput = document.getElementById('m-lat');
+    const lonInput = document.getElementById('m-lon');
+    if (latInput) latInput.value = parseFloat(lat).toFixed(6);
+    if (lonInput) lonInput.value = parseFloat(lon).toFixed(6);
+  }
+
+  // Sincronizar coordenadas manuales hacia el pin y el mapa
+  function onMerchantCoordManualChange() {
+    const latInput = document.getElementById('m-lat');
+    const lonInput = document.getElementById('m-lon');
+    if (!latInput || !lonInput) return;
+    const lat = parseFloat(latInput.value);
+    const lon = parseFloat(lonInput.value);
+    if (!isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+      if (!merchantMap) {
+        initMerchantMap();
+      }
+      if (merchantMap && merchantMarker) {
+        merchantMarker.setLatLng([lat, lon]);
+        merchantMap.setView([lat, lon]);
+      }
+    }
+  }
+
+  // Capturar coordenadas GPS del dispositivo para el comercio
+  function captureMerchantGpsLocation() {
+    const btn = document.getElementById('btn-gps-merchant');
+    if (!navigator.geolocation) {
+      showAndroidModal({
+        title: 'GPS No Disponible',
+        message: 'Tu navegador o dispositivo no soporta geolocalización GPS.',
+        icon: '⚠️'
+      });
+      return;
+    }
+
+    const originalHtml = btn ? btn.innerHTML : '<span>📍</span> Usar Mi Ubicación Actual (GPS)';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span> Obteniendo GPS...';
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+
+        updateMerchantCoordsInputs(lat, lon);
+
+        if (!merchantMap) {
+          initMerchantMap();
+        }
+        if (merchantMap && merchantMarker) {
+          merchantMarker.setLatLng([lat, lon]);
+          merchantMap.setView([lat, lon], 16);
+          merchantMap.invalidateSize();
+        }
+
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+        }
+
+        showAndroidModal({
+          title: '📍 Ubicación Capturada',
+          message: `Coordenadas GPS obtenidas exitosamente:\nLatitud: ${lat.toFixed(6)}\nLongitud: ${lon.toFixed(6)}\nEl pin del mapa fue actualizado a tu posición en tiempo real.`,
+          icon: '📍'
+        });
+      },
+      (err) => {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+        }
+        let msg = 'No se pudo obtener la posición GPS.';
+        if (err.code === 1) msg = 'Permiso de ubicación denegado. Por favor permite el acceso a tu ubicación en el navegador o dispositivo.';
+        else if (err.code === 2) msg = 'Ubicación no disponible en este momento.';
+        else if (err.code === 3) msg = 'Tiempo de espera agotado al consultar el GPS.';
+
+        showAndroidModal({
+          title: 'Aviso de GPS',
+          message: msg,
+          icon: '⚠️'
+        });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }
+
+  // ==========================================
+  // CARGA DE IMÁGENES AL SERVIDOR (UPLOAD FILE)
+  // ==========================================
+  async function uploadImageFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch(`${API_BASE}/promotions/upload-image`, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || 'Error al subir la imagen al servidor');
+    }
+
+    const data = await res.json();
+    return data.url;
+  }
+
+  // Gestión de Foto Principal de Portada
+  async function handleCoverFileSelected(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    const statusEl = document.getElementById('cover-upload-status');
+    const pathLabel = document.getElementById('m-cover-path-label');
+    const previewImg = document.getElementById('m-cover-preview-img');
+    const inputUrl = document.getElementById('m-image-url');
+
+    if (statusEl) statusEl.textContent = '⏳ Subiendo...';
+
+    // Vista previa inmediata con FileReader
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (previewImg) previewImg.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    try {
+      const serverUrl = await uploadImageFile(file);
+      if (inputUrl) inputUrl.value = serverUrl;
+      if (pathLabel) pathLabel.textContent = serverUrl;
+      if (statusEl) statusEl.textContent = '✅ Subida';
+      setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 3000);
+    } catch (err) {
+      if (statusEl) statusEl.textContent = '❌ Error';
+      showAndroidModal({
+        title: 'Error al subir imagen',
+        message: err.message || 'No se pudo subir la foto.',
+        icon: '⚠️'
+      });
+    }
+  }
+
+  function updateCoverPreviewFromInput() {
+    const url = document.getElementById('m-image-url').value.trim();
+    const previewImg = document.getElementById('m-cover-preview-img');
+    const pathLabel = document.getElementById('m-cover-path-label');
+    if (previewImg && url) previewImg.src = url;
+    if (pathLabel) pathLabel.textContent = url || 'Sin imagen';
+  }
+
+  function clearCoverImage() {
+    const inputUrl = document.getElementById('m-image-url');
+    const previewImg = document.getElementById('m-cover-preview-img');
+    const pathLabel = document.getElementById('m-cover-path-label');
+    const fileInput = document.getElementById('m-cover-file');
+    if (inputUrl) inputUrl.value = '';
+    if (previewImg) previewImg.src = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800';
+    if (pathLabel) pathLabel.textContent = 'Sin imagen';
+    if (fileInput) fileInput.value = '';
+  }
+
+  // Gestión de Galería Multi-Fotos
+  let merchantGalleryImages = [
+    'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800',
+    'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=800'
+  ];
+
+  function renderGalleryThumbnails() {
+    const container = document.getElementById('m-gallery-thumbnails');
+    if (!container) return;
+    container.innerHTML = '';
+
+    merchantGalleryImages.forEach((imgUrl, idx) => {
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'position: relative; display: inline-block; width: 56px; height: 56px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); background: #000; box-shadow: 0 1px 3px rgba(0,0,0,0.1);';
+
+      const img = document.createElement('img');
+      img.src = imgUrl;
+      img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+      wrap.appendChild(img);
+
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.innerHTML = '✕';
+      delBtn.title = 'Eliminar foto';
+      delBtn.style.cssText = 'position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.75); color: #fff; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;';
+      delBtn.onclick = (e) => {
+        e.stopPropagation();
+        removeGalleryImage(idx);
+      };
+      wrap.appendChild(delBtn);
+
+      container.appendChild(wrap);
+    });
+
+    const galleryInput = document.getElementById('m-gallery');
+    if (galleryInput) galleryInput.value = merchantGalleryImages.join(', ');
+  }
+
+  function removeGalleryImage(idx) {
+    merchantGalleryImages.splice(idx, 1);
+    renderGalleryThumbnails();
+  }
+
+  function syncGalleryInputToThumbnails() {
+    const val = document.getElementById('m-gallery').value;
+    merchantGalleryImages = val.split(',').map(s => s.trim()).filter(Boolean);
+    renderGalleryThumbnails();
+  }
+
+  async function handleGalleryFilesSelected(event) {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const statusEl = document.getElementById('gallery-upload-status');
+    if (statusEl) statusEl.textContent = `⏳ Subiendo ${files.length} foto(s)...`;
+
+    let uploadedCount = 0;
+    for (let i = 0; i < files.length; i++) {
+      try {
+        const url = await uploadImageFile(files[i]);
+        merchantGalleryImages.push(url);
+        uploadedCount++;
+      } catch (err) {
+        console.error('Error al subir foto de galería:', err);
+      }
+    }
+
+    renderGalleryThumbnails();
+    if (statusEl) {
+      statusEl.textContent = `✅ ${uploadedCount} subida(s)`;
+      setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 3000);
+    }
+  }
+
+  // Para el modal de edición de ofertas
+  async function handleEditCoverFileSelected(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    try {
+      const url = await uploadImageFile(file);
+      const input = document.getElementById('edit-promo-image-url');
+      if (input) input.value = url;
+      showAndroidModal({
+        title: 'Foto Portada Actualizada',
+        message: 'La imagen de portada fue subida exitosamente al servidor.',
+        icon: '📷'
+      });
+    } catch (err) {
+      showAndroidModal({
+        title: 'Error al subir',
+        message: err.message || 'No se pudo subir la foto.',
+        icon: '⚠️'
+      });
+    }
+  }
+
+  async function handleEditGalleryFilesSelected(event) {
+    const files = event.target.files;
+    if (!files || !files.length) return;
+    const input = document.getElementById('edit-promo-gallery');
+    const existing = input && input.value ? input.value.split(',').map(s => s.trim()).filter(Boolean) : [];
+    let count = 0;
+    for (let i = 0; i < files.length; i++) {
+      try {
+        const url = await uploadImageFile(files[i]);
+        existing.push(url);
+        count++;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    if (input) input.value = existing.join(', ');
+    showAndroidModal({
+      title: 'Fotos Añadidas',
+      message: `Se subieron ${count} foto(s) a la galería exitosamente.`,
+      icon: '📸'
+    });
   }
 
   // ==========================================
@@ -2530,6 +4191,8 @@
     // Actualizar Banner
     const pBanner = document.getElementById('profile-preview-banner');
     if (pBanner) {
+      pBanner.style.backgroundSize = 'cover';
+      pBanner.style.backgroundPosition = 'center';
       if (bannerUrl) {
         pBanner.style.backgroundImage = `url('${bannerUrl}')`;
       } else {
@@ -2691,7 +4354,10 @@
 
   function triggerFileInput(target) {
     const input = document.getElementById(`file-input-${target}`);
-    if (input) input.click();
+    if (input) {
+      input.value = '';
+      input.click();
+    }
   }
 
   async function handleProfileFileUpload(event, target) {
@@ -2741,12 +4407,14 @@
 
       if (res.ok) {
         const data = await res.json();
-        const serverUrl = data.logo_url || data.banner_url || data.url;
+        // Evitar que el logo_url sobreescriba el banner_url si se está subiendo banner
         if (target === 'logo') {
+          const serverUrl = data.logo_url || data.url;
           const inputLogo = document.getElementById('prof-input-logo');
           if (inputLogo) inputLogo.value = serverUrl;
           if (currentUser) currentUser.logo_url = serverUrl;
         } else {
+          const serverUrl = data.banner_url || data.url;
           const inputBanner = document.getElementById('prof-input-banner');
           if (inputBanner) inputBanner.value = serverUrl;
           if (currentUser) currentUser.banner_url = serverUrl;
@@ -2954,6 +4622,8 @@
     if (badge) badge.textContent = totalCount;
     const dBadge = document.getElementById('drawer-tastes-badge');
     if (dBadge) dBadge.textContent = totalCount;
+    const deskBadge = document.getElementById('desk-tastes-badge');
+    if (deskBadge) deskBadge.textContent = totalCount;
     const radiusLabel = document.getElementById('main-view-radius');
     if (radiusLabel) radiusLabel.textContent = `${userTastes.max_distance_km || 15} km`;
   }
@@ -2982,6 +4652,7 @@
           max_distance_km: maxDist
         };
         updateTastesBadgeCount();
+        renderClientCategoriesBar();
         if (currentCategoryFilter === 'tastes') loadFeed('tastes');
       }
     } catch (e) {
@@ -3140,8 +4811,8 @@
     }
   }
 
-  function logoutUser() {
-    if (confirm('¿Deseas cerrar tu sesión?')) {
+  async function logoutUser() {
+    if (await showAndroidConfirm('¿Deseas cerrar tu sesión actual?', 'Cerrar Sesión')) {
       localStorage.removeItem('ofertapp_auth');
       currentUser = null;
       switchRole('client');
@@ -3151,8 +4822,19 @@
   }
 
   // ==========================================
-  // GESTIÓN DE GUSTOS (AGREGAR / QUITAR)
+  // GESTIÓN DE GUSTOS (AGREGAR / QUITAR / BARRA DINÁMICA)
   // ==========================================
+  const DEFAULT_CATEGORIES = [
+    { id: 1, name: "Gastronomía", icon: "🍔" },
+    { id: 2, name: "Tecnología", icon: "💻" },
+    { id: 3, name: "Moda y Calzado", icon: "👗" },
+    { id: 4, name: "Entretenimiento", icon: "🎟️" },
+    { id: 5, name: "Belleza y Spa", icon: "💆" },
+    { id: 6, name: "Deportes y Fitness", icon: "⚽" },
+    { id: 7, name: "Hogar y Muebles", icon: "🛋️" },
+    { id: 8, name: "Servicios", icon: "🛠️" }
+  ];
+
   async function loadAvailableCategories() {
     try {
       const res = await fetch(`${API_BASE}/categories`);
@@ -3162,6 +4844,116 @@
     } catch (e) {
       console.error('Error al cargar categorías:', e);
     }
+    if (!availableCategories || availableCategories.length === 0) {
+      availableCategories = DEFAULT_CATEGORIES;
+    }
+    renderClientCategoriesBar();
+  }
+
+  function renderClientCategoriesBar() {
+    const bar = document.getElementById('client-cats-bar');
+    if (!bar) return;
+
+    const catsToUse = (availableCategories && availableCategories.length) ? availableCategories : DEFAULT_CATEGORIES;
+    bar.innerHTML = '';
+
+    // 1. Botón "Para mis gustos" (con contador dinámico de gustos activos)
+    const isTastes = currentCategoryFilter === 'tastes';
+    const tastesBtn = document.createElement('button');
+    tastesBtn.className = `btn-secondary ${isTastes ? 'active-filter' : ''}`;
+    tastesBtn.style.whiteSpace = 'nowrap';
+    tastesBtn.style.borderRadius = '8px';
+    tastesBtn.style.display = 'inline-flex';
+    tastesBtn.style.alignItems = 'center';
+    tastesBtn.style.gap = '5px';
+    if (isTastes) {
+      tastesBtn.style.background = 'var(--primary)';
+      tastesBtn.style.color = '#FFF';
+    }
+    const totalTastes = (userTastes.categories ? userTastes.categories.length : 0) + (userTastes.tags ? userTastes.tags.length : 0);
+    tastesBtn.innerHTML = `
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <span>Para mis gustos</span>
+      ${totalTastes > 0 ? `<span style="background: rgba(0,0,0,0.18); padding: 1px 6px; border-radius: 999px; font-size: 10px; font-weight: 800;">${totalTastes}</span>` : ''}
+    `;
+    tastesBtn.onclick = function() { filterFeed('tastes', this); };
+    bar.appendChild(tastesBtn);
+
+    // 2. Botón "Todas"
+    const isAll = currentCategoryFilter === 'all';
+    const allBtn = document.createElement('button');
+    allBtn.className = `btn-secondary ${isAll ? 'active-filter' : ''}`;
+    allBtn.style.whiteSpace = 'nowrap';
+    allBtn.style.borderRadius = '8px';
+    if (isAll) {
+      allBtn.style.background = 'var(--primary)';
+      allBtn.style.color = '#FFF';
+    }
+    allBtn.textContent = 'Todas';
+    allBtn.onclick = function() { filterFeed('all', this); };
+    bar.appendChild(allBtn);
+
+    // 3. Categorías favoritas seleccionadas por el usuario (mostradas primero con ⭐)
+    const userCatIds = userTastes.categories || [];
+    const chosenCats = catsToUse.filter(c => userCatIds.includes(c.id));
+    const otherCats = catsToUse.filter(c => !userCatIds.includes(c.id));
+
+    chosenCats.forEach(cat => {
+      const isCatActive = currentCategoryFilter === cat.id;
+      const catBtn = document.createElement('button');
+      catBtn.className = `btn-secondary taste-selected-cat ${isCatActive ? 'active-filter' : ''}`;
+      catBtn.style.whiteSpace = 'nowrap';
+      catBtn.style.borderRadius = '8px';
+      catBtn.style.display = 'inline-flex';
+      catBtn.style.alignItems = 'center';
+      catBtn.style.gap = '5px';
+      if (isCatActive) {
+        catBtn.style.background = 'var(--primary)';
+        catBtn.style.color = '#FFF';
+      }
+      catBtn.title = `Categoría elegida en tus gustos: ${cat.name}`;
+      catBtn.innerHTML = `<span>${cat.icon || '🏷️'}</span> <span>${cat.name}</span> <span style="font-size: 11px;">⭐</span>`;
+      catBtn.onclick = function() { filterFeed(cat.id, this); };
+      bar.appendChild(catBtn);
+    });
+
+    // 4. Resto de las categorías disponibles en el catálogo
+    otherCats.forEach(cat => {
+      const isCatActive = currentCategoryFilter === cat.id;
+      const catBtn = document.createElement('button');
+      catBtn.className = `btn-secondary ${isCatActive ? 'active-filter' : ''}`;
+      catBtn.style.whiteSpace = 'nowrap';
+      catBtn.style.borderRadius = '8px';
+      catBtn.style.display = 'inline-flex';
+      catBtn.style.alignItems = 'center';
+      catBtn.style.gap = '5px';
+      if (isCatActive) {
+        catBtn.style.background = 'var(--primary)';
+        catBtn.style.color = '#FFF';
+      }
+      catBtn.innerHTML = `<span>${cat.icon || '🏷️'}</span> <span>${cat.name}</span>`;
+      catBtn.onclick = function() { filterFeed(cat.id, this); };
+      bar.appendChild(catBtn);
+    });
+
+    // 5. Botón de acceso directo para ajustar o sumar gustos
+    const editBtn = document.createElement('button');
+    editBtn.className = 'btn-secondary';
+    editBtn.style.whiteSpace = 'nowrap';
+    editBtn.style.borderRadius = '8px';
+    editBtn.style.border = '1px dashed var(--primary)';
+    editBtn.style.color = 'var(--primary)';
+    editBtn.style.fontSize = '11px';
+    editBtn.style.padding = '5px 10px';
+    editBtn.style.display = 'inline-flex';
+    editBtn.style.alignItems = 'center';
+    editBtn.style.gap = '4px';
+    editBtn.innerHTML = `
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <span>+ Ajustar Gustos</span>
+    `;
+    editBtn.onclick = openTastesModal;
+    bar.appendChild(editBtn);
   }
 
   function openTastesModal() {
@@ -3175,6 +4967,269 @@
 
   function closeTastesModal() {
     document.getElementById('modal-tastes').style.display = 'none';
+  }
+
+  // ==========================================
+  // GESTIÓN Y VISUALIZACIÓN DE ALERTAS REALES
+  // ==========================================
+  let allUserAlerts = [];
+  let currentAlertsFilter = 'pending_active'; // 'pending_active' | 'all'
+
+  function openAlertsModal() {
+    document.getElementById('modal-alerts').style.display = 'flex';
+    loadAlerts();
+  }
+
+  function closeAlertsModal() {
+    document.getElementById('modal-alerts').style.display = 'none';
+  }
+
+  function switchAlertsFilter(filter) {
+    currentAlertsFilter = filter;
+    const tabPending = document.getElementById('tab-alerts-pending');
+    const tabAll = document.getElementById('tab-alerts-all');
+    if (tabPending && tabAll) {
+      if (filter === 'pending_active') {
+        tabPending.className = 'btn-primary';
+        tabPending.style.background = 'var(--primary)';
+        tabPending.style.color = '#FFFFFF';
+        tabAll.className = 'btn-secondary';
+        tabAll.style.background = '';
+        tabAll.style.color = '';
+      } else {
+        tabPending.className = 'btn-secondary';
+        tabPending.style.background = '';
+        tabPending.style.color = '';
+        tabAll.className = 'btn-primary';
+        tabAll.style.background = 'var(--primary)';
+        tabAll.style.color = '#FFFFFF';
+      }
+    }
+    renderAlertsList();
+  }
+
+  async function loadAlerts() {
+    const listContainer = document.getElementById('alerts-list-container');
+    if (!listContainer) return;
+    listContainer.innerHTML = `
+      <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 12px;">
+        ⏳ Cargando alertas pendientes y vigentes...
+      </div>
+    `;
+
+    try {
+      const userId = (currentUser && currentUser.id) ? currentUser.id : 2;
+      
+      // Asegurar que las promociones activas estén en memoria
+      if (!allPromotions || !allPromotions.length) {
+        try {
+          const promoRes = await fetch(`${API_BASE}/promotions?only_active=true`);
+          if (promoRes.ok) {
+            const promoData = await promoRes.json();
+            allPromotions = promoData.items || [];
+          }
+        } catch (_) {}
+      }
+
+      const res = await fetch(`${API_BASE}/notifications/user/${userId}`);
+      if (res.ok) {
+        const data = await res.json();
+        allUserAlerts = data.items || [];
+      } else {
+        allUserAlerts = [];
+      }
+    } catch (e) {
+      console.error('Error al cargar alertas:', e);
+      allUserAlerts = [];
+    }
+
+    updateAlertsCountsAndBadges();
+    renderAlertsList();
+  }
+
+  function updateAlertsCountsAndBadges() {
+    let pendingAndActiveCount = 0;
+    allUserAlerts.forEach(n => {
+      const promo = allPromotions.find(p => p.id === n.promotion_id);
+      const isVigente = promo ? (promo.is_active !== false) : true;
+      if (!n.is_read && isVigente) {
+        pendingAndActiveCount++;
+      }
+    });
+
+    const pendingBadge = document.getElementById('badge-alerts-pending-count');
+    const totalBadge = document.getElementById('badge-alerts-total-count');
+    if (pendingBadge) pendingBadge.textContent = pendingAndActiveCount;
+    if (totalBadge) totalBadge.textContent = `(${allUserAlerts.length})`;
+
+    // Actualizar badges en Header, Drawer y Bottom Nav
+    const headerBadge = document.getElementById('alerts-header-badge');
+    const drawerBadge = document.getElementById('drawer-alerts-badge');
+    const bottomBadge = document.getElementById('bottom-alerts-badge');
+
+    [headerBadge, drawerBadge, bottomBadge].forEach(badge => {
+      if (badge) {
+        if (pendingAndActiveCount > 0) {
+          badge.textContent = pendingAndActiveCount;
+          badge.style.display = 'inline-block';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    });
+  }
+
+  function renderAlertsList() {
+    const listContainer = document.getElementById('alerts-list-container');
+    if (!listContainer) return;
+
+    let filtered = [];
+    if (currentAlertsFilter === 'pending_active') {
+      filtered = allUserAlerts.filter(n => {
+        const promo = allPromotions.find(p => p.id === n.promotion_id);
+        const isVigente = promo ? (promo.is_active !== false) : true;
+        return !n.is_read && isVigente;
+      });
+    } else {
+      filtered = allUserAlerts;
+    }
+
+    if (!filtered.length) {
+      if (currentAlertsFilter === 'pending_active') {
+        listContainer.innerHTML = `
+          <div style="background: #F8FAFC; border: 1.5px dashed var(--border); border-radius: 14px; padding: 26px 16px; text-align: center;">
+            <div style="font-size: 34px; margin-bottom: 6px;">🎉</div>
+            <div style="font-size: 13px; font-weight: 800; color: #1E293B; margin-bottom: 4px;">¡No tienes alertas pendientes ni vigentes!</div>
+            <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 12px 0; line-height: 1.4;">Estás al día con todas las promociones. Te notificaremos automáticamente cuando los comercios cercanos publiquen ofertas afines a tus gustos.</p>
+            <button type="button" class="btn-secondary" style="font-size: 11px; padding: 6px 12px; font-weight: 700;" onclick="closeAlertsModal(); openTastesModal();">
+              🎯 Configurar Mis Gustos
+            </button>
+          </div>
+        `;
+      } else {
+        listContainer.innerHTML = `
+          <div style="background: #F8FAFC; border: 1.5px dashed var(--border); border-radius: 14px; padding: 26px 16px; text-align: center;">
+            <div style="font-size: 34px; margin-bottom: 6px;">📭</div>
+            <div style="font-size: 13px; font-weight: 800; color: #1E293B; margin-bottom: 4px;">Bandeja de alertas vacía</div>
+            <p style="font-size: 11px; color: var(--text-muted); margin: 0;">No hay historial de alertas registradas en tu cuenta.</p>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    listContainer.innerHTML = '';
+    filtered.forEach(n => {
+      const promo = allPromotions.find(p => p.id === n.promotion_id);
+      const isVigente = promo ? (promo.is_active !== false) : true;
+      const isPending = !n.is_read;
+      const catName = n.category_name || (promo ? promo.category_name : 'General');
+      const discount = Math.round(n.discount_percent || (promo ? promo.discount_percent : 0));
+      const distance = n.distance_km != null ? (n.distance_km < 1 ? `${Math.round(n.distance_km * 1000)} m` : `${n.distance_km.toFixed(1)} km`) : (promo ? promo.distance_label : null);
+
+      const card = document.createElement('div');
+      card.className = `alert-card ${isPending ? 'unread' : ''}`;
+      card.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 6px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+            <span style="background: #E0F2FE; color: #0284C7; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 6px;">
+              🏷️ ${catName}
+            </span>
+            ${discount > 0 ? `<span style="background: #FEF3C7; color: #D97706; font-size: 10px; font-weight: 900; padding: 2px 7px; border-radius: 6px;">-${discount}% OFF</span>` : ''}
+            ${isPending ? `<span style="background: #FEF9C3; color: #854D0E; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 6px; border: 1px solid #FDE047;">⚡ Pendiente</span>` : `<span style="background: #F1F5F9; color: #64748B; font-size: 9.5px; font-weight: 700; padding: 2px 6px; border-radius: 6px;">✓ Leída</span>`}
+            ${isVigente ? `<span style="background: #ECFDF5; color: #059669; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 6px; border: 1px solid #A7F3D0;">🟢 Vigente</span>` : `<span style="background: #FEE2E2; color: #DC2626; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 6px; border: 1px solid #FECACA;">🔴 Finalizada</span>`}
+          </div>
+          ${distance ? `<span style="font-size: 10px; font-weight: 700; color: #64748B;">📍 ${distance}</span>` : ''}
+        </div>
+
+        <div style="font-size: 13px; font-weight: 800; color: #1E293B; margin-bottom: 4px; line-height: 1.3;" class="alert-item-title">
+          ${n.title}
+        </div>
+
+        <div style="font-size: 11.5px; color: #475569; line-height: 1.45; margin-bottom: 8px;" class="alert-item-msg">
+          ${n.message}
+        </div>
+
+        ${promo ? `
+          <div style="background: rgba(241, 245, 249, 0.65); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              ${promo.image_url ? `<img src="${promo.image_url}" style="width: 38px; height: 38px; border-radius: 6px; object-fit: cover;">` : ''}
+              <div>
+                <strong style="color: #1E293B; display: block; font-size: 11px;">${promo.title}</strong>
+                <span style="color: #64748B; font-size: 10px;">🏪 ${promo.merchant_name}</span>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <span style="font-size: 13px; font-weight: 900; color: #059669;">Bs. ${Math.round(promo.promo_price)}</span>
+            </div>
+          </div>
+        ` : ''}
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px;">
+          <span style="font-size: 10px; color: #94A3B8;">
+            🕒 ${n.created_at ? n.created_at.replace('T', ' ').substring(0, 16) : 'Reciente'}
+          </span>
+          <div style="display: flex; gap: 6px;">
+            ${isPending ? `
+              <button type="button" class="btn-secondary" style="font-size: 10px; padding: 4px 8px; font-weight: 700;" onclick="markAlertAsRead(${n.id}, event)">
+                ✓ Marcar leída
+              </button>
+            ` : ''}
+            ${promo ? `
+              <button type="button" class="btn-primary" style="font-size: 10px; padding: 4px 10px; font-weight: 800;" onclick="openPromoFromAlert(${n.promotion_id}, ${n.id})">
+                👁️ Ver Oferta
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+      listContainer.appendChild(card);
+    });
+  }
+
+  async function openPromoFromAlert(promoId, alertId) {
+    if (alertId) {
+      markAlertAsRead(alertId, null, false);
+    }
+    closeAlertsModal();
+    openPromoDetail(promoId);
+  }
+
+  async function markAlertAsRead(alertId, event, shouldReRender = true) {
+    if (event) event.stopPropagation();
+    try {
+      await fetch(`${API_BASE}/notifications/${alertId}/read`, { method: 'PUT' });
+      const item = allUserAlerts.find(n => n.id === alertId);
+      if (item) item.is_read = true;
+      updateAlertsCountsAndBadges();
+      if (shouldReRender) renderAlertsList();
+    } catch (e) {
+      console.error('Error al marcar alerta como leída:', e);
+    }
+  }
+
+  async function markAllAlertsAsRead() {
+    try {
+      const userId = (currentUser && currentUser.id) ? currentUser.id : 2;
+      await fetch(`${API_BASE}/notifications/user/${userId}/read-all`, { method: 'PUT' });
+      allUserAlerts.forEach(n => n.is_read = true);
+      updateAlertsCountsAndBadges();
+      renderAlertsList();
+    } catch (e) {
+      console.error('Error al marcar todas las alertas como leídas:', e);
+    }
+  }
+
+  async function updateAlertsBadge() {
+    try {
+      const userId = (currentUser && currentUser.id) ? currentUser.id : 2;
+      const res = await fetch(`${API_BASE}/notifications/user/${userId}`);
+      if (res.ok) {
+        const data = await res.json();
+        allUserAlerts = data.items || [];
+        updateAlertsCountsAndBadges();
+      }
+    } catch (_) {}
   }
 
   function renderTasteCategoryChips() {
@@ -3201,6 +5256,7 @@
     }
     renderTasteCategoryChips();
     updateTastesBadgeCount();
+    renderClientCategoriesBar();
   }
 
   function renderTasteTagChips() {
@@ -3238,6 +5294,7 @@
     input.value = '';
     renderTasteTagChips();
     updateTastesBadgeCount();
+    renderClientCategoriesBar();
   }
 
   function removeTasteTag(tag) {
@@ -3245,6 +5302,7 @@
     userTastes.tags = userTastes.tags.filter(t => t !== tag);
     renderTasteTagChips();
     updateTastesBadgeCount();
+    renderClientCategoriesBar();
   }
 
   async function saveUserTastes() {
@@ -3279,16 +5337,25 @@
         });
 
         if (res.ok && showAlert) {
-          alert('💾 ¡Tus gustos han sido guardados permanentemente en tu perfil!');
+          showAndroidModal({
+            title: 'Gustos Guardados',
+            message: '¡Tus gustos han sido guardados permanentemente en tu perfil y el feed ha sido actualizado!',
+            type: 'success'
+          });
         }
       } catch (err) {
         console.error('Error al guardar gustos en servidor:', err);
       }
     } else if (showAlert) {
-      alert('💾 Gustos guardados temporalmente en este dispositivo.\n\n💡 Tip: Crea tu cuenta gratuita para guardarlos en la nube y recibir alertas.');
+      showAndroidModal({
+        title: 'Gustos Guardados',
+        message: 'Tus gustos han sido actualizados en este dispositivo.\n\nTip: Crea tu cuenta gratuita para guardarlos en la nube y recibir alertas automáticas.',
+        type: 'info'
+      });
     }
 
     updateTastesBadgeCount();
+    renderClientCategoriesBar();
     closeTastesModal();
     loadFeed('tastes');
   }
@@ -3368,12 +5435,17 @@
   }
 
   function filterFeed(type, btn) {
+    currentCategoryFilter = type;
     document.querySelectorAll('#client-cats-bar button').forEach(b => {
-      b.style.background = '#E2E8F0';
-      b.style.color = '#334155';
+      b.classList.remove('active-filter');
+      b.style.background = '';
+      b.style.color = '';
     });
-    btn.style.background = 'var(--primary)';
-    btn.style.color = '#FFF';
+    if (btn) {
+      btn.classList.add('active-filter');
+      btn.style.background = 'var(--primary)';
+      btn.style.color = '#FFF';
+    }
     loadFeed(type);
   }
 
@@ -3384,7 +5456,7 @@
     if (!items.length) {
       if (currentSearchQuery) {
         cont.innerHTML = `
-          <div style="text-align: center; padding: 36px 16px; color: var(--text-muted);">
+          <div style="grid-column: 1 / -1; text-align: center; padding: 36px 16px; color: var(--text-muted);">
             <div style="font-size: 36px; margin-bottom: 8px;">🔍</div>
             <strong style="color: #1E293B; font-size: 14px;">No encontramos promociones para "${currentSearchQuery}"</strong>
             <p style="font-size: 11px; margin: 6px 0 14px 0;">Prueba con otra palabra clave (ej: pizza, combo, auriculares) o borra la búsqueda.</p>
@@ -3393,7 +5465,7 @@
         `;
       } else {
         cont.innerHTML = `
-          <div style="text-align: center; padding: 36px 16px; color: var(--text-muted);">
+          <div style="grid-column: 1 / -1; text-align: center; padding: 36px 16px; color: var(--text-muted);">
             <div style="font-size: 32px; margin-bottom: 6px;">🏷️</div>
             <strong style="color: #1E293B; font-size: 13px;">No hay ofertas disponibles con los filtros actuales</strong>
             <p style="font-size: 11px; margin: 4px 0 12px 0;">Prueba seleccionando "Todas" o configurando tus gustos.</p>
@@ -3751,7 +5823,11 @@
     document.getElementById('btn-merch-orders').className = tab === 'orders' ? 'btn-primary' : 'btn-secondary';
 
     if (tab === 'new-promo') {
-      setTimeout(initMerchantMap, 150);
+      setTimeout(() => {
+        initMerchantMap();
+        renderGalleryThumbnails();
+        updateCoverPreviewFromInput();
+      }, 150);
     } else if (tab === 'orders') {
       loadMerchantOrders();
     }
@@ -3894,7 +5970,7 @@
   }
 
   async function deletePromo(id) {
-    if (confirm('¿Eliminar esta promoción definitivamente? Esta acción no se puede deshacer.')) {
+    if (await showAndroidConfirm('¿Eliminar esta promoción definitivamente? Esta acción no se puede deshacer.', 'Eliminar Promoción')) {
       try {
         const res = await fetch(`${API_BASE}/promotions/${id}`, { 
           method: 'DELETE',
@@ -3950,16 +6026,28 @@
         body: JSON.stringify(payload)
       });
       if (res.ok) {
-        alert('✅ ¡Promoción registrada exitosamente con su galería de fotos!\n\nSe georreferenció en el mapa y se enviaron alertas automáticas a los usuarios interesados cercanos.');
+        showAndroidModal({
+          title: '¡Promoción Publicada!',
+          message: 'Tu oferta se registró exitosamente con su galería de fotos y georreferencia en el mapa. Las alertas automáticas fueron enviadas.',
+          icon: '🚀'
+        });
         setMerchantSubtab('my-promos');
         loadMerchantPromotions();
         loadFeed();
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`Error al registrar: ${err.detail || 'Verifica los campos y tus permisos de comercio'}`);
+        showAndroidModal({
+          title: 'Error al Registrar',
+          message: err.detail || 'Verifica los campos y tus permisos de comercio.',
+          icon: '⚠️'
+        });
       }
     } catch (err) {
-      alert('Error de conexión al registrar promoción.');
+      showAndroidModal({
+        title: 'Error de Conexión',
+        message: 'No se pudo conectar con el servidor para registrar la promoción.',
+        icon: '⚠️'
+      });
     } finally {
       btn.disabled = false;
       btn.textContent = '🚀 Publicar con Galería y Disparar Alertas';
@@ -3978,7 +6066,11 @@
       } catch (e) {}
     }
     if (!promo) {
-      alert('No se pudo cargar la información de la promoción.');
+      showAndroidModal({
+        title: 'Aviso',
+        message: 'No se pudo cargar la información de la promoción.',
+        icon: '⚠️'
+      });
       return;
     }
 
@@ -4002,10 +6094,18 @@
     document.getElementById('edit-promo-image-url').value = promo.image_url || '';
     document.getElementById('edit-promo-gallery').value = (promo.images && promo.images.length) ? promo.images.join(', ') : '';
     document.getElementById('edit-promo-tags').value = (promo.tags && promo.tags.length) ? promo.tags.join(', ') : '';
+    const pLat = (promo.latitude !== undefined && promo.latitude !== null) ? promo.latitude : -34.6041;
+    const pLon = (promo.longitude !== undefined && promo.longitude !== null) ? promo.longitude : -58.3822;
+    document.getElementById('edit-promo-lat').value = pLat;
+    document.getElementById('edit-promo-lon').value = pLon;
     document.getElementById('edit-promo-address').value = promo.address || '';
     document.getElementById('edit-promo-active').checked = promo.is_active !== false;
 
     document.getElementById('modal-edit-promo').style.display = 'flex';
+
+    setTimeout(() => {
+      initEditPromoMap(pLat, pLon);
+    }, 200);
   }
 
   function closeEditPromoModal() {
@@ -4032,6 +6132,8 @@
       image_url: document.getElementById('edit-promo-image-url').value.trim() || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800',
       gallery: galleryList,
       tags: document.getElementById('edit-promo-tags').value.split(',').map(t => t.trim()).filter(Boolean),
+      latitude: parseFloat(document.getElementById('edit-promo-lat').value),
+      longitude: parseFloat(document.getElementById('edit-promo-lon').value),
       address: document.getElementById('edit-promo-address').value.trim(),
       is_active: document.getElementById('edit-promo-active').checked
     };
@@ -4044,7 +6146,11 @@
       });
 
       if (res.ok) {
-        alert('🎉 ¡Promoción actualizada correctamente!');
+        showAndroidModal({
+          title: '🎉 Oferta Actualizada',
+          message: 'Los cambios y fotos de la promoción se han guardado exitosamente.',
+          icon: '✅'
+        });
         closeEditPromoModal();
         loadFeed();
         if (document.getElementById('portal-merchant').style.display !== 'none') {
@@ -4055,11 +6161,19 @@
         }
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`⚠️ No autorizado para modificar: ${err.detail || 'Solo puedes modificar tus propias promociones.'}`);
+        showAndroidModal({
+          title: 'Error de Modificación',
+          message: err.detail || 'Solo puedes modificar tus propias promociones.',
+          icon: '⚠️'
+        });
       }
     } catch (err) {
       console.error(err);
-      alert('❌ Error al conectar con el servidor.');
+      showAndroidModal({
+        title: 'Error de Conexión',
+        message: 'No se pudo conectar con el servidor para guardar los cambios.',
+        icon: '⚠️'
+      });
     } finally {
       btn.disabled = false;
       btn.textContent = '💾 Guardar Cambios';
@@ -4288,7 +6402,7 @@
   }
 
   async function deleteUserAdmin(userId, userName) {
-    if (!confirm(`¿Estás seguro de que deseas eliminar al usuario #${userId} (${userName}) del sistema? Esta acción no se puede deshacer.`)) {
+    if (!await showAndroidConfirm(`¿Estás seguro de que deseas eliminar al usuario #${userId} (${userName}) del sistema? Esta acción no se puede deshacer.`, 'Eliminar Usuario')) {
       return;
     }
     try {
@@ -4395,6 +6509,117 @@
     }
   }
 
+  const POPULAR_CATEGORY_EMOJIS = [
+    '🏷️', '🍔', '🍕', '☕', '🍰', '🍺', '💻', '📱', '👗', '👟',
+    '🎟️', '🏆', '⚽', '🛋️', '🛠️', '🚗', '✈️', '💊', '🏥', '📚',
+    '🎵', '🐶', '🌿', '🎁', '💎', '🛒', '🎨', '🎮', '💇', '🌮',
+    '🍣', '🍦', '🏖️', '🎬', '🍿', '🏨', '⛽', '💍', '🍼', '🚲'
+  ];
+
+  const EMOTICON_CONVERT_MAP = {
+    ':d': '😃', ':D': '😃',
+    ':)': '😊', ':-)': '😊',
+    ';)': '😉', ';-)': '😉',
+    ':p': '😋', ':P': '😋',
+    ':o': '😮', ':O': '😮',
+    '<3': '❤️',
+    ':3': '😺',
+    'xd': '😆', 'XD': '😆',
+    ':(': '🙁', ':/': '😕'
+  };
+
+  function handleEmoticonInput(inputEl) {
+    if (!inputEl) return;
+    const val = inputEl.value.trim();
+    if (EMOTICON_CONVERT_MAP[val]) {
+      inputEl.value = EMOTICON_CONVERT_MAP[val];
+    }
+  }
+
+  function renderEmojiPickers() {
+    const createContainer = document.getElementById('emoji-picker-create');
+    const editContainer = document.getElementById('emoji-picker-edit');
+
+    if (createContainer) {
+      createContainer.innerHTML = POPULAR_CATEGORY_EMOJIS.map(em =>
+        `<button type="button" class="emoji-picker-btn" onclick="selectEmojiForCreate('${em}')" title="${em}">${em}</button>`
+      ).join('');
+    }
+
+    if (editContainer) {
+      editContainer.innerHTML = POPULAR_CATEGORY_EMOJIS.map(em =>
+        `<button type="button" class="emoji-picker-btn" onclick="selectEmojiForEdit('${em}')" title="${em}">${em}</button>`
+      ).join('');
+    }
+  }
+
+  function selectEmojiForCreate(emoji) {
+    const el = document.getElementById('cat-icon');
+    if (el) {
+      el.value = emoji;
+      el.focus();
+    }
+  }
+
+  function selectEmojiForEdit(emoji) {
+    const el = document.getElementById('edit-cat-icon');
+    if (el) {
+      el.value = emoji;
+      el.focus();
+    }
+  }
+
+  function openEditCategoryModal(id, name, icon, slug, desc) {
+    document.getElementById('edit-cat-id').value = id;
+    document.getElementById('edit-cat-name').value = name || '';
+    document.getElementById('edit-cat-icon').value = icon || '🏷️';
+    document.getElementById('edit-cat-slug').value = slug || '';
+    document.getElementById('edit-cat-description').value = desc || '';
+    document.getElementById('modal-edit-category').style.display = 'flex';
+  }
+
+  function closeEditCategoryModal() {
+    document.getElementById('modal-edit-category').style.display = 'none';
+  }
+
+  function syncEditCategorySlug(name) {
+    const slugInput = document.getElementById('edit-cat-slug');
+    if (slugInput) {
+      slugInput.value = name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+  }
+
+  async function handleSaveEditCategory(e) {
+    e.preventDefault();
+    const id = document.getElementById('edit-cat-id').value;
+    const name = document.getElementById('edit-cat-name').value.trim();
+    let icon = document.getElementById('edit-cat-icon').value.trim();
+    let slug = document.getElementById('edit-cat-slug').value.trim();
+    const description = document.getElementById('edit-cat-description').value.trim();
+
+    if (EMOTICON_CONVERT_MAP[icon]) icon = EMOTICON_CONVERT_MAP[icon];
+    if (!slug) slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/categories/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(true),
+        body: JSON.stringify({ name, slug, icon, description })
+      });
+      if (res.ok) {
+        alert('✅ Categoría actualizada exitosamente');
+        closeEditCategoryModal();
+        loadAdminCategories();
+        loadAvailableCategories();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(`⚠️ Error al actualizar categoría: ${err.detail || 'No se pudo guardar'}`);
+      }
+    } catch (err) {
+      alert('Error de conexión al actualizar categoría');
+    }
+  }
+
   async function loadAdminCategories() {
     try {
       const res = await fetch(`${API_BASE}/categories`, {
@@ -4416,11 +6641,18 @@
           div.style.alignItems = 'center';
           div.style.fontSize = '12px';
           const safeName = (c.name || '').replace(/'/g, "\\'");
+          const safeSlug = (c.slug || '').replace(/'/g, "\\'");
+          const safeDesc = (c.description || '').replace(/'/g, "\\'");
           div.innerHTML = `
-            <span>${c.icon} <strong>${c.name}</strong> (${c.slug}) <span style="color: var(--text-muted); font-size: 10px;">ID: ${c.id}</span></span>
-            <button class="btn-secondary" style="font-size: 10px; padding: 3px 6px; color: #DC2626; border-color: #FECACA;" onclick="deleteAdminCategory(${c.id}, '${safeName}')" title="Eliminar categoría">
-              🗑️
-            </button>
+            <span>${c.icon} <strong>${c.name}</strong> <span style="color: var(--text-muted); font-size: 10px;">(${c.slug})</span> <span style="color: var(--text-muted); font-size: 10px;">ID: ${c.id}</span></span>
+            <div style="display: flex; gap: 4px;">
+              <button class="btn-secondary" style="font-size: 10px; padding: 4px 7px; color: #0284C7; border: 1px solid #BAE6FD;" onclick="openEditCategoryModal(${c.id}, '${safeName}', '${c.icon}', '${safeSlug}', '${safeDesc}')" title="Editar categoría">
+                ✏️
+              </button>
+              <button class="btn-secondary" style="font-size: 10px; padding: 4px 7px; color: #DC2626; border: 1px solid #FECACA;" onclick="deleteAdminCategory(${c.id}, '${safeName}')" title="Eliminar categoría">
+                🗑️
+              </button>
+            </div>
           `;
           list.appendChild(div);
         });
@@ -4431,7 +6663,7 @@
   }
 
   async function deleteAdminCategory(catId, catName) {
-    if (!confirm(`¿Eliminar la categoría "${catName}" (ID #${catId})?`)) return;
+    if (!await showAndroidConfirm(`¿Eliminar la categoría "${catName}" (ID #${catId})?`, 'Eliminar Categoría')) return;
     try {
       const res = await fetch(`${API_BASE}/admin/categories/${catId}`, {
         method: 'DELETE',
@@ -4452,8 +6684,9 @@
 
   async function handleCreateCategory(e) {
     e.preventDefault();
-    const name = document.getElementById('cat-name').value;
-    const icon = document.getElementById('cat-icon').value;
+    const name = document.getElementById('cat-name').value.trim();
+    let icon = document.getElementById('cat-icon').value.trim();
+    if (EMOTICON_CONVERT_MAP[icon]) icon = EMOTICON_CONVERT_MAP[icon];
     const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
 
     try {
@@ -4478,8 +6711,12 @@
   }
 
   // Inicialización de Ofertapp
+  initTheme();
+  detectAndApplyDeviceMode();
   initUserSession();
+  renderEmojiPickers();
   loadFeed();
+  updateAlertsBadge();
 </script>
 
 </body>

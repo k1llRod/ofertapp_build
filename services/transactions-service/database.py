@@ -34,5 +34,9 @@ def migrate_db():
                 with engine.begin() as conn:
                     conn.execute(text("ALTER TABLE promotions ADD COLUMN gallery TEXT DEFAULT ''"))
                     print("[MIGRATION] Columna 'gallery' agregada exitosamente a 'promotions'.")
+            if "whatsapp" not in columns:
+                with engine.begin() as conn:
+                    conn.execute(text("ALTER TABLE promotions ADD COLUMN whatsapp TEXT DEFAULT ''"))
+                    print("[MIGRATION] Columna 'whatsapp' agregada exitosamente a 'promotions'.")
     except Exception as e:
         print(f"[Warning] Error en migración de base de datos: {e}")

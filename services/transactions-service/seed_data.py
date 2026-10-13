@@ -25,6 +25,7 @@ DEMO_PROMOTIONS = [
         "image_url": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800",
         "gallery": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800,https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800,https://images.unsplash.com/photo-1590947132387-155cc02f3212?w=800",
         "tags": "pizza,artesanal,2x1,cena,italiana",
+        "whatsapp": "+54 9 11 2233-4455",
         "latitude": -34.6042,
         "longitude": -58.3820,
         "address": "Av. Corrientes 1250, Centro"
@@ -41,6 +42,7 @@ DEMO_PROMOTIONS = [
         "image_url": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800",
         "gallery": "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=800,https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800,https://images.unsplash.com/photo-1524678606370-a47ad25cb82a?w=800",
         "tags": "auriculares,bluetooth,audio,apple,gamer",
+        "whatsapp": "+54 9 11 9988-7766",
         "latitude": -34.6015,
         "longitude": -58.3790,
         "address": "Florida 680, Galería Pacífico"
@@ -57,6 +59,7 @@ DEMO_PROMOTIONS = [
         "image_url": "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800",
         "gallery": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800,https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800,https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800",
         "tags": "cafe,desayuno,croissant,artesanal,merienda",
+        "whatsapp": "+591 71234567",
         "latitude": -34.6060,
         "longitude": -58.3850,
         "address": "Lavalle 840, Centro"
@@ -180,6 +183,7 @@ def seed_initial_data(db: Session):
                 image_url=promo["image_url"],
                 gallery=promo.get("gallery", ""),
                 tags=promo["tags"],
+                whatsapp=promo.get("whatsapp", ""),
                 latitude=promo["latitude"],
                 longitude=promo["longitude"],
                 address=promo["address"],
@@ -196,6 +200,7 @@ def seed_initial_data(db: Session):
                 p.description = promo["description"]
                 p.image_url = promo["image_url"]
                 p.gallery = promo.get("gallery", "")
+                p.whatsapp = promo.get("whatsapp", "")
                 p.original_price = promo["original_price"]
                 p.discount_percent = promo["discount_percent"]
                 p.promo_price = promo["promo_price"]

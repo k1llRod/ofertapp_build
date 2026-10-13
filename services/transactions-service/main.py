@@ -305,6 +305,7 @@ async def create_promotion(
         image_url=promo_in.image_url or "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=800",
         gallery=gallery_str,
         tags=tags_str,
+        whatsapp=promo_in.whatsapp or "",
         latitude=promo_in.latitude,
         longitude=promo_in.longitude,
         address=promo_in.address,
@@ -347,6 +348,7 @@ async def create_promotion(
         image_url=new_promo.image_url,
         images=get_promo_images_list(new_promo),
         tags=[t for t in tags_str.split(",") if t],
+        whatsapp=new_promo.whatsapp,
         latitude=new_promo.latitude,
         longitude=new_promo.longitude,
         address=new_promo.address,
@@ -442,6 +444,7 @@ def get_promotions_feed(
             image_url=p.image_url,
             images=get_promo_images_list(p),
             tags=[t for t in p.tags.split(",") if t],
+            whatsapp=getattr(p, 'whatsapp', None),
             latitude=p.latitude,
             longitude=p.longitude,
             address=p.address,
@@ -496,6 +499,7 @@ def get_promotion_detail(promo_id: int, lat: Optional[float] = None, lon: Option
         image_url=promo.image_url,
         images=get_promo_images_list(promo),
         tags=[t for t in promo.tags.split(",") if t],
+        whatsapp=getattr(promo, 'whatsapp', None),
         latitude=promo.latitude,
         longitude=promo.longitude,
         address=promo.address,
@@ -537,6 +541,7 @@ def get_all_promotions_admin(
             image_url=p.image_url,
             images=get_promo_images_list(p),
             tags=[t for t in p.tags.split(",") if t],
+            whatsapp=getattr(p, 'whatsapp', None),
             latitude=p.latitude,
             longitude=p.longitude,
             address=p.address,
@@ -584,6 +589,7 @@ def get_merchant_promotions(
             image_url=p.image_url,
             images=get_promo_images_list(p),
             tags=[t for t in p.tags.split(",") if t],
+            whatsapp=getattr(p, 'whatsapp', None),
             latitude=p.latitude,
             longitude=p.longitude,
             address=p.address,
@@ -639,6 +645,8 @@ def update_promotion(
         promo.gallery = ",".join([g.strip() for g in promo_in.gallery if g.strip()])
     if promo_in.tags is not None:
         promo.tags = ",".join([t.strip().lower() for t in promo_in.tags if t.strip()])
+    if promo_in.whatsapp is not None:
+        promo.whatsapp = promo_in.whatsapp
     if promo_in.latitude is not None:
         promo.latitude = promo_in.latitude
     if promo_in.longitude is not None:
@@ -675,6 +683,7 @@ def update_promotion(
         image_url=promo.image_url,
         images=get_promo_images_list(promo),
         tags=tags_list,
+        whatsapp=getattr(promo, 'whatsapp', None),
         latitude=promo.latitude,
         longitude=promo.longitude,
         address=promo.address,

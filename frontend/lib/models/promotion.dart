@@ -19,6 +19,7 @@ class PromotionModel {
   final String? distanceLabel;
   final bool matchesTaste;
   final int viewsCount;
+  final String? whatsapp;
 
   PromotionModel({
     required this.id,
@@ -41,6 +42,7 @@ class PromotionModel {
     this.distanceLabel,
     this.matchesTaste = false,
     this.viewsCount = 0,
+    this.whatsapp,
   });
 
   factory PromotionModel.fromJson(Map<String, dynamic> json) {
@@ -65,6 +67,7 @@ class PromotionModel {
       distanceLabel: json['distance_label'] as String?,
       matchesTaste: json['matches_taste'] as bool? ?? false,
       viewsCount: json['views_count'] as int? ?? 0,
+      whatsapp: json['whatsapp'] as String?,
     );
   }
 
@@ -90,6 +93,7 @@ class PromotionModel {
       'distance_label': distanceLabel,
       'matches_taste': matchesTaste,
       'views_count': viewsCount,
+      'whatsapp': whatsapp,
     };
   }
 }

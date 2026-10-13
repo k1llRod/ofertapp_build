@@ -8,7 +8,7 @@ import '../models/user_profile.dart';
 
 class ApiService {
   // Por defecto apunta al API Gateway en la IP local para pruebas en dispositivos móviles
-  static String baseUrl = 'http://192.168.1.226:8000/api/v1';
+  static String baseUrl = 'http://192.168.1.23:8000/api/v1';
 
   static int currentUserId = 2; // Juan Pérez (Usuario demo)
   static String? authToken;

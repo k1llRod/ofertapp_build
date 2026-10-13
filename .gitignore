@@ -219,3 +219,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# SQLite databases & Local data
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# Android builds & Mobile packages
+*.apk
+*.aab

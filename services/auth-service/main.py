@@ -1,7 +1,7 @@
 import math
 import os
 import uuid
-from typing import List
+from typing import List, Optional
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles

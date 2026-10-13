@@ -17,8 +17,8 @@ class _WebPlatformScreenState extends State<WebPlatformScreen> {
   bool _hasError = false;
   String _errorMessage = '';
 
-  // IP por defecto del Gateway en la red local actual
-  String _serverUrl = 'http://192.168.1.210:8000/app';
+  // IP por defecto del Gateway en la red local actual (detectada en esta PC)
+  String _serverUrl = 'http://192.168.1.23:8000/app';
 
   @override
   void initState() {
@@ -115,7 +115,13 @@ class _WebPlatformScreenState extends State<WebPlatformScreen> {
               spacing: 6,
               children: [
                 ActionChip(
-                  label: const Text('IP Actual (210)'),
+                  label: const Text('Mi PC (192.168.1.23)'),
+                  onPressed: () {
+                    textController.text = 'http://192.168.1.23:8000/app';
+                  },
+                ),
+                ActionChip(
+                  label: const Text('Red 210'),
                   onPressed: () {
                     textController.text = 'http://192.168.1.210:8000/app';
                   },

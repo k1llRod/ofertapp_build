@@ -373,6 +373,86 @@ class PromotionDetailScreen extends StatelessWidget {
                           height: 1.5,
                         ),
                       ),
+                      const SizedBox(height: 14),
+
+                      // Bloque de Contacto Directo WhatsApp
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFECFDF5),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFA7F3D0)),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 36,
+                              height: 36,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF25D366),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Center(
+                                child: Icon(Icons.chat_bubble, color: Colors.white, size: 18),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Row(
+                                    children: [
+                                      Text(
+                                        'Consultas por WhatsApp',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w800,
+                                          color: Color(0xFF064E3B),
+                                        ),
+                                      ),
+                                      SizedBox(width: 4),
+                                      Icon(Icons.circle, size: 6, color: Color(0xFF10B981)),
+                                    ],
+                                  ),
+                                  Text(
+                                    promotion.whatsapp?.isNotEmpty == true
+                                        ? promotion.whatsapp!
+                                        : '+591 71234567',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF047857),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF25D366),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Consultar',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  SizedBox(width: 4),
+                                  Icon(Icons.arrow_forward, size: 12, color: Colors.white),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       const SizedBox(height: 24),
 
                       // Comparativa de Precios

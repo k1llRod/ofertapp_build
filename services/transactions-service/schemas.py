@@ -34,6 +34,7 @@ class PromotionCreate(BaseModel):
     image_url: Optional[str] = None
     gallery: Optional[List[str]] = []
     tags: List[str] = []
+    whatsapp: Optional[str] = None
     latitude: float
     longitude: float
     address: str
@@ -49,6 +50,7 @@ class PromotionUpdate(BaseModel):
     image_url: Optional[str] = None
     gallery: Optional[List[str]] = None
     tags: Optional[List[str]] = None
+    whatsapp: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     address: Optional[str] = None
@@ -69,6 +71,7 @@ class PromotionResponse(BaseModel):
     image_url: Optional[str]
     images: List[str] = []
     tags: List[str]
+    whatsapp: Optional[str] = None
     latitude: float
     longitude: float
     address: str

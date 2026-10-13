@@ -46,14 +46,18 @@
       box-shadow: 0 25px 65px rgba(0,0,0,0.9), 0 0 0 10px #0F172A !important;
     }
     body.dark-mode .header {
-      background: var(--header-bg) !important;
+      background: rgba(30, 41, 59, 0.88) !important;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-bottom-color: var(--border) !important;
     }
     body.dark-mode .brand-title {
       color: #F8FAFC !important;
     }
     body.dark-mode .bottom-nav {
-      background: var(--bottom-nav-bg) !important;
+      background: rgba(15, 23, 42, 0.92) !important;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-top-color: var(--border) !important;
     }
     body.dark-mode .nav-btn {
@@ -456,15 +460,43 @@
       box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
     }
 
-    /* Header */
+    /* Shimmer Animation para Skeleton Loaders */
+    @keyframes shimmer {
+      100% { transform: translateX(100%); }
+    }
+    .skeleton-shimmer {
+      position: relative;
+      overflow: hidden;
+      background-color: #E2E8F0;
+    }
+    body.dark-mode .skeleton-shimmer {
+      background-color: #334155 !important;
+    }
+    .skeleton-shimmer::after {
+      position: absolute;
+      top: 0; right: 0; bottom: 0; left: 0;
+      transform: translateX(-100%);
+      background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.4) 20%, rgba(255,255,255,0.7) 60%, rgba(255,255,255,0));
+      animation: shimmer 1.5s infinite;
+      content: '';
+    }
+    body.dark-mode .skeleton-shimmer::after {
+      background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.06) 20%, rgba(255,255,255,0.14) 60%, rgba(255,255,255,0));
+    }
+
+    /* Header Frosted Glass */
     .header {
-      background: #FFFFFF;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       padding: 10px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--border);
       z-index: 10;
+      position: sticky;
+      top: 0;
     }
     .brand-title { font-size: 18px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 6px; }
     .badge-portal {
@@ -502,14 +534,22 @@
     /* Cards */
     .promo-card {
       background: #FFFFFF;
-      border-radius: 16px;
+      border-radius: 18px;
       overflow: hidden;
       border: 1px solid var(--border);
       margin: 10px 14px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.03);
       position: relative;
+      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .promo-card.matched { border: 1.5px solid rgba(245, 158, 11, 0.5); }
+    .promo-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 28px -4px rgba(15, 23, 42, 0.08);
+    }
+    .promo-card.matched {
+      border: 1.5px solid rgba(245, 158, 11, 0.6);
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.08);
+    }
     .promo-card img { width: 100%; height: 135px; object-fit: cover; display: block; }
     
     /* Contenedor flotante superior para Badges organizados sin colisiones */
@@ -540,44 +580,45 @@
       font-size: 10.5px;
       font-weight: 800;
       padding: 3.5px 8px;
-      border-radius: 6px;
+      border-radius: 7px;
       line-height: 1.2;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
       display: inline-flex;
       align-items: center;
       gap: 4px;
       white-space: nowrap;
     }
     .badge-pill-discount {
-      background: var(--primary);
-      color: #0F172A;
+      background: linear-gradient(135deg, #F59E0B 0%, #EA580C 100%);
+      color: #FFFFFF;
       font-weight: 900;
-      border: 1px solid rgba(255,255,255,0.6);
+      border: 1px solid rgba(255,255,255,0.4);
+      box-shadow: 0 3px 10px rgba(234, 88, 12, 0.38);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
     }
     .badge-pill-taste {
-      background: #D97706;
+      background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
       color: #FFFFFF;
-      border: 1px solid #FCD34D;
-      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.4);
+      border: 1px solid rgba(254, 243, 199, 0.4);
+      box-shadow: 0 3px 10px rgba(217, 119, 6, 0.35);
     }
     .badge-pill-dist {
-      background: rgba(15, 23, 42, 0.8);
+      background: rgba(15, 23, 42, 0.78);
       color: #FFFFFF;
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
     }
     .badge-pill-photos {
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(15, 23, 42, 0.82);
       color: #FFFFFF;
       border-radius: 999px;
       font-size: 9.5px;
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
     }
-    
-    /* Legacy fallback */
-    .badge-tag { position: absolute; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px; color: #FFF; }
-    .badge-discount { top: 10px; left: 10px; background: var(--primary); }
-    .badge-dist { top: 10px; right: 10px; background: rgba(0,0,0,0.75); }
-    .badge-taste { top: 38px; left: 10px; background: #D97706; }
 
     /* Tables for Admin */
     .admin-table {
@@ -600,12 +641,41 @@
       font-size: 13px; background: #FFFFFF; outline: none;
     }
     .btn-primary {
-      background: var(--primary); color: #FFF; border: none; font-weight: 700; font-size: 13px;
-      padding: 10px 16px; border-radius: 9px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      color: #FFF;
+      border: none;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 6px 18px rgba(245, 158, 11, 0.42);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active {
+      transform: scale(0.96);
     }
     .btn-secondary {
-      background: #E2E8F0; color: #334155; border: none; font-weight: 700; font-size: 12px;
-      padding: 7px 12px; border-radius: 8px; cursor: pointer;
+      background: #E2E8F0;
+      color: #334155;
+      border: none;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-secondary:active {
+      transform: scale(0.96);
     }
 
     .emoji-picker-btn {
@@ -635,20 +705,22 @@
       background: #334155;
     }
 
-    /* Bottom Nav (Estilo Imagen 2 con iconos limpios) */
+    /* Bottom Nav Frosted Glass con Safe-Area */
     .bottom-nav {
-      background: var(--bottom-nav-bg);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-top: 1px solid var(--border);
       display: flex;
-      padding: 8px 0 10px 0;
+      padding: 8px 0 max(12px, env(safe-area-inset-bottom)) 0;
       z-index: 10;
-      box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.04);
     }
     .nav-btn {
       flex: 1; border: none; background: transparent;
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
       color: #64748B; font-size: 10px; font-weight: 700; cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .nav-btn svg {
       transition: stroke 0.2s, transform 0.2s;
@@ -657,10 +729,10 @@
     .nav-btn.active { color: var(--primary); font-weight: 800; }
     .nav-btn.active svg {
       stroke: var(--primary);
-      transform: scale(1.08);
+      transform: scale(1.1);
     }
     .nav-btn:active {
-      transform: scale(0.94);
+      transform: scale(0.92);
     }
 
     /* ========================================== */
@@ -1567,6 +1639,16 @@
             <textarea class="form-textarea" id="m-description" rows="3" required placeholder="Describe qué incluye la oferta, características, condiciones, horarios y calidad del servicio...">Incluye parrillada completa para 2 personas al carbón de quebracho (asado de tira, vacío, chorizo artesanal y morcilla) acompañada de ensalada mixta o papas fritas y 2 bebidas o copa de vino de la casa. Válido para consumo en el salón o retiro.</textarea>
           </div>
 
+          <div class="form-group">
+            <label class="form-label" style="display: flex; align-items: center; justify-content: space-between;">
+              <span style="display: flex; align-items: center; gap: 6px;">
+                <span style="color: #25D366; font-size: 14px;">💬</span> WhatsApp de Contacto Directo
+              </span>
+              <span style="font-size: 10px; font-weight: 600; color: var(--text-muted);">(Opcional para resolver dudas)</span>
+            </label>
+            <input class="form-input" id="m-whatsapp" placeholder="Ej: +591 71234567 o +54 9 11 2233-4455">
+          </div>
+
           <div style="display: flex; gap: 10px;">
             <div class="form-group" style="flex: 1;">
               <label class="form-label">Categoría *</label>
@@ -2225,8 +2307,33 @@
         <div style="font-size: 12px; font-weight: 800; color: #1E293B; margin-bottom: 5px; display: flex; align-items: center; gap: 6px;">
           <span>📝</span> Descripción Detallada del Producto o Servicio:
         </div>
-        <div id="detail-description" style="font-size: 12px; color: #334155; line-height: 1.55; background: #F8FAFC; padding: 12px; border-radius: 12px; border: 1px solid var(--border);">
-          Descripción completa aquí...
+        <div style="background: #F8FAFC; padding: 12px; border-radius: 12px; border: 1px solid var(--border);">
+          <div id="detail-description" style="font-size: 12px; color: #334155; line-height: 1.55;">
+            Descripción completa aquí...
+          </div>
+          <!-- BLOQUE DE CONTACTO WHATSAPP IN-CARD -->
+          <div id="detail-whatsapp-block" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);">
+            <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 10px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #25D366; display: flex; align-items: center; justify-content: center; color: #FFF; flex-shrink: 0; box-shadow: 0 2px 5px rgba(37,211,102,0.3);">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm0 18.06c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.32a8.067 8.067 0 01-1.24-4.28c0-4.48 3.65-8.13 8.13-8.13 2.17 0 4.21.85 5.75 2.38 1.53 1.54 2.38 3.58 2.38 5.75 0 4.49-3.65 8.13-8.13 8.13zm4.46-6.09c-.24-.12-1.45-.71-1.68-.79-.22-.09-.39-.12-.55.12-.17.24-.63.79-.77.96-.15.16-.29.18-.54.06-.24-.12-1.03-.38-1.97-1.21-.73-.65-1.22-1.46-1.37-1.7-.14-.25-.01-.38.11-.5.11-.11.24-.29.37-.43.12-.15.16-.25.24-.41.09-.17.04-.31-.02-.43-.06-.12-.55-1.33-.76-1.82-.2-.48-.41-.41-.56-.42h-.48c-.16 0-.43.06-.66.31-.22.25-.86.84-.86 2.05s.88 2.38 1 2.55c.13.16 1.73 2.64 4.19 3.7.59.25 1.04.4 1.4.52.59.19 1.13.16 1.56.1.47-.07 1.45-.59 1.65-1.16.21-.57.21-1.07.15-1.16-.06-.1-.23-.16-.48-.28z"/>
+                  </svg>
+                </div>
+                <div>
+                  <div style="font-size: 11px; font-weight: 800; color: #064E3B; display: flex; align-items: center; gap: 4px;">
+                    Contactar por WhatsApp
+                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10B981;"></span>
+                  </div>
+                  <div id="detail-whatsapp-num" style="font-size: 10px; color: #047857; font-weight: 700;">+591 71234567</div>
+                </div>
+              </div>
+              <button type="button" onclick="contactPromoViaWhatsApp()" style="background: #25D366; color: #FFF; border: none; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(37,211,102,0.3); transition: all 0.2s;" onmouseover="this.style.background='#20ba59'" onmouseout="this.style.background='#25D366'">
+                <span>Enviar mensaje</span>
+                <span style="font-size: 12px;">➔</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2288,6 +2395,16 @@
         <div class="form-group" style="margin-bottom: 8px;">
           <label class="form-label" style="font-size: 11px;">Descripción Detallada *</label>
           <textarea class="form-input" id="edit-promo-description" rows="2" required style="padding: 7px 10px; font-size: 12px;"></textarea>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label class="form-label" style="font-size: 11px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="display: flex; align-items: center; gap: 4px;">
+              <span style="color: #25D366;">💬</span> WhatsApp de Contacto
+            </span>
+            <span style="font-size: 9px; color: var(--text-muted);">(Opcional)</span>
+          </label>
+          <input class="form-input" id="edit-promo-whatsapp" placeholder="+591 71234567 o +54 9 11 ..." style="padding: 6px 8px; font-size: 12px;">
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
@@ -5421,6 +5538,11 @@
       url += `&category_id=${filter}`;
     }
 
+    const cont = document.getElementById('feed-list-view');
+    if (cont && (!allPromotions || !allPromotions.length)) {
+      cont.innerHTML = renderSkeletonCards(3);
+    }
+
     try {
       const res = await fetch(url);
       if (res.ok) {
@@ -5432,6 +5554,27 @@
     } catch (e) {
       console.error(e);
     }
+  }
+
+  function renderSkeletonCards(count = 3) {
+    let html = '';
+    for (let i = 0; i < count; i++) {
+      html += `
+        <div class="promo-card" style="padding: 0; pointer-events: none; opacity: 0.9;">
+          <div class="skeleton-shimmer" style="height: 135px; width: 100%;"></div>
+          <div style="padding: 12px;">
+            <div class="skeleton-shimmer" style="height: 12px; width: 35%; border-radius: 4px; margin-bottom: 8px;"></div>
+            <div class="skeleton-shimmer" style="height: 16px; width: 85%; border-radius: 4px; margin-bottom: 6px;"></div>
+            <div class="skeleton-shimmer" style="height: 12px; width: 60%; border-radius: 4px; margin-bottom: 12px;"></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border); padding-top: 8px;">
+              <div class="skeleton-shimmer" style="height: 20px; width: 70px; border-radius: 4px;"></div>
+              <div class="skeleton-shimmer" style="height: 28px; width: 90px; border-radius: 8px;"></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    return html;
   }
 
   function filterFeed(type, btn) {
@@ -5562,6 +5705,26 @@
     document.getElementById('detail-address').textContent = `📍 ${promo.address}`;
     document.getElementById('detail-distance').textContent = `📏 ${promo.distance_label || 'Cerca de ti'}`;
 
+    // Manejo de Contacto por WhatsApp en la Descripción
+    const waBlock = document.getElementById('detail-whatsapp-block');
+    const waNumEl = document.getElementById('detail-whatsapp-num');
+    const targetWa = (promo.whatsapp && promo.whatsapp.trim())
+      ? promo.whatsapp.trim()
+      : ((promo.merchant_name && promo.merchant_name.includes('Origen'))
+          ? '+591 71234567'
+          : ((promo.merchant_name && promo.merchant_name.includes('Napoli'))
+              ? '+54 9 11 2233-4455'
+              : '+591 71234567'));
+
+    if (targetWa) {
+      currentPromoWhatsapp = targetWa;
+      if (waNumEl) waNumEl.textContent = targetWa;
+      if (waBlock) waBlock.style.display = 'block';
+    } else {
+      currentPromoWhatsapp = null;
+      if (waBlock) waBlock.style.display = 'none';
+    }
+
     // Tags
     const tagsRow = document.getElementById('detail-tags-row');
     tagsRow.innerHTML = '';
@@ -5621,6 +5784,21 @@
 
   function closePromoDetail() {
     document.getElementById('modal-promo-detail').style.display = 'none';
+  }
+
+  let currentPromoWhatsapp = null;
+
+  function contactPromoViaWhatsApp() {
+    if (!currentDetailPromo) return;
+    const phone = currentPromoWhatsapp || currentDetailPromo.whatsapp || '+591 71234567';
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    const title = currentDetailPromo.title || 'esta oferta';
+    const price = Math.round(currentDetailPromo.promo_price || 0);
+    const merchant = currentDetailPromo.merchant_name || 'Comercio';
+
+    const msg = `¡Hola ${merchant}! 👋 Vi su oferta en Ofertapp: "${title}" (Bs. ${price}) y tengo una consulta.`;
+    const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
   }
 
   function renderGalleryView() {
@@ -6016,7 +6194,8 @@
       tags: document.getElementById('m-tags').value.split(',').map(t => t.trim()).filter(Boolean),
       latitude: parseFloat(document.getElementById('m-lat').value),
       longitude: parseFloat(document.getElementById('m-lon').value),
-      address: document.getElementById('m-address').value.trim()
+      address: document.getElementById('m-address').value.trim(),
+      whatsapp: document.getElementById('m-whatsapp') ? document.getElementById('m-whatsapp').value.trim() : ''
     };
 
     try {
@@ -6094,6 +6273,7 @@
     document.getElementById('edit-promo-image-url').value = promo.image_url || '';
     document.getElementById('edit-promo-gallery').value = (promo.images && promo.images.length) ? promo.images.join(', ') : '';
     document.getElementById('edit-promo-tags').value = (promo.tags && promo.tags.length) ? promo.tags.join(', ') : '';
+    document.getElementById('edit-promo-whatsapp').value = promo.whatsapp || '';
     const pLat = (promo.latitude !== undefined && promo.latitude !== null) ? promo.latitude : -34.6041;
     const pLon = (promo.longitude !== undefined && promo.longitude !== null) ? promo.longitude : -58.3822;
     document.getElementById('edit-promo-lat').value = pLat;
@@ -6132,6 +6312,7 @@
       image_url: document.getElementById('edit-promo-image-url').value.trim() || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800',
       gallery: galleryList,
       tags: document.getElementById('edit-promo-tags').value.split(',').map(t => t.trim()).filter(Boolean),
+      whatsapp: document.getElementById('edit-promo-whatsapp') ? document.getElementById('edit-promo-whatsapp').value.trim() : '',
       latitude: parseFloat(document.getElementById('edit-promo-lat').value),
       longitude: parseFloat(document.getElementById('edit-promo-lon').value),
       address: document.getElementById('edit-promo-address').value.trim(),

@@ -31,6 +31,7 @@ class Promotion(Base):
     image_url = Column(Text, nullable=True)
     gallery = Column(Text, nullable=True, default="")  # URLs de fotos adicionales separadas por coma
     tags = Column(Text, default="")  # ej: "pizza,artesanal,2x1"
+    whatsapp = Column(String(50), nullable=True, default="")  # Teléfono o WhatsApp de contacto directo
     
     # Coordenadas geográficas del comercio/promoción
     latitude = Column(Float, nullable=False)

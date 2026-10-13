@@ -38,6 +38,8 @@ class PromotionCreate(BaseModel):
     latitude: float
     longitude: float
     address: str
+    allow_online_purchase: Optional[bool] = True
+    allow_physical_coupon: Optional[bool] = True
 
 class PromotionUpdate(BaseModel):
     merchant_id: Optional[int] = None
@@ -55,6 +57,8 @@ class PromotionUpdate(BaseModel):
     longitude: Optional[float] = None
     address: Optional[str] = None
     is_active: Optional[bool] = None
+    allow_online_purchase: Optional[bool] = None
+    allow_physical_coupon: Optional[bool] = None
 
 class PromotionResponse(BaseModel):
     id: int
@@ -76,6 +80,8 @@ class PromotionResponse(BaseModel):
     longitude: float
     address: str
     is_active: bool
+    allow_online_purchase: bool = True
+    allow_physical_coupon: bool = True
     views_count: int
     distance_km: Optional[float] = None
     distance_label: Optional[str] = None

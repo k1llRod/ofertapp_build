@@ -450,16 +450,26 @@ def update_user_info(user_id: int, req: schemas.UserUpdate, admin: models.User =
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    if req.full_name is not None:
-        user.full_name = req.full_name
-    if req.email is not None:
-        user.email = req.email
+    if req.email is not None and req.email.strip() and req.email.strip().lower() != user.email.lower():
+        existing = db.query(models.User).filter(models.User.email == req.email.strip().lower(), models.User.id != user_id).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="El correo ya se encuentra en uso por otra cuenta")
+        user.email = req.email.strip().lower()
+
+    if req.full_name is not None and req.full_name.strip():
+        user.full_name = req.full_name.strip()
     if req.phone is not None:
-        user.phone = req.phone
+        user.phone = req.phone.strip() if req.phone.strip() else None
     if req.role is not None and req.role in ["user", "merchant", "admin"]:
         user.role = req.role
     if req.is_active is not None:
         user.is_active = req.is_active
+
+    if req.password is not None and req.password.strip():
+        if len(req.password.strip()) < 6:
+            raise HTTPException(status_code=400, detail="La nueva contraseña debe tener al menos 6 caracteres")
+        user.hashed_password = get_password_hash(req.password.strip())
+
     if req.logo_url is not None:
         user.logo_url = req.logo_url
     if req.banner_url is not None:
@@ -500,12 +510,15 @@ def update_user_role(user_id: int, req: schemas.UserRoleUpdate, admin: models.Us
 @app.delete("/admin/users/{user_id}", tags=["Admin - Users CRUD"])
 def delete_user(user_id: int, admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
     """[D - Delete] Elimina un usuario del sistema y sus datos relacionados (Requiere Admin)"""
+    if admin.id == user_id:
+        raise HTTPException(status_code=400, detail="No puedes eliminar tu propia cuenta de administrador mientras tienes sesión activa")
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    user_name = user.full_name
     db.delete(user)
     db.commit()
-    return {"status": "ok", "message": f"Usuario {user.full_name} eliminado correctamente"}
+    return {"status": "ok", "message": f"Usuario {user_name} eliminado correctamente"}
 
 
 # 2. CRUD CATEGORÍAS (Create, Read, Update, Delete)

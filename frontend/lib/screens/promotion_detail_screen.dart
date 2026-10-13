@@ -535,29 +535,46 @@ class PromotionDetailScreen extends StatelessWidget {
               child: SizedBox(
                 width: double.infinity,
                 height: 52,
-                child: ElevatedButton(
-                  onPressed: () {
-                    QrRedeemModal.show(
-                      context,
-                      promotion: promotion,
-                      onGoToMyCoupons: () => Navigator.of(context).pop(),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primary,
-                    foregroundColor: const Color(0xFF0F172A),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    textStyle: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                  child: const Text('RECLAMAR CUPÓN'),
-                ),
+                child: promotion.allowPhysicalCoupon
+                    ? ElevatedButton(
+                        onPressed: () {
+                          QrRedeemModal.show(
+                            context,
+                            promotion: promotion,
+                            onGoToMyCoupons: () => Navigator.of(context).pop(),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primary,
+                          foregroundColor: const Color(0xFF0F172A),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                        child: const Text('RECLAMAR CUPÓN'),
+                      )
+                    : ElevatedButton(
+                        onPressed: null,
+                        style: ElevatedButton.styleFrom(
+                          disabledBackgroundColor: const Color(0xFFE2E8F0),
+                          disabledForegroundColor: const Color(0xFF94A3B8),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        child: const Text('CUPÓN NO DISPONIBLE'),
+                      ),
               ),
             ),
           ),

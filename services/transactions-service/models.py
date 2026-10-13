@@ -39,6 +39,8 @@ class Promotion(Base):
     address = Column(String(255), nullable=False)
     
     is_active = Column(Boolean, default=True)
+    allow_online_purchase = Column(Boolean, default=True, nullable=False)
+    allow_physical_coupon = Column(Boolean, default=True, nullable=False)
     views_count = Column(Integer, default=0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

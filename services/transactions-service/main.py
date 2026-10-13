@@ -310,6 +310,8 @@ async def create_promotion(
         longitude=promo_in.longitude,
         address=promo_in.address,
         is_active=True,
+        allow_online_purchase=True if promo_in.allow_online_purchase is None else promo_in.allow_online_purchase,
+        allow_physical_coupon=True if promo_in.allow_physical_coupon is None else promo_in.allow_physical_coupon,
         views_count=0
     )
 
@@ -353,6 +355,8 @@ async def create_promotion(
         longitude=new_promo.longitude,
         address=new_promo.address,
         is_active=new_promo.is_active,
+        allow_online_purchase=new_promo.allow_online_purchase,
+        allow_physical_coupon=new_promo.allow_physical_coupon,
         views_count=new_promo.views_count,
         distance_km=0.0,
         distance_label="Recién creada",
@@ -449,6 +453,8 @@ def get_promotions_feed(
             longitude=p.longitude,
             address=p.address,
             is_active=p.is_active,
+            allow_online_purchase=getattr(p, 'allow_online_purchase', True),
+            allow_physical_coupon=getattr(p, 'allow_physical_coupon', True),
             views_count=p.views_count,
             distance_km=dist,
             distance_label=format_distance_label(dist),
@@ -504,6 +510,8 @@ def get_promotion_detail(promo_id: int, lat: Optional[float] = None, lon: Option
         longitude=promo.longitude,
         address=promo.address,
         is_active=promo.is_active,
+        allow_online_purchase=getattr(promo, 'allow_online_purchase', True),
+        allow_physical_coupon=getattr(promo, 'allow_physical_coupon', True),
         views_count=promo.views_count,
         distance_km=dist,
         distance_label=dist_label,
@@ -546,6 +554,8 @@ def get_all_promotions_admin(
             longitude=p.longitude,
             address=p.address,
             is_active=p.is_active,
+            allow_online_purchase=getattr(p, 'allow_online_purchase', True),
+            allow_physical_coupon=getattr(p, 'allow_physical_coupon', True),
             views_count=p.views_count,
             distance_km=0.0,
             distance_label=f"Comercio #{p.merchant_id}",
@@ -594,6 +604,8 @@ def get_merchant_promotions(
             longitude=p.longitude,
             address=p.address,
             is_active=p.is_active,
+            allow_online_purchase=getattr(p, 'allow_online_purchase', True),
+            allow_physical_coupon=getattr(p, 'allow_physical_coupon', True),
             views_count=p.views_count,
             distance_km=0.0,
             distance_label="Tu Local",
@@ -655,6 +667,10 @@ def update_promotion(
         promo.address = promo_in.address
     if promo_in.is_active is not None:
         promo.is_active = promo_in.is_active
+    if promo_in.allow_online_purchase is not None:
+        promo.allow_online_purchase = promo_in.allow_online_purchase
+    if promo_in.allow_physical_coupon is not None:
+        promo.allow_physical_coupon = promo_in.allow_physical_coupon
 
     # Si admin especifica cambiar el comercio o nombre
     if current_user.role == "admin":
@@ -688,6 +704,8 @@ def update_promotion(
         longitude=promo.longitude,
         address=promo.address,
         is_active=promo.is_active,
+        allow_online_purchase=getattr(promo, 'allow_online_purchase', True),
+        allow_physical_coupon=getattr(promo, 'allow_physical_coupon', True),
         views_count=promo.views_count,
         distance_km=0.0,
         distance_label="Actualizada",
@@ -758,6 +776,8 @@ def checkout_order(order_in: schemas.OrderCreate, db: Session = Depends(get_db))
         raise HTTPException(status_code=404, detail="Promoción no encontrada")
     if not promo.is_active:
         raise HTTPException(status_code=400, detail="Esta promoción no se encuentra activa en este momento")
+    if hasattr(promo, 'allow_online_purchase') and not promo.allow_online_purchase:
+        raise HTTPException(status_code=400, detail="La opción de compra o pago en línea no está habilitada para esta oferta")
 
     qty = max(1, order_in.quantity)
     total_amount = round(promo.promo_price * qty, 2)

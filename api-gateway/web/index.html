@@ -879,6 +879,43 @@
       font-size: 12px;
     }
 
+    /* Floating In-App Route Banner (Leaflet HUD) */
+    #floating-route-banner {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(10px);
+      padding: 11px 14px;
+      border-radius: 14px;
+      border: 1.5px solid #0284C7;
+      box-shadow: 0 8px 24px rgba(2, 132, 199, 0.22);
+      z-index: 1000;
+      animation: fadeIn 0.2s ease-out;
+    }
+    body.dark-mode #floating-route-banner {
+      background: rgba(30, 41, 59, 0.97) !important;
+      border-color: #38BDF8 !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55) !important;
+    }
+    body.dark-mode #floating-route-banner #route-dest-name {
+      color: #F8FAFC !important;
+    }
+    body.dark-mode #floating-route-banner #route-distance-text,
+    body.dark-mode #floating-route-banner #route-duration-text {
+      color: #E2E8F0 !important;
+    }
+    body.dark-mode #floating-route-banner #route-walk-text {
+      color: #94A3B8 !important;
+    }
+    body.dark-mode .map-overlay-info {
+      background: rgba(30, 41, 59, 0.95) !important;
+      border-color: #334155 !important;
+      color: #F8FAFC !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+    }
+
     /* Modals & Overlays */
     .modal-backdrop {
       position: fixed;
@@ -1572,6 +1609,33 @@
 
       <!-- Map View (Pantalla completa de Mapa tipo Google Maps con negocios) -->
       <div id="feed-map-view" style="display: none; flex: 1; position: relative;">
+        <!-- Banner Flotante de Ruta In-App (OSRM + Google Maps) -->
+        <div id="floating-route-banner" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; color: #0284C7;">
+                <span>🛣️ RUTA CALCULADA</span>
+                <span id="route-mode-badge" style="font-size: 9.5px; background: #E0F2FE; color: #0369A1; padding: 1.5px 7px; border-radius: 999px; font-weight: 800;">En auto / calles</span>
+              </div>
+              <div id="route-dest-name" style="font-size: 13px; font-weight: 800; color: #1E293B; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Destino: Negocio</div>
+              <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px; font-size: 11.5px; color: #475569;">
+                <span id="route-distance-text">📏 <strong>-- km</strong></span>
+                <span id="route-duration-text">🚗 <strong>-- min</strong></span>
+                <span id="route-walk-text" style="color: #64748B;">🚶 <strong>-- min</strong></span>
+              </div>
+            </div>
+            <button type="button" class="btn-secondary" style="padding: 4px 8px; font-size: 12px; line-height: 1; border-radius: 8px;" onclick="clearActiveRoute()" title="Quitar ruta">✕</button>
+          </div>
+          <div style="display: flex; gap: 6px; margin-top: 9px;">
+            <button type="button" class="btn-primary" id="btn-route-start-nav" style="flex: 1.2; font-size: 11px; padding: 7px 10px; font-weight: 800; border-radius: 9px; box-shadow: 0 2px 8px rgba(245,158,11,0.3);" onclick="startActiveNavigationGoogleMaps()" title="Abrir navegación por voz en Google Maps">
+              🚀 Navegación por Voz (Google Maps)
+            </button>
+            <button type="button" class="btn-secondary" id="btn-route-waze" style="font-size: 11px; padding: 7px 10px; font-weight: 700; border-radius: 9px; color: #0284C7; border: 1px solid #BAE6FD;" onclick="startActiveNavigationWaze()" title="Abrir ruta en Waze">
+              🚙 Waze
+            </button>
+          </div>
+        </div>
+
         <div id="city-map" class="map-full"></div>
         <div class="map-overlay-info" style="position: absolute; bottom: 12px; left: 12px; right: 12px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.15); font-size: 11px; z-index: 1000; display: flex; justify-content: space-between; align-items: center;">
           <div style="display: flex; align-items: center; gap: 6px;">
@@ -1763,6 +1827,29 @@
             <input class="form-input" id="m-address" required value="Av. Corrientes 1500, Centro">
           </div>
 
+          <!-- OPCIONES ACTIVABLES POR EL COMERCIO: COMPRA EN LÍNEA Y CUPÓN PRESENCIAL -->
+          <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+            <div style="font-size: 12px; font-weight: 800; color: #1E293B; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+              <span>⚙️</span> Opciones de Disponibilidad de la Oferta
+            </div>
+            
+            <label style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; cursor: pointer; padding: 8px 10px; border-radius: 8px; background: #FFFFFF; border: 1px solid var(--border);">
+              <input type="checkbox" id="m-allow-online" checked style="width: 18px; height: 18px; accent-color: var(--primary); margin-top: 2px;">
+              <div>
+                <div style="font-size: 12px; font-weight: 800; color: #1E293B;">💳 Opción de Compra / Pago en Línea</div>
+                <div style="font-size: 10px; color: #64748B;">Permite que los clientes paguen directamente con tarjeta / pasarela desde la app para recibir su comprobante y QR.</div>
+              </div>
+            </label>
+
+            <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; padding: 8px 10px; border-radius: 8px; background: #FFFFFF; border: 1px solid var(--border);">
+              <input type="checkbox" id="m-allow-coupon" checked style="width: 18px; height: 18px; accent-color: var(--primary); margin-top: 2px;">
+              <div>
+                <div style="font-size: 12px; font-weight: 800; color: #1E293B;">🎟️ Cupón Presencial de Compra en Local</div>
+                <div style="font-size: 10px; color: #64748B;">Permite que los clientes reclamen y canjeen el cupón de descuento en tu tienda física presencialmente.</div>
+              </div>
+            </label>
+          </div>
+
           <button type="submit" class="btn-primary" style="width: 100%; margin-top: 6px;" id="btn-save-merch">
             🚀 Publicar con Galería y Disparar Alertas
           </button>
@@ -1858,19 +1945,19 @@
           </div>
         </form>
 
-        <div style="overflow-x: auto;">
-          <table class="admin-table">
+        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; border: 1px solid var(--border); background: #FFF;">
+          <table class="admin-table" style="min-width: 630px; width: 100%; border: none;">
             <thead>
               <tr>
-                <th>ID</th>
+                <th style="width: 50px;">ID</th>
                 <th>Nombre / Email</th>
-                <th>Rol / Permiso</th>
-                <th>Estado</th>
-                <th>Acciones</th>
+                <th style="width: 140px;">Rol / Permiso</th>
+                <th style="width: 90px;">Estado</th>
+                <th style="width: 240px; text-align: center;">Acciones</th>
               </tr>
             </thead>
             <tbody id="admin-users-tbody">
-              <tr><td colspan="5" style="text-align: center;">Cargando usuarios...</td></tr>
+              <tr><td colspan="5" style="text-align: center; padding: 20px; color: var(--text-muted);">⏳ Cargando usuarios...</td></tr>
             </tbody>
           </table>
         </div>
@@ -2236,6 +2323,81 @@
   </div>
 
   <!-- ========================================== -->
+  <!-- MODAL: MODIFICAR / EDITAR USUARIO (ADMIN)  -->
+  <!-- ========================================== -->
+  <div id="modal-edit-user" class="modal-backdrop" onclick="if(event.target === this) closeEditUserModal()">
+    <div class="modal-box" style="max-width: 480px; padding: 18px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header-sticky">
+        <h3 style="font-size: 15px; font-weight: 800; color: #1E293B; margin: 0; display: flex; align-items: center; gap: 6px;">
+          <span>✏️</span> Modificar Usuario
+        </h3>
+        <button type="button" onclick="closeEditUserModal()" class="modal-close-static-btn" title="Cerrar ventana">✕</button>
+      </div>
+
+      <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
+        Actualiza los datos personales, rol o estado del usuario en la plataforma.
+      </p>
+
+      <form id="form-edit-user" onsubmit="handleSaveEditUser(event)">
+        <input type="hidden" id="edit-user-id">
+
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label class="form-label" style="font-size: 11px;">Nombre Completo / Razón Social *</label>
+          <input class="form-input" id="edit-user-fullname" required style="padding: 7px 10px; font-size: 12px;" placeholder="Ej: Carlos Gómez / Restaurante Luna">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 11px;">Correo Electrónico *</label>
+            <input type="email" class="form-input" id="edit-user-email" required style="padding: 7px 10px; font-size: 12px;" placeholder="carlos@ofertapp.com">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 11px;">Teléfono (Opcional)</label>
+            <input class="form-input" id="edit-user-phone" style="padding: 7px 10px; font-size: 12px;" placeholder="+54 11 1234-5678">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 11px;">Rol Asignado *</label>
+            <select class="form-input" id="edit-user-role" required style="padding: 7px 8px; font-size: 12px;">
+              <option value="user">👤 Consumidor (user)</option>
+              <option value="merchant">🏪 Comercio (merchant)</option>
+              <option value="admin">🛡️ Administrador (admin)</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 11px;">Estado de la Cuenta *</label>
+            <select class="form-input" id="edit-user-status" required style="padding: 7px 8px; font-size: 12px;">
+              <option value="true">● Activo (Habilitado)</option>
+              <option value="false">○ Inactivo (Suspendido)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label" style="font-size: 11px;">Restablecer Contraseña (Opcional)</label>
+          <input type="password" class="form-input" id="edit-user-password" placeholder="Dejar en blanco para conservar contraseña actual" style="padding: 7px 10px; font-size: 12px;">
+          <span style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">Si escribes una nueva contraseña, debe tener al menos 6 caracteres.</span>
+        </div>
+
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="btn-secondary" style="font-size: 12px; padding: 8px 12px; color: #DC2626; border: 1px solid #FECACA; background: #FEF2F2; font-weight: 700;" onclick="deleteUserFromEditModal()" title="Eliminar definitivamente este usuario">
+            🗑️ Eliminar
+          </button>
+          <div style="flex: 1;"></div>
+          <button type="button" class="btn-secondary" style="font-size: 12px; padding: 8px 14px;" onclick="closeEditUserModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-primary" style="font-size: 12px; padding: 8px 16px;">
+            💾 Guardar Cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
   <!-- MODAL: DETALLE COMPLETO Y GALERÍA DE FOTOS -->
   <!-- ========================================== -->
   <div id="modal-promo-detail" class="modal-backdrop">
@@ -2337,17 +2499,26 @@
         </div>
       </div>
 
-      <!-- INFORMACIÓN DEL COMERCIO Y UBICACIÓN -->
-      <div style="background: #FFFFFF; border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+      <!-- INFORMACIÓN DEL COMERCIO Y UBICACIÓN CON ACCIONES DE CÓMO LLEGAR -->
+      <div style="background: #FFFFFF; border: 1px solid var(--border); border-radius: 14px; padding: 12px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
         <div>
-          <div style="font-size: 10px; font-weight: 800; color: #64748B; text-transform: uppercase;">Punto de Canje / Local</div>
-          <div style="font-size: 12px; font-weight: 800; color: #1E293B; margin-top: 2px;" id="detail-merchant-name">Pizzería Bella Napoli</div>
-          <div style="font-size: 11px; color: #64748B;" id="detail-address">📍 Av. Corrientes 1250, Centro</div>
-          <div style="font-size: 10px; font-weight: 700; color: var(--primary);" id="detail-distance">📏 a 450 m de tu ubicación</div>
+          <div style="font-size: 10px; font-weight: 800; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px;">Punto de Canje / Local</div>
+          <div style="font-size: 13px; font-weight: 800; color: #1E293B; margin-top: 2px;" id="detail-merchant-name">Pizzería Bella Napoli</div>
+          <div style="font-size: 11.5px; color: #64748B; margin-top: 1px;" id="detail-address">📍 Av. Corrientes 1250, Centro</div>
+          <div style="font-size: 11px; font-weight: 800; color: var(--primary); margin-top: 2px;" id="detail-distance">📏 a 450 m de tu ubicación</div>
         </div>
-        <button type="button" class="btn-secondary" style="font-size: 11px; padding: 6px 10px;" onclick="viewPromoOnMap()" title="Ver en el mapa de la ciudad">
-          🗺️ Ver Mapa
-        </button>
+        <!-- Botones de Cómo Llegar / Navegación (Modelo Híbrido) -->
+        <div style="display: flex; gap: 6px; margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 9px;">
+          <button type="button" class="btn-primary" style="flex: 1.2; font-size: 11px; padding: 8px 10px; font-weight: 800; border-radius: 10px;" onclick="navigateDetailPromoGoogleMaps()" title="Abrir navegación paso a paso en Google Maps">
+            🚗 Cómo Llegar (GPS)
+          </button>
+          <button type="button" class="btn-secondary" style="flex: 1; font-size: 11px; padding: 8px 10px; font-weight: 700; border-radius: 10px; color: #0284C7; border: 1px solid #BAE6FD;" onclick="navigateDetailPromoInApp()" title="Trazar ruta interactiva en el mapa">
+            🛣️ Trazar en Mapa
+          </button>
+          <button type="button" class="btn-secondary" style="font-size: 11px; padding: 8px 10px; font-weight: 700; border-radius: 10px;" onclick="navigateDetailPromoWaze()" title="Abrir ruta en Waze">
+            🚙 Waze
+          </button>
+        </div>
       </div>
 
       <!-- ACCIONES: COMPRAR EN LÍNEA & CANJEAR CUPÓN -->
@@ -2355,9 +2526,12 @@
         <button type="button" id="btn-detail-buy-online" class="btn-primary" style="width: 100%; padding: 12px; font-size: 14px; font-weight: 800; border-radius: 12px; box-shadow: 0 4px 14px rgba(255,87,34,0.3);" onclick="openOnlineCheckout()">
           💳 Comprar / Pagar en Línea (Bs. 0)
         </button>
-        <button type="button" class="btn-secondary" style="width: 100%; padding: 8px; font-size: 11px; font-weight: 700;" onclick="claimCouponInstant()">
+        <button type="button" id="btn-detail-coupon" class="btn-secondary" style="width: 100%; padding: 10px; font-size: 12px; font-weight: 700; border-radius: 10px;" onclick="claimCouponInstant()">
           🎟️ Canjear Cupón Presencial en Local
         </button>
+        <div id="detail-no-actions-notice" style="display: none; background: #F8FAFC; border: 1px dashed var(--border); border-radius: 10px; padding: 10px 12px; text-align: center; font-size: 11px; color: #64748B;">
+          ℹ️ <strong>Oferta informativa:</strong> La compra en línea y los cupones están deshabilitados para esta publicación. Acércate directamente al local o contacta por WhatsApp para consultar disponibilidad.
+        </div>
       </div>
 
       <!-- ACCIONES DE GESTIÓN (SOLO DUEÑO O ADMIN) -->
@@ -2478,6 +2652,27 @@
         <div class="form-group" style="margin-bottom: 8px;">
           <label class="form-label" style="font-size: 11px;">Dirección física del local</label>
           <input class="form-input" id="edit-promo-address" placeholder="Av. Principal 123" style="padding: 6px 8px; font-size: 12px;">
+        </div>
+
+        <!-- OPCIONES ACTIVABLES POR EL COMERCIO: COMPRA EN LÍNEA Y CUPÓN PRESENCIAL -->
+        <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 10px;">
+          <div style="font-size: 11px; font-weight: 800; color: #1E293B; margin-bottom: 8px;">⚙️ Opciones de Disponibilidad de la Oferta:</div>
+          
+          <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; cursor: pointer; padding: 6px 8px; border-radius: 6px; background: #FFFFFF; border: 1px solid var(--border);">
+            <input type="checkbox" id="edit-promo-allow-online" style="width: 16px; height: 16px; accent-color: var(--primary); margin-top: 1px;">
+            <div>
+              <div style="font-size: 11px; font-weight: 700; color: #1E293B;">💳 Opción de Compra / Pago en Línea</div>
+              <div style="font-size: 9px; color: #64748B;">Habilita el botón de compra inmediata con tarjeta/QR para esta oferta.</div>
+            </div>
+          </label>
+
+          <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer; padding: 6px 8px; border-radius: 6px; background: #FFFFFF; border: 1px solid var(--border);">
+            <input type="checkbox" id="edit-promo-allow-coupon" style="width: 16px; height: 16px; accent-color: var(--primary); margin-top: 1px;">
+            <div>
+              <div style="font-size: 11px; font-weight: 700; color: #1E293B;">🎟️ Cupón Presencial de Canje en Local</div>
+              <div style="font-size: 9px; color: #64748B;">Habilita el botón de cupón para canjear en la tienda física.</div>
+            </div>
+          </label>
         </div>
 
         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; background: #F8FAFC; padding: 8px 10px; border-radius: 8px;">
@@ -3136,6 +3331,8 @@
   let cityMarkers = [];
   let userGpsCircle = null;
   let userGpsMarker = null;
+  let activeRouteLayer = null;
+  let activeRoutePromo = null;
 
   // Ubicación GPS dinámica (inicia en Centro y se actualiza al detectar dispositivo)
   let USER_COORDS = { lat: -34.6037, lon: -58.3816 };
@@ -3516,7 +3713,7 @@
       const photosCount = (p.images && p.images.length) ? p.images.length : 1;
       const marker = L.marker([p.latitude, p.longitude], { icon: dealIcon }).addTo(cityMap);
       marker.bindPopup(`
-        <div style="font-family: inherit; font-size: 12px; min-width: 180px;">
+        <div style="font-family: inherit; font-size: 12px; min-width: 190px;">
           <div style="position: relative;">
             <img src="${p.image_url}" style="width: 100%; height: 85px; object-fit: cover; border-radius: 8px; margin-bottom: 6px; cursor: pointer;" onclick="openPromoDetail(${p.id})">
             ${photosCount > 1 ? `<span style="position: absolute; bottom: 10px; right: 4px; background: rgba(0,0,0,0.7); color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 999px; font-weight: bold;">📸 ${photosCount} fotos</span>` : ''}
@@ -3526,12 +3723,23 @@
           <div style="margin: 4px 0;">
             <strong>📍 ${p.distance_label}</strong> • <span style="color: #059669; font-weight: bold; font-size: 13px;">Bs. ${Math.round(p.promo_price)}</span>
           </div>
+          <!-- Acciones de Navegación / Cómo Llegar -->
           <div style="display: flex; gap: 4px; margin-top: 6px;">
-            <button class="btn-primary" style="flex: 1; font-size: 10px; padding: 4px 6px;" onclick="openPromoDetail(${p.id})">👁️ Ver Fotos y Detalle</button>
-            <button class="btn-secondary" style="font-size: 10px; padding: 4px 6px;" onclick="openOnlineCheckoutWithPromo(${p.id})">💳 Pagar</button>
+            <button class="btn-secondary" style="flex: 1; font-size: 10px; padding: 5px 6px; font-weight: 800; color: #0284C7; border: 1px solid #BAE6FD;" onclick="traceInAppRouteToPromo(${p.id})">🛣️ Trazar Ruta</button>
+            <button class="btn-primary" style="flex: 1; font-size: 10px; padding: 5px 6px; font-weight: 800;" onclick="openGoogleMapsNavigation(${p.latitude}, ${p.longitude}, '${encodeURIComponent(p.merchant_name || p.title)}')">🚗 Cómo llegar</button>
+          </div>
+          <div style="display: flex; gap: 4px; margin-top: 4px;">
+            <button class="btn-secondary" style="flex: 1; font-size: 10px; padding: 4px 6px;" onclick="openPromoDetail(${p.id})">👁️ Ver Detalle</button>
+            ${p.allow_online_purchase !== false ? `<button class="btn-secondary" style="font-size: 10px; padding: 4px 6px; font-weight: 800; color: #059669;" onclick="openOnlineCheckoutWithPromo(${p.id})">💳 Pagar</button>` : ''}
           </div>
         </div>
       `);
+
+      // Al hacer clic en el pin del mapa, trazar automáticamente la ruta para apreciar la aproximación visual
+      marker.on('click', () => {
+        traceInAppRouteToPromo(p.id, false);
+      });
+
       cityMarkers.push(marker);
     });
   }
@@ -3540,6 +3748,259 @@
     updateGpsToCurrentLocation(false);
     if (cityMap) {
       cityMap.setView([USER_COORDS.lat, USER_COORDS.lon], 15);
+    }
+  }
+
+  // ==========================================
+  // CÓMO LLEGAR & TRAZADO DE RUTAS (MODELO HÍBRIDO)
+  // ==========================================
+  function openGoogleMapsNavigation(lat, lon, title = '') {
+    let url;
+    if (lat != null && lon != null && !isNaN(lat) && !isNaN(lon)) {
+      url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=driving`;
+    } else if (title) {
+      url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(title)}&travelmode=driving`;
+    } else {
+      alert('⚠️ No se encontraron coordenadas válidas para este comercio.');
+      return;
+    }
+    window.open(url, '_blank');
+  }
+
+  function openWazeNavigation(lat, lon) {
+    if (lat != null && lon != null && !isNaN(lat) && !isNaN(lon)) {
+      const url = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
+      window.open(url, '_blank');
+    } else {
+      alert('⚠️ No se encontraron coordenadas válidas para abrir Waze.');
+    }
+  }
+
+  function navigateDetailPromoGoogleMaps() {
+    if (!currentDetailPromo) return;
+    openGoogleMapsNavigation(
+      currentDetailPromo.latitude, 
+      currentDetailPromo.longitude, 
+      currentDetailPromo.merchant_name || currentDetailPromo.title
+    );
+  }
+
+  function navigateDetailPromoWaze() {
+    if (!currentDetailPromo) return;
+    openWazeNavigation(currentDetailPromo.latitude, currentDetailPromo.longitude);
+  }
+
+  function navigateDetailPromoInApp() {
+    if (!currentDetailPromo) return;
+    const promo = currentDetailPromo;
+    closePromoDetail();
+    if (!isMapView) {
+      toggleFeedMapView(true);
+    }
+    setTimeout(() => {
+      traceInAppRouteToPromo(promo, true);
+    }, 200);
+  }
+
+  function startActiveNavigationGoogleMaps() {
+    if (!activeRoutePromo) return;
+    openGoogleMapsNavigation(
+      activeRoutePromo.latitude,
+      activeRoutePromo.longitude,
+      activeRoutePromo.merchant_name || activeRoutePromo.title
+    );
+  }
+
+  function startActiveNavigationWaze() {
+    if (!activeRoutePromo) return;
+    openWazeNavigation(activeRoutePromo.latitude, activeRoutePromo.longitude);
+  }
+
+  function clearActiveRoute() {
+    if (activeRouteLayer && cityMap) {
+      cityMap.removeLayer(activeRouteLayer);
+    }
+    activeRouteLayer = null;
+    activeRoutePromo = null;
+    const banner = document.getElementById('floating-route-banner');
+    if (banner) banner.style.display = 'none';
+  }
+
+  async function traceInAppRouteToPromo(promoOrId, autoCenter = true) {
+    let promo = null;
+    if (typeof promoOrId === 'object' && promoOrId !== null) {
+      promo = promoOrId;
+    } else {
+      promo = allPromotions.find(p => p.id === promoOrId);
+    }
+    if (!promo || promo.latitude == null || promo.longitude == null || isNaN(promo.latitude) || isNaN(promo.longitude)) {
+      alert('⚠️ Esta oferta no posee coordenadas de geolocalización válidas.');
+      return;
+    }
+
+    activeRoutePromo = promo;
+    
+    // Asegurar que el mapa esté visible
+    if (!isMapView) {
+      toggleFeedMapView(true);
+    }
+
+    const startLat = USER_COORDS.lat;
+    const startLon = USER_COORDS.lon;
+    const destLat = Number(promo.latitude);
+    const destLon = Number(promo.longitude);
+
+    // Mostrar banner en estado calculando
+    const banner = document.getElementById('floating-route-banner');
+    if (banner) {
+      banner.style.display = 'block';
+      document.getElementById('route-dest-name').textContent = `Destino: ${promo.merchant_name || promo.title}`;
+      document.getElementById('route-distance-text').innerHTML = `📏 <em>Calculando...</em>`;
+      document.getElementById('route-duration-text').innerHTML = `🚗 <em>...</em>`;
+      document.getElementById('route-walk-text').innerHTML = `🚶 <em>...</em>`;
+      const badge = document.getElementById('route-mode-badge');
+      if (badge) {
+        badge.textContent = 'Calculando calles (OSRM)...';
+        badge.style.background = '#E0F2FE';
+        badge.style.color = '#0369A1';
+      }
+    }
+
+    try {
+      // Intentar calcular ruta en calles reales vía motor público OSRM (Driving)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4500);
+      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${destLon},${destLat}?overview=full&geometries=geojson`;
+      
+      const res = await fetch(osrmUrl, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.routes && data.routes.length > 0) {
+          const route = data.routes[0];
+          // GeoJSON trae [lon, lat] -> Convertir a Leaflet [lat, lon]
+          const latlngs = route.geometry.coordinates.map(c => [c[1], c[0]]);
+          drawRouteOnCityMap(latlngs, route.distance, route.duration, promo, autoCenter, false);
+          return;
+        }
+      }
+      throw new Error('No se pudo obtener geometría de OSRM');
+    } catch (err) {
+      console.warn('Fallo OSRM o timeout, usando aproximación directa por línea:', err);
+      // Fallback: Trazado directo en línea punteada con cálculo Haversine
+      drawDirectLineRouteFallback(startLat, startLon, destLat, destLon, promo, autoCenter);
+    }
+  }
+
+  function drawRouteOnCityMap(latlngs, distanceMeters, durationSecs, promo, autoCenter = true, isDirectFallback = false) {
+    if (!cityMap) return;
+
+    if (activeRouteLayer) {
+      cityMap.removeLayer(activeRouteLayer);
+      activeRouteLayer = null;
+    }
+
+    const group = L.layerGroup();
+
+    if (isDirectFallback) {
+      // Línea punteada de aproximación
+      const directLine = L.polyline(latlngs, {
+        color: '#EA580C',
+        weight: 4,
+        opacity: 0.85,
+        dashArray: '8, 8',
+        lineCap: 'round'
+      });
+      group.addLayer(directLine);
+    } else {
+      // Trazo vial con resplandor moderno
+      const glowLine = L.polyline(latlngs, {
+        color: '#0369A1',
+        weight: 8,
+        opacity: 0.35,
+        lineCap: 'round',
+        lineJoin: 'round'
+      });
+      const mainLine = L.polyline(latlngs, {
+        color: '#0284C7',
+        weight: 4.5,
+        opacity: 0.95,
+        lineCap: 'round',
+        lineJoin: 'round'
+      });
+      group.addLayer(glowLine);
+      group.addLayer(mainLine);
+    }
+
+    group.addTo(cityMap);
+    activeRouteLayer = group;
+
+    // Ajustar encuadre para ver usuario y comercio completo
+    if (autoCenter) {
+      try {
+        const bounds = L.latLngBounds(latlngs);
+        cityMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 17 });
+      } catch (e) {
+        cityMap.setView([promo.latitude, promo.longitude], 15);
+      }
+    }
+
+    // Actualizar HUD
+    updateRouteBannerInfo(promo, distanceMeters, durationSecs, isDirectFallback);
+  }
+
+  function drawDirectLineRouteFallback(startLat, startLon, destLat, destLon, promo, autoCenter = true) {
+    const latlngs = [
+      [startLat, startLon],
+      [destLat, destLon]
+    ];
+    // Calcular distancia Haversine en metros
+    const distMeters = calculateDistanceInMeters(startLat, startLon, destLat, destLon);
+    // Estimación en auto a ~35 km/h y a pie a 4.5 km/h
+    const distKm = distMeters / 1000;
+    const durSecs = Math.round((distKm / 35) * 3600);
+    drawRouteOnCityMap(latlngs, distMeters, durSecs, promo, autoCenter, true);
+  }
+
+  function calculateDistanceInMeters(lat1, lon1, lat2, lon2) {
+    const R = 6371e3; // Radio de la Tierra en metros
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return Math.round(R * c);
+  }
+
+  function updateRouteBannerInfo(promo, distanceMeters, durationSecs, isDirectFallback) {
+    const banner = document.getElementById('floating-route-banner');
+    if (!banner) return;
+    banner.style.display = 'block';
+
+    const distKm = (distanceMeters / 1000).toFixed(distanceMeters < 1000 ? 0 : 1);
+    const distFormatted = distanceMeters < 1000 ? `${Math.round(distanceMeters)} m` : `${distKm} km`;
+
+    const driveMins = Math.max(1, Math.round(durationSecs / 60));
+    const walkMins = Math.max(1, Math.round(((distanceMeters / 1000) / 4.5) * 60));
+
+    document.getElementById('route-dest-name').textContent = `Destino: ${promo.merchant_name || promo.title}`;
+    document.getElementById('route-distance-text').innerHTML = `📏 <strong>${distFormatted}</strong>`;
+    document.getElementById('route-duration-text').innerHTML = `🚗 <strong>${driveMins} min</strong>`;
+    document.getElementById('route-walk-text').innerHTML = `🚶 <strong>${walkMins} min</strong>`;
+
+    const badge = document.getElementById('route-mode-badge');
+    if (badge) {
+      if (isDirectFallback) {
+        badge.textContent = 'Línea directa aproximada';
+        badge.style.background = '#FFEDD5';
+        badge.style.color = '#C2410C';
+      } else {
+        badge.textContent = 'En auto / calles (OSRM)';
+        badge.style.background = '#E0F2FE';
+        badge.style.color = '#0369A1';
+      }
     }
   }
 
@@ -5660,9 +6121,10 @@
               <span style="font-size: 11px; color: #94A3B8; text-decoration: line-through;">Bs. ${Math.round(p.original_price)}</span>
               <div style="font-size: 18px; font-weight: 800; color: var(--primary);">Bs. ${Math.round(p.promo_price)}</div>
             </div>
-            <div style="display: flex; gap: 6px;">
-              <button class="btn-secondary" style="font-size: 11px; padding: 6px 10px;" onclick="openPromoDetail(${p.id})">👁️ Ver Detalle</button>
-              <button class="btn-primary" style="font-size: 11px; padding: 6px 12px; font-weight: 800;" onclick="openOnlineCheckoutWithPromo(${p.id})">💳 Comprar</button>
+            <div style="display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end;">
+              <button class="btn-secondary" style="font-size: 11px; padding: 6px 9px; color: #0284C7; border: 1px solid #BAE6FD; font-weight: 700;" onclick="event.stopPropagation(); openGoogleMapsNavigation(${p.latitude}, ${p.longitude}, '${encodeURIComponent(p.merchant_name || p.title)}')" title="Cómo llegar con Google Maps">🚗 Cómo llegar</button>
+              <button class="btn-secondary" style="font-size: 11px; padding: 6px 9px;" onclick="openPromoDetail(${p.id})">👁️ Ver Detalle</button>
+              ${p.allow_online_purchase !== false ? `<button class="btn-primary" style="font-size: 11px; padding: 6px 11px; font-weight: 800;" onclick="openOnlineCheckoutWithPromo(${p.id})">💳 Comprar</button>` : ''}
             </div>
           </div>
         </div>
@@ -5748,8 +6210,27 @@
     // Renderizar Galería interactiva
     renderGalleryView();
 
-    // Actualizar botón de pago en línea
-    document.getElementById('btn-detail-buy-online').textContent = `💳 Comprar / Pagar en Línea (Bs. ${Math.round(promo.promo_price)})`;
+    // Actualizar botones de acción según configuración de la oferta
+    const hasOnlineBuy = promo.allow_online_purchase !== false;
+    const hasCoupon = promo.allow_physical_coupon !== false;
+
+    const btnBuy = document.getElementById('btn-detail-buy-online');
+    if (btnBuy) {
+      btnBuy.style.display = hasOnlineBuy ? 'block' : 'none';
+      if (hasOnlineBuy) {
+        btnBuy.textContent = `💳 Comprar / Pagar en Línea (Bs. ${Math.round(promo.promo_price)})`;
+      }
+    }
+
+    const btnCoupon = document.getElementById('btn-detail-coupon');
+    if (btnCoupon) {
+      btnCoupon.style.display = hasCoupon ? 'block' : 'none';
+    }
+
+    const noActionsNotice = document.getElementById('detail-no-actions-notice');
+    if (noActionsNotice) {
+      noActionsNotice.style.display = (!hasOnlineBuy && !hasCoupon) ? 'block' : 'none';
+    }
 
     // Incrementar vista en backend de forma asíncrona
     fetch(`${API_BASE}/promotions/${promo.id}`).catch(() => {});
@@ -5856,6 +6337,10 @@
 
   function claimCouponInstant() {
     if (!currentDetailPromo) return;
+    if (currentDetailPromo.allow_physical_coupon === false) {
+      alert('⚠️ El canje de cupón presencial se encuentra desactivado para esta oferta.');
+      return;
+    }
     alert(`🎟️ ¡Cupón Canjeado con Éxito!\n\nPromoción: ${currentDetailPromo.title}\nComercio: ${currentDetailPromo.merchant_name}\nDirección: ${currentDetailPromo.address}\n\nPresenta este cupón en el local para obtener tu ${Math.round(currentDetailPromo.discount_percent)}% de descuento.`);
   }
 
@@ -5875,6 +6360,10 @@
   function openOnlineCheckoutWithPromo(promoId) {
     const promo = allPromotions.find(p => p.id === promoId);
     if (!promo) return;
+    if (promo.allow_online_purchase === false) {
+      alert('⚠️ La opción de compra o pago en línea se encuentra desactivada para esta oferta.');
+      return;
+    }
     checkoutPromo = promo;
     checkoutQty = 1;
 
@@ -6038,10 +6527,18 @@
           item.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: start; gap: 8px;">
               <div>
-                <span style="font-size: 10px; font-weight: bold; background: ${p.is_active ? '#ECFDF5' : '#FEF2F2'}; color: ${p.is_active ? '#059669' : '#DC2626'}; padding: 2px 6px; border-radius: 4px;">
-                  ${p.is_active ? '● Activa' : '● Pausada'}
-                </span>
-                <span style="font-size: 10px; color: #64748B; margin-left: 6px;">📸 ${pPhotos} foto${pPhotos > 1 ? 's' : ''}</span>
+                <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-bottom: 4px;">
+                  <span style="font-size: 10px; font-weight: bold; background: ${p.is_active ? '#ECFDF5' : '#FEF2F2'}; color: ${p.is_active ? '#059669' : '#DC2626'}; padding: 2px 6px; border-radius: 4px;">
+                    ${p.is_active ? '● Activa' : '● Pausada'}
+                  </span>
+                  <span style="font-size: 9px; font-weight: 700; background: ${p.allow_online_purchase !== false ? '#E0F2FE' : '#F1F5F9'}; color: ${p.allow_online_purchase !== false ? '#0369A1' : '#94A3B8'}; padding: 2px 6px; border-radius: 4px;">
+                    💳 ${p.allow_online_purchase !== false ? 'Compra: Sí' : 'Compra: No'}
+                  </span>
+                  <span style="font-size: 9px; font-weight: 700; background: ${p.allow_physical_coupon !== false ? '#FEF3C7' : '#F1F5F9'}; color: ${p.allow_physical_coupon !== false ? '#B45309' : '#94A3B8'}; padding: 2px 6px; border-radius: 4px;">
+                    🎟️ ${p.allow_physical_coupon !== false ? 'Cupón: Sí' : 'Cupón: No'}
+                  </span>
+                  <span style="font-size: 10px; color: #64748B; margin-left: 2px;">📸 ${pPhotos} foto${pPhotos > 1 ? 's' : ''}</span>
+                </div>
                 <h4 style="font-size: 13px; font-weight: 800; margin-top: 4px;">${p.title}</h4>
                 <div style="font-size: 11px; color: var(--text-muted);">Bs. ${Math.round(p.promo_price)} <span style="text-decoration: line-through; font-size: 10px;">Bs. ${Math.round(p.original_price)}</span> (${Math.round(p.discount_percent)}% OFF) • 📍 ${p.address}</div>
               </div>
@@ -6195,7 +6692,9 @@
       latitude: parseFloat(document.getElementById('m-lat').value),
       longitude: parseFloat(document.getElementById('m-lon').value),
       address: document.getElementById('m-address').value.trim(),
-      whatsapp: document.getElementById('m-whatsapp') ? document.getElementById('m-whatsapp').value.trim() : ''
+      whatsapp: document.getElementById('m-whatsapp') ? document.getElementById('m-whatsapp').value.trim() : '',
+      allow_online_purchase: document.getElementById('m-allow-online') ? document.getElementById('m-allow-online').checked : true,
+      allow_physical_coupon: document.getElementById('m-allow-coupon') ? document.getElementById('m-allow-coupon').checked : true
     };
 
     try {
@@ -6279,6 +6778,8 @@
     document.getElementById('edit-promo-lat').value = pLat;
     document.getElementById('edit-promo-lon').value = pLon;
     document.getElementById('edit-promo-address').value = promo.address || '';
+    document.getElementById('edit-promo-allow-online').checked = promo.allow_online_purchase !== false;
+    document.getElementById('edit-promo-allow-coupon').checked = promo.allow_physical_coupon !== false;
     document.getElementById('edit-promo-active').checked = promo.is_active !== false;
 
     document.getElementById('modal-edit-promo').style.display = 'flex';
@@ -6316,6 +6817,8 @@
       latitude: parseFloat(document.getElementById('edit-promo-lat').value),
       longitude: parseFloat(document.getElementById('edit-promo-lon').value),
       address: document.getElementById('edit-promo-address').value.trim(),
+      allow_online_purchase: document.getElementById('edit-promo-allow-online').checked,
+      allow_physical_coupon: document.getElementById('edit-promo-allow-coupon').checked,
       is_active: document.getElementById('edit-promo-active').checked
     };
 
@@ -6448,12 +6951,18 @@
       item.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: start; gap: 8px;">
           <div>
-            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+            <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-bottom: 4px;">
               <span style="font-size: 10px; font-weight: bold; background: ${p.is_active ? '#ECFDF5' : '#FEF2F2'}; color: ${p.is_active ? '#059669' : '#DC2626'}; padding: 2px 6px; border-radius: 4px;">
                 ${p.is_active ? '● Activa' : '● Pausada'}
               </span>
               <span style="font-size: 10px; font-weight: 800; background: #FFF7ED; color: #C2410C; padding: 2px 6px; border-radius: 4px;">
                 🏪 ${p.merchant_name} (ID: ${p.merchant_id})
+              </span>
+              <span style="font-size: 9px; font-weight: 700; background: ${p.allow_online_purchase !== false ? '#E0F2FE' : '#F1F5F9'}; color: ${p.allow_online_purchase !== false ? '#0369A1' : '#94A3B8'}; padding: 2px 6px; border-radius: 4px;">
+                💳 ${p.allow_online_purchase !== false ? 'Compra: Sí' : 'Compra: No'}
+              </span>
+              <span style="font-size: 9px; font-weight: 700; background: ${p.allow_physical_coupon !== false ? '#FEF3C7' : '#F1F5F9'}; color: ${p.allow_physical_coupon !== false ? '#B45309' : '#94A3B8'}; padding: 2px 6px; border-radius: 4px;">
+                🎟️ ${p.allow_physical_coupon !== false ? 'Cupón: Sí' : 'Cupón: No'}
               </span>
               <span style="font-size: 10px; color: #64748B;">📸 ${pPhotos} foto${pPhotos > 1 ? 's' : ''}</span>
             </div>
@@ -6499,7 +7008,9 @@
 
         users.forEach(u => {
           const tr = document.createElement('tr');
-          const safeName = (u.full_name || 'Usuario').replace(/'/g, "\\'");
+          const safeName = (u.full_name || 'Usuario').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+          const safeEmail = (u.email || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+          const safePhone = (u.phone || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
           tr.innerHTML = `
             <td><strong>#${u.id}</strong></td>
             <td>
@@ -6519,13 +7030,18 @@
                 ${u.is_active ? '● Activo' : '○ Inactivo'}
               </span>
             </td>
-            <td style="white-space: nowrap;">
-              <button class="btn-secondary" style="font-size: 10px; padding: 4px 6px; margin-right: 4px;" onclick="toggleUserActive(${u.id}, ${!u.is_active})">
-                ${u.is_active ? 'Suspender' : 'Activar'}
-              </button>
-              <button class="btn-secondary" style="font-size: 10px; padding: 4px 6px; color: #DC2626; border-color: #FCA5A5;" onclick="deleteUserAdmin(${u.id}, '${safeName}')" title="Eliminar usuario">
-                🗑️
-              </button>
+            <td style="white-space: nowrap; text-align: center;">
+              <div style="display: inline-flex; gap: 5px; align-items: center; justify-content: center;">
+                <button class="btn-secondary" style="font-size: 11px; padding: 5px 9px; color: #0284C7; border: 1px solid #BAE6FD; background: #F0F9FF; font-weight: 700; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" onclick="openEditUserModal(${u.id}, '${safeName}', '${safeEmail}', '${safePhone}', '${u.role}', ${u.is_active})" title="Modificar datos del usuario">
+                  ✏️ Editar
+                </button>
+                <button class="btn-secondary" style="font-size: 11px; padding: 5px 9px; font-weight: 700; border-radius: 6px; cursor: pointer;" onclick="toggleUserActive(${u.id}, ${!u.is_active})" title="${u.is_active ? 'Suspender cuenta' : 'Activar cuenta'}">
+                  ${u.is_active ? '⏸️ Suspender' : '▶️ Activar'}
+                </button>
+                <button class="btn-secondary" style="font-size: 11px; padding: 5px 9px; color: #DC2626; border: 1px solid #FECACA; background: #FEF2F2; font-weight: 700; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" onclick="deleteUserAdmin(${u.id}, '${safeName}')" title="Eliminar usuario definitivamente">
+                  🗑️ Eliminar
+                </button>
+              </div>
             </td>
           `;
           tbody.appendChild(tr);
@@ -6536,6 +7052,84 @@
       }
     } catch (e) {
       console.error(e);
+    }
+  }
+
+  function openEditUserModal(userId, fullName, email, phone, role, isActive) {
+    document.getElementById('edit-user-id').value = userId;
+    document.getElementById('edit-user-fullname').value = fullName || '';
+    document.getElementById('edit-user-email').value = email || '';
+    document.getElementById('edit-user-phone').value = phone || '';
+    document.getElementById('edit-user-role').value = role || 'user';
+    document.getElementById('edit-user-status').value = isActive ? 'true' : 'false';
+    document.getElementById('edit-user-password').value = '';
+    document.getElementById('modal-edit-user').style.display = 'flex';
+  }
+
+  function closeEditUserModal() {
+    document.getElementById('modal-edit-user').style.display = 'none';
+  }
+
+  async function handleSaveEditUser(e) {
+    e.preventDefault();
+    const userId = document.getElementById('edit-user-id').value;
+    const fullName = document.getElementById('edit-user-fullname').value.trim();
+    const email = document.getElementById('edit-user-email').value.trim();
+    const phone = document.getElementById('edit-user-phone').value.trim();
+    const role = document.getElementById('edit-user-role').value;
+    const isActive = document.getElementById('edit-user-status').value === 'true';
+    const password = document.getElementById('edit-user-password').value.trim();
+
+    if (!fullName) {
+      alert('Por favor ingresa el nombre completo del usuario');
+      return;
+    }
+    if (!email) {
+      alert('Por favor ingresa un correo electrónico válido');
+      return;
+    }
+    if (password && password.length < 6) {
+      alert('La nueva contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+
+    const payload = {
+      full_name: fullName,
+      email: email,
+      phone: phone || null,
+      role: role,
+      is_active: isActive
+    };
+    if (password) {
+      payload.password = password;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/users/${userId}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(true),
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        alert(`✅ Usuario #${userId} (${fullName}) actualizado correctamente.`);
+        closeEditUserModal();
+        loadAdminUsers();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(`⚠️ Error al actualizar usuario: ${err.detail || 'Verifique los datos ingresados'}`);
+      }
+    } catch (err) {
+      alert('❌ Error de conexión al actualizar usuario.');
+    }
+  }
+
+  async function deleteUserFromEditModal() {
+    const userId = document.getElementById('edit-user-id').value;
+    const fullName = document.getElementById('edit-user-fullname').value;
+    if (!userId) return;
+    const deleted = await deleteUserAdmin(userId, fullName);
+    if (deleted) {
+      closeEditUserModal();
     }
   }
 
@@ -6583,8 +7177,12 @@
   }
 
   async function deleteUserAdmin(userId, userName) {
-    if (!await showAndroidConfirm(`¿Estás seguro de que deseas eliminar al usuario #${userId} (${userName}) del sistema? Esta acción no se puede deshacer.`, 'Eliminar Usuario')) {
-      return;
+    if (currentUser && (currentUser.id == userId || currentUser.user_id == userId)) {
+      alert('⚠️ No puedes eliminar tu propia cuenta de administrador mientras tienes sesión activa.');
+      return false;
+    }
+    if (!await showAndroidConfirm(`¿Estás seguro de que deseas eliminar permanentemente al usuario #${userId} (${userName}) del sistema? Esta acción borrará su acceso y preferencias de manera irreversible.`, 'Eliminar Usuario')) {
+      return false;
     }
     try {
       const res = await fetch(`${API_BASE}/admin/users/${userId}`, {
@@ -6592,14 +7190,17 @@
         headers: getAuthHeaders(false)
       });
       if (res.ok) {
-        alert(`✅ Usuario #${userId} eliminado con éxito.`);
+        alert(`✅ Usuario #${userId} (${userName}) eliminado con éxito.`);
         loadAdminUsers();
+        return true;
       } else {
         const err = await res.json().catch(() => ({}));
         alert(`⚠️ Error al eliminar usuario: ${err.detail || 'No se pudo eliminar'}`);
+        return false;
       }
     } catch (e) {
       alert('❌ Error al conectar con el servidor.');
+      return false;
     }
   }
 

@@ -188,6 +188,8 @@ def seed_initial_data(db: Session):
                 longitude=promo["longitude"],
                 address=promo["address"],
                 is_active=True,
+                allow_online_purchase=True,
+                allow_physical_coupon=True,
                 views_count=15
             )
             db.add(new_p)

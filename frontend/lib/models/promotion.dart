@@ -20,6 +20,8 @@ class PromotionModel {
   final bool matchesTaste;
   final int viewsCount;
   final String? whatsapp;
+  final bool allowOnlinePurchase;
+  final bool allowPhysicalCoupon;
 
   PromotionModel({
     required this.id,
@@ -43,6 +45,8 @@ class PromotionModel {
     this.matchesTaste = false,
     this.viewsCount = 0,
     this.whatsapp,
+    this.allowOnlinePurchase = true,
+    this.allowPhysicalCoupon = true,
   });
 
   factory PromotionModel.fromJson(Map<String, dynamic> json) {
@@ -68,6 +72,8 @@ class PromotionModel {
       matchesTaste: json['matches_taste'] as bool? ?? false,
       viewsCount: json['views_count'] as int? ?? 0,
       whatsapp: json['whatsapp'] as String?,
+      allowOnlinePurchase: json['allow_online_purchase'] as bool? ?? true,
+      allowPhysicalCoupon: json['allow_physical_coupon'] as bool? ?? true,
     );
   }
 
@@ -94,6 +100,8 @@ class PromotionModel {
       'matches_taste': matchesTaste,
       'views_count': viewsCount,
       'whatsapp': whatsapp,
+      'allow_online_purchase': allowOnlinePurchase,
+      'allow_physical_coupon': allowPhysicalCoupon,
     };
   }
 }
